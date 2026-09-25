@@ -7,13 +7,54 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
-func GetIamWorkloadIdentityOidcFederation(ctx *pulumi.Context, args *GetIamWorkloadIdentityOidcFederationArgs, opts ...pulumi.InvokeOption) (*GetIamWorkloadIdentityOidcFederationResult, error) {
+// Get information about a [Yandex Cloud IAM workload identity OIDC federation](https://yandex.cloud/docs/iam/concepts/workload-identity).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetIamWorkloadIdentityOidcFederation(ctx, &yandex.LookupIamWorkloadIdentityOidcFederationArgs{
+//				Name: pulumi.StringRef("some_federation_name"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `audiences` (*Read-Only*) (Set Of String). List of trusted values for aud claim.
+// - `createdAt` (*Read-Only*) (String). Creation timestamp.
+// - `description` (*Read-Only*) (String). Description of the OIDC workload identity federation.
+// - `enabled` (*Read-Only*) (Bool). Enabled flag.
+// - `federationId` (String). Id of the OIDC workload identity federation.
+// - `folderId` (*Read-Only*) (String). Id of the folder that the OIDC workload identity federation belongs to.
+// - `id` (String).
+// - `issuer` (*Read-Only*) (String). Issuer identifier of the external IdP server to be used for authentication.
+// - `jwksUrl` (*Read-Only*) (String). URL reference to trusted keys in format of JSON Web Key Set.
+// - `labels` (*Read-Only*) (Map Of String). Resource labels as key-value pairs.
+// - `name` (String). Name of the OIDC workload identity federation. The name is unique within the folder.
+func LookupIamWorkloadIdentityOidcFederation(ctx *pulumi.Context, args *LookupIamWorkloadIdentityOidcFederationArgs, opts ...pulumi.InvokeOption) (*LookupIamWorkloadIdentityOidcFederationResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
-	var rv GetIamWorkloadIdentityOidcFederationResult
+	var rv LookupIamWorkloadIdentityOidcFederationResult
 	err := ctx.Invoke("yandex:index/getIamWorkloadIdentityOidcFederation:getIamWorkloadIdentityOidcFederation", args, &rv, opts...)
 	if err != nil {
 		return nil, err
@@ -22,13 +63,13 @@ func GetIamWorkloadIdentityOidcFederation(ctx *pulumi.Context, args *GetIamWorkl
 }
 
 // A collection of arguments for invoking getIamWorkloadIdentityOidcFederation.
-type GetIamWorkloadIdentityOidcFederationArgs struct {
+type LookupIamWorkloadIdentityOidcFederationArgs struct {
 	FederationId *string `pulumi:"federationId"`
 	Name         *string `pulumi:"name"`
 }
 
 // A collection of values returned by getIamWorkloadIdentityOidcFederation.
-type GetIamWorkloadIdentityOidcFederationResult struct {
+type LookupIamWorkloadIdentityOidcFederationResult struct {
 	Audiences    []string `pulumi:"audiences"`
 	CreatedAt    string   `pulumi:"createdAt"`
 	Description  string   `pulumi:"description"`
@@ -43,85 +84,85 @@ type GetIamWorkloadIdentityOidcFederationResult struct {
 	Name    string            `pulumi:"name"`
 }
 
-func GetIamWorkloadIdentityOidcFederationOutput(ctx *pulumi.Context, args GetIamWorkloadIdentityOidcFederationOutputArgs, opts ...pulumi.InvokeOption) GetIamWorkloadIdentityOidcFederationResultOutput {
+func LookupIamWorkloadIdentityOidcFederationOutput(ctx *pulumi.Context, args LookupIamWorkloadIdentityOidcFederationOutputArgs, opts ...pulumi.InvokeOption) LookupIamWorkloadIdentityOidcFederationResultOutput {
 	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetIamWorkloadIdentityOidcFederationResultOutput, error) {
-			args := v.(GetIamWorkloadIdentityOidcFederationArgs)
+		ApplyT(func(v interface{}) (LookupIamWorkloadIdentityOidcFederationResultOutput, error) {
+			args := v.(LookupIamWorkloadIdentityOidcFederationArgs)
 			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("yandex:index/getIamWorkloadIdentityOidcFederation:getIamWorkloadIdentityOidcFederation", args, GetIamWorkloadIdentityOidcFederationResultOutput{}, options).(GetIamWorkloadIdentityOidcFederationResultOutput), nil
-		}).(GetIamWorkloadIdentityOidcFederationResultOutput)
+			return ctx.InvokeOutput("yandex:index/getIamWorkloadIdentityOidcFederation:getIamWorkloadIdentityOidcFederation", args, LookupIamWorkloadIdentityOidcFederationResultOutput{}, options).(LookupIamWorkloadIdentityOidcFederationResultOutput), nil
+		}).(LookupIamWorkloadIdentityOidcFederationResultOutput)
 }
 
 // A collection of arguments for invoking getIamWorkloadIdentityOidcFederation.
-type GetIamWorkloadIdentityOidcFederationOutputArgs struct {
+type LookupIamWorkloadIdentityOidcFederationOutputArgs struct {
 	FederationId pulumi.StringPtrInput `pulumi:"federationId"`
 	Name         pulumi.StringPtrInput `pulumi:"name"`
 }
 
-func (GetIamWorkloadIdentityOidcFederationOutputArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetIamWorkloadIdentityOidcFederationArgs)(nil)).Elem()
+func (LookupIamWorkloadIdentityOidcFederationOutputArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupIamWorkloadIdentityOidcFederationArgs)(nil)).Elem()
 }
 
 // A collection of values returned by getIamWorkloadIdentityOidcFederation.
-type GetIamWorkloadIdentityOidcFederationResultOutput struct{ *pulumi.OutputState }
+type LookupIamWorkloadIdentityOidcFederationResultOutput struct{ *pulumi.OutputState }
 
-func (GetIamWorkloadIdentityOidcFederationResultOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetIamWorkloadIdentityOidcFederationResult)(nil)).Elem()
+func (LookupIamWorkloadIdentityOidcFederationResultOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupIamWorkloadIdentityOidcFederationResult)(nil)).Elem()
 }
 
-func (o GetIamWorkloadIdentityOidcFederationResultOutput) ToGetIamWorkloadIdentityOidcFederationResultOutput() GetIamWorkloadIdentityOidcFederationResultOutput {
+func (o LookupIamWorkloadIdentityOidcFederationResultOutput) ToLookupIamWorkloadIdentityOidcFederationResultOutput() LookupIamWorkloadIdentityOidcFederationResultOutput {
 	return o
 }
 
-func (o GetIamWorkloadIdentityOidcFederationResultOutput) ToGetIamWorkloadIdentityOidcFederationResultOutputWithContext(ctx context.Context) GetIamWorkloadIdentityOidcFederationResultOutput {
+func (o LookupIamWorkloadIdentityOidcFederationResultOutput) ToLookupIamWorkloadIdentityOidcFederationResultOutputWithContext(ctx context.Context) LookupIamWorkloadIdentityOidcFederationResultOutput {
 	return o
 }
 
-func (o GetIamWorkloadIdentityOidcFederationResultOutput) Audiences() pulumi.StringArrayOutput {
-	return o.ApplyT(func(v GetIamWorkloadIdentityOidcFederationResult) []string { return v.Audiences }).(pulumi.StringArrayOutput)
+func (o LookupIamWorkloadIdentityOidcFederationResultOutput) Audiences() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v LookupIamWorkloadIdentityOidcFederationResult) []string { return v.Audiences }).(pulumi.StringArrayOutput)
 }
 
-func (o GetIamWorkloadIdentityOidcFederationResultOutput) CreatedAt() pulumi.StringOutput {
-	return o.ApplyT(func(v GetIamWorkloadIdentityOidcFederationResult) string { return v.CreatedAt }).(pulumi.StringOutput)
+func (o LookupIamWorkloadIdentityOidcFederationResultOutput) CreatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupIamWorkloadIdentityOidcFederationResult) string { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-func (o GetIamWorkloadIdentityOidcFederationResultOutput) Description() pulumi.StringOutput {
-	return o.ApplyT(func(v GetIamWorkloadIdentityOidcFederationResult) string { return v.Description }).(pulumi.StringOutput)
+func (o LookupIamWorkloadIdentityOidcFederationResultOutput) Description() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupIamWorkloadIdentityOidcFederationResult) string { return v.Description }).(pulumi.StringOutput)
 }
 
-func (o GetIamWorkloadIdentityOidcFederationResultOutput) Enabled() pulumi.BoolOutput {
-	return o.ApplyT(func(v GetIamWorkloadIdentityOidcFederationResult) bool { return v.Enabled }).(pulumi.BoolOutput)
+func (o LookupIamWorkloadIdentityOidcFederationResultOutput) Enabled() pulumi.BoolOutput {
+	return o.ApplyT(func(v LookupIamWorkloadIdentityOidcFederationResult) bool { return v.Enabled }).(pulumi.BoolOutput)
 }
 
-func (o GetIamWorkloadIdentityOidcFederationResultOutput) FederationId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetIamWorkloadIdentityOidcFederationResult) string { return v.FederationId }).(pulumi.StringOutput)
+func (o LookupIamWorkloadIdentityOidcFederationResultOutput) FederationId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupIamWorkloadIdentityOidcFederationResult) string { return v.FederationId }).(pulumi.StringOutput)
 }
 
-func (o GetIamWorkloadIdentityOidcFederationResultOutput) FolderId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetIamWorkloadIdentityOidcFederationResult) string { return v.FolderId }).(pulumi.StringOutput)
+func (o LookupIamWorkloadIdentityOidcFederationResultOutput) FolderId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupIamWorkloadIdentityOidcFederationResult) string { return v.FolderId }).(pulumi.StringOutput)
 }
 
 // The provider-assigned unique ID for this managed resource.
-func (o GetIamWorkloadIdentityOidcFederationResultOutput) Id() pulumi.StringOutput {
-	return o.ApplyT(func(v GetIamWorkloadIdentityOidcFederationResult) string { return v.Id }).(pulumi.StringOutput)
+func (o LookupIamWorkloadIdentityOidcFederationResultOutput) Id() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupIamWorkloadIdentityOidcFederationResult) string { return v.Id }).(pulumi.StringOutput)
 }
 
-func (o GetIamWorkloadIdentityOidcFederationResultOutput) Issuer() pulumi.StringOutput {
-	return o.ApplyT(func(v GetIamWorkloadIdentityOidcFederationResult) string { return v.Issuer }).(pulumi.StringOutput)
+func (o LookupIamWorkloadIdentityOidcFederationResultOutput) Issuer() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupIamWorkloadIdentityOidcFederationResult) string { return v.Issuer }).(pulumi.StringOutput)
 }
 
-func (o GetIamWorkloadIdentityOidcFederationResultOutput) JwksUrl() pulumi.StringOutput {
-	return o.ApplyT(func(v GetIamWorkloadIdentityOidcFederationResult) string { return v.JwksUrl }).(pulumi.StringOutput)
+func (o LookupIamWorkloadIdentityOidcFederationResultOutput) JwksUrl() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupIamWorkloadIdentityOidcFederationResult) string { return v.JwksUrl }).(pulumi.StringOutput)
 }
 
-func (o GetIamWorkloadIdentityOidcFederationResultOutput) Labels() pulumi.StringMapOutput {
-	return o.ApplyT(func(v GetIamWorkloadIdentityOidcFederationResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
+func (o LookupIamWorkloadIdentityOidcFederationResultOutput) Labels() pulumi.StringMapOutput {
+	return o.ApplyT(func(v LookupIamWorkloadIdentityOidcFederationResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
 }
 
-func (o GetIamWorkloadIdentityOidcFederationResultOutput) Name() pulumi.StringOutput {
-	return o.ApplyT(func(v GetIamWorkloadIdentityOidcFederationResult) string { return v.Name }).(pulumi.StringOutput)
+func (o LookupIamWorkloadIdentityOidcFederationResultOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupIamWorkloadIdentityOidcFederationResult) string { return v.Name }).(pulumi.StringOutput)
 }
 
 func init() {
-	pulumi.RegisterOutputType(GetIamWorkloadIdentityOidcFederationResultOutput{})
+	pulumi.RegisterOutputType(LookupIamWorkloadIdentityOidcFederationResultOutput{})
 }

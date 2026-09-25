@@ -7,10 +7,49 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get attributes used by provider to configure client connection.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetClientConfig(ctx, map[string]interface{}{}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.GetKubernetesCluster(ctx, &yandex.LookupKubernetesClusterArgs{
+//				Name: pulumi.StringRef("kubernetes"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `cloudId` (*Read-Only*) (String). The ID of the cloud that the provider is connecting to.
+// - `folderId` (*Read-Only*) (String). The ID of the folder in which we operate.
+// - `iamToken` (*Read-Only*) (String). A short-lived token that can be used for authentication in a Kubernetes cluster.
+// - `id` (String).
+// - `zone` (*Read-Only*) (String). The default availability zone.
 func GetClientConfig(ctx *pulumi.Context, opts ...pulumi.InvokeOption) (*GetClientConfigResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv GetClientConfigResult

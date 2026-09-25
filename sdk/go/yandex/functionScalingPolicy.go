@@ -8,10 +8,69 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud Function Scaling Policies](https://yandex.cloud/docs/functions/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Cloud Function Scaling Policy.
+//			_, err := yandex.NewFunctionScalingPolicy(ctx, "myScalingPolicy", &yandex.FunctionScalingPolicyArgs{
+//				FunctionId: pulumi.String("d4e45**********pqvd3"),
+//				Policies: yandex.FunctionScalingPolicyPolicyArray{
+//					&yandex.FunctionScalingPolicyPolicyArgs{
+//						Tag:                pulumi.String("$latest"),
+//						ZoneInstancesLimit: pulumi.Int(3),
+//						ZoneRequestsLimit:  pulumi.Int(100),
+//					},
+//					&yandex.FunctionScalingPolicyPolicyArgs{
+//						Tag:                pulumi.String("my_tag"),
+//						ZoneInstancesLimit: pulumi.Int(4),
+//						ZoneRequestsLimit:  pulumi.Int(150),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `functionId` (**Required**)(String). Yandex Cloud Function id used to define function.
+// - `id` (String).
+// - `policy` [Block]. List definition for Yandex Cloud Function scaling policies.
+//   - `tag` (**Required**)(String). Yandex Cloud Function version tag for Yandex Cloud Function scaling policy.
+//   - `zoneInstancesLimit` (Number). Max number of instances in one zone for Yandex Cloud Function with tag.
+//   - `zoneRequestsLimit` (Number). Max number of requests in one zone for Yandex Cloud Function with tag.
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_function_scaling_policy.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/functionScalingPolicy:FunctionScalingPolicy my_policy ...
+// ```
 type FunctionScalingPolicy struct {
 	pulumi.CustomResourceState
 

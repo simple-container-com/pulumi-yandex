@@ -7,10 +7,53 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex IoT Core device. For more information about IoT Core, see [Yandex Cloud IoT Device](https://yandex.cloud/docs/iot-core/quickstart).
+// This data source is used to define [Yandex Cloud IoT Device](https://yandex.cloud/docs/iot-core/quickstart) that can be used by other resources.
+//
+// > Either `deviceId` or `name` must be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetIotCoreDevice(ctx, &yandex.LookupIotCoreDeviceArgs{
+//				DeviceId: pulumi.StringRef("are1sampleregistry11"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `aliases` (*Read-Only*) (Map Of String). A set of key/value aliases pairs to assign to the IoT Core Device.
+// - `certificates` (*Read-Only*) (Set Of String). A set of certificate's fingerprints for the IoT Core Device.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource name.
+// - `deviceId` (String). IoT Core Device id used to define device.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `passwords` (*Read-Only*) (Set Of String). A set of passwords's id for the IoT Core Device.
+// - `registryId` (*Read-Only*) (String). IoT Core Registry ID for the IoT Core Device.
 func LookupIotCoreDevice(ctx *pulumi.Context, args *LookupIotCoreDeviceArgs, opts ...pulumi.InvokeOption) (*LookupIotCoreDeviceResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupIotCoreDeviceResult

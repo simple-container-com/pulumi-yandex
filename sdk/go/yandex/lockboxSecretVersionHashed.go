@@ -8,10 +8,78 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Yandex Cloud Lockbox secret version resource (with values hashed in state). For more information, see [the official documentation](https://yandex.cloud/docs/lockbox/).
+//
+//	> The `<NUMBER>` can range from `1` to `10`. If you only need one entry, use `key1`/`textValue1`. If you need a second entry, use `key2`/`textValue2`, and so on.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Lockbox Secret Hashed Version.
+//			mySecret, err := yandex.NewLockboxSecret(ctx, "mySecret", nil)
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewLockboxSecretVersionHashed(ctx, "myVersion", &yandex.LockboxSecretVersionHashedArgs{
+//				SecretId:   mySecret.ID().ToIDOutput().ToStringOutput(),
+//				Key1:       pulumi.String("key1"),
+//				TextValue1: pulumi.String("sensitive value 1"),
+//				Key2:       pulumi.String("k2"),
+//				TextValue2: pulumi.String("sensitive value 2"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `description` (String). The Yandex Cloud Lockbox secret version description.
+// - `id` (String).
+// - `key1` (String). Each of the entry keys in the Yandex Cloud Lockbox secret version.
+// - `key10` (String). Each of the entry keys in the Yandex Cloud Lockbox secret version.
+// - `key2` (String). Each of the entry keys in the Yandex Cloud Lockbox secret version.
+// - `key3` (String). Each of the entry keys in the Yandex Cloud Lockbox secret version.
+// - `key4` (String). Each of the entry keys in the Yandex Cloud Lockbox secret version.
+// - `key5` (String). Each of the entry keys in the Yandex Cloud Lockbox secret version.
+// - `key6` (String). Each of the entry keys in the Yandex Cloud Lockbox secret version.
+// - `key7` (String). Each of the entry keys in the Yandex Cloud Lockbox secret version.
+// - `key8` (String). Each of the entry keys in the Yandex Cloud Lockbox secret version.
+// - `key9` (String). Each of the entry keys in the Yandex Cloud Lockbox secret version.
+// - `secretId` (**Required**)(String). The Yandex Cloud Lockbox secret ID where to add the version.
+// - `textValue1` (String). Each of the entry values in the Yandex Cloud Lockbox secret version.
+// - `textValue10` (String). Each of the entry values in the Yandex Cloud Lockbox secret version.
+// - `textValue2` (String). Each of the entry values in the Yandex Cloud Lockbox secret version.
+// - `textValue3` (String). Each of the entry values in the Yandex Cloud Lockbox secret version.
+// - `textValue4` (String). Each of the entry values in the Yandex Cloud Lockbox secret version.
+// - `textValue5` (String). Each of the entry values in the Yandex Cloud Lockbox secret version.
+// - `textValue6` (String). Each of the entry values in the Yandex Cloud Lockbox secret version.
+// - `textValue7` (String). Each of the entry values in the Yandex Cloud Lockbox secret version.
+// - `textValue8` (String). Each of the entry values in the Yandex Cloud Lockbox secret version.
+// - `textValue9` (String). Each of the entry values in the Yandex Cloud Lockbox secret version.
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
 type LockboxSecretVersionHashed struct {
 	pulumi.CustomResourceState
 

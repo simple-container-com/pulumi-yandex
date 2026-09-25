@@ -8,10 +8,94 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a route table within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts).
+//
+// * How-to Guides
+//   - [Cloud Networking](https://yandex.cloud/docs/vpc/)
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			lab_net, err := yandex.NewVpcNetwork(ctx, "lab-net", nil)
+//			if err != nil {
+//				return err
+//			}
+//			egress_gateway, err := yandex.NewVpcGateway(ctx, "egress-gateway", &yandex.VpcGatewayArgs{
+//				SharedEgressGateway: &yandex.VpcGatewaySharedEgressGatewayArgs{},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new VPC Route Table.
+//			_, err = yandex.NewVpcRouteTable(ctx, "lab-rt-a", &yandex.VpcRouteTableArgs{
+//				NetworkId: lab_net.ID().ToIDOutput().ToStringOutput(),
+//				StaticRoutes: yandex.VpcRouteTableStaticRouteArray{
+//					&yandex.VpcRouteTableStaticRouteArgs{
+//						DestinationPrefix: pulumi.String("10.2.0.0/16"),
+//						NextHopAddress:    pulumi.String("172.16.10.10"),
+//					},
+//					&yandex.VpcRouteTableStaticRouteArgs{
+//						DestinationPrefix: pulumi.String("0.0.0.0/0"),
+//						GatewayId:         egress_gateway.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `networkId` (**Required**)(String). ID of the network this route table belongs to.
+// - `staticRoute` [Block]. A list of static route records for the route table.
+//
+// > Only one of `nextHopAddress` or `gatewayId` should be specified.
+//
+//   - `destinationPrefix` (String). Route prefix in CIDR notation.
+//   - `gatewayId` (String). ID of the gateway used ad next hop.
+//   - `nextHopAddress` (String). Address of the next hop.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_vpc_route_table.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/vpcRouteTable:VpcRouteTable lab-rt-a ...
+// ```
 type VpcRouteTable struct {
 	pulumi.CustomResourceState
 

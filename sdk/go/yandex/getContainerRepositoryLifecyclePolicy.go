@@ -7,10 +7,58 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Container Repository. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/lifecycle-policy).
+//
+// > Either `lifecyclePolicyId` or `name` and `repositoryId` must be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetContainerRepositoryLifecyclePolicy(ctx, &yandex.LookupContainerRepositoryLifecyclePolicyArgs{
+//				LifecyclePolicyId: pulumi.StringRef(yandex_container_repository_lifecycle_policy.My_lifecycle_policy.Id),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `id` (String).
+// - `lifecyclePolicyId` (String). The ID of a specific Lifecycle Policy.
+// - `name` (String). The resource name.
+// - `repositoryId` (String). The ID of the repository that the resource belongs to.
+// - `rule` (*Read-Only*) (List Of Object).
+//   - `description` .
+//   - `expirePeriod` .
+//   - `retainedTop` .
+//   - `tagRegexp` .
+//   - `untagged` .
+//
+// - `status` (*Read-Only*) (String). The status of lifecycle policy. Must be `active` or `disabled`.
+// - `timeouts` [Block].
+//   - `default` (String).
 func LookupContainerRepositoryLifecyclePolicy(ctx *pulumi.Context, args *LookupContainerRepositoryLifecyclePolicyArgs, opts ...pulumi.InvokeOption) (*LookupContainerRepositoryLifecyclePolicyResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupContainerRepositoryLifecyclePolicyResult

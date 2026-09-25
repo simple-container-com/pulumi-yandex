@@ -7,10 +7,99 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/concepts/resource).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myResource, err := yandex.GetCdnResource(ctx, &yandex.LookupCdnResourceArgs{
+//				ResourceId: pulumi.StringRef("some resource id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("resourceCname", myResource.Cname)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `active` (*Read-Only*) (Bool). Flag to create Resource either in active or disabled state. `True` - the content from CDN is available to clients.
+// - `cname` (String). CDN endpoint CNAME, must be unique among resources.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `folderId` (*Read-Only*) (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `originGroupId` (*Read-Only*) (String). The ID of a specific origin group.
+// - `originGroupName` (*Read-Only*) (String). The name of a specific origin group.
+// - `originProtocol` (*Read-Only*) (String). Protocol of origin resource. `http` or `https`.
+// - `providerCname` (*Read-Only*) (String). Provider CNAME of CDN resource, computed value for read and update operations.
+// - `providerType` (*Read-Only*) (String). CDN provider is a content delivery service provider.
+// - `resourceId` (String). The ID of a specific resource.
+// - `secondaryHostnames` (*Read-Only*) (Set Of String). List of secondary hostname strings.
+// - `shielding` (*Read-Only*) (String). Shielding is a Cloud CDN feature that helps reduce the load on content origins from CDN servers.
+// - `sslCertificate` (*Read-Only*) (Set Of Object). SSL certificate of CDN resource.
+//   - `certificateManagerId` .
+//   - `status` .
+//   - `type` .
+//
+// - `updatedAt` (*Read-Only*) (String). Last update timestamp. Computed value for read and update operations.
+// - `options` [Block]. CDN Resource settings and options to tune CDN edge behavior.
+//   - `allowedHttpMethods` (List Of String). HTTP methods for your CDN content. By default the following methods are allowed: GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS. In case some methods are not allowed to the user, they will get the 405 (Method Not Allowed) response. If the method is not supported, the user gets the 501 (Not Implemented) response.
+//   - `browserCacheSettings` (Number). Set up a cache period for the end-users browser. Content will be cached due to origin settings. If there are no cache settings on your origin, the content will not be cached. The list of HTTP response codes that can be cached in browsers: 200, 201, 204, 206, 301, 302, 303, 304, 307, 308. Other response codes will not be cached. The default value is 4 days.
+//   - `cacheHttpHeaders` (List Of String). List HTTP headers that must be included in responses to clients.
+//   - `cors` (List Of String). Parameter that lets browsers get access to selected resources from a domain different to a domain from which the request is received.
+//   - `customHostHeader` (String). Custom value for the Host header. Your server must be able to process requests with the chosen header.
+//   - `customServerName` (String). Wildcard additional CNAME. If a resource has a wildcard additional CNAME, you can use your own certificate for content delivery via HTTPS.
+//   - `disableCache` (Bool). Setup a cache status.
+//   - `disableProxyForceRanges` (Bool). Disabling proxy force ranges.
+//   - `edgeCacheSettings` (Number). Content will be cached according to origin cache settings. The value applies for a response with codes 200, 201, 204, 206, 301, 302, 303, 304, 307, 308 if an origin server does not have caching HTTP headers. Responses with other codes will not be cached.
+//   - `enableIpUrlSigning` (Bool). Enable access limiting by IP addresses, option available only with setting secure_key.
+//   - `fetchedCompressed` (Bool). Option helps you to reduce the bandwidth between origin and CDN servers. Also, content delivery speed becomes higher because of reducing the time for compressing files in a CDN.
+//   - `forwardHostHeader` (Bool). Choose the Forward Host header option if is important to send in the request to the Origin the same Host header as was sent in the request to CDN server.
+//   - `gzipOn` (Bool). GZip compression at CDN servers reduces file size by 70% and can be as high as 90%.
+//   - `ignoreCookie` (Bool). Set for ignoring cookie.
+//   - `ignoreQueryParams` (Bool). Files with different query parameters are cached as objects with the same key regardless of the parameter value. selected by default.
+//   - `proxyCacheMethodsSet` (Bool). Allows caching for GET, HEAD and POST requests.
+//   - `queryParamsBlacklist` (List Of String). Files with the specified query parameters are cached as objects with the same key, files with other parameters are cached as objects with different keys.
+//   - `queryParamsWhitelist` (List Of String). Files with the specified query parameters are cached as objects with different keys, files with other parameters are cached as objects with the same key.
+//   - `redirectHttpToHttps` (Bool). Set up a redirect from HTTP to HTTPS.
+//   - `redirectHttpsToHttp` (Bool). Set up a redirect from HTTPS to HTTP.
+//   - `rewriteFlag` (String). Defines flag for the Rewrite option (default: `BREAK`).
+//     `LAST` - Stops processing of the current set of ngxHttpRewriteModule directives and starts a search for a new location matching changed URI.
+//     `BREAK` - Stops processing of the current set of the Rewrite option.
+//     `REDIRECT` - Returns a temporary redirect with the 302 code; It is used when a replacement string does not start with "http://", "https://", or "$scheme"
+//     `PERMANENT` - Returns a permanent redirect with the 301 code.
+//   - `rewritePattern` (String). An option for changing or redirecting query paths. The value must have the following format: `<source path> <destination path>`, where both paths are regular expressions which use at least one group. E.g., `/foo/(.*) /bar/$1`.
+//   - `secureKey` (String). Set secure key for url encoding to protect contect and limit access by IP addresses and time limits.
+//   - `slice` (Bool). Files larger than 10 MB will be requested and cached in parts (no larger than 10 MB each part). It reduces time to first byte. The origin must support HTTP Range requests.
+//   - `stale` (List Of String). List of errors which instruct CDN servers to serve stale content to clients. Possible values: `error`, `http403`, `http404`, `http429`, `http500`, `http502`, `http503`, `http504`, `invalidHeader`, `timeout`, `updating`.
+//   - `staticRequestHeaders` (Map Of String). Set up custom headers that CDN servers will send in requests to origins.
+//   - `staticResponseHeaders` (Map Of String). Set up a static response header. The header name must be lowercase.
+//   - `edgeCacheSettingsCodes` [Block]. Set the cache expiration time for CDN servers
+//   - `customValues` (Map Of Number). Caching time for a response with specific codes. These settings have a higher priority than the `value` field. Response code (`304`, `404` for example). Use `any` to specify caching time for all response codes.
+//   - `value` (Number). Caching time for a response with codes 200, 206, 301, 302. Responses with codes 4xx, 5xx will not be cached. Use `0` disable to caching. Use `customValues` field to specify a custom caching time for a response with specific codes.
+//   - `ipAddressAcl` [Block]. IP address access control list. The list of specified IP addresses to be allowed or denied depending on acl policy type.
+//   - `exceptedValues` (List Of String). The list of specified IP addresses to be allowed or denied depending on acl policy type.
+//   - `policyType` (String). The policy type for ACL. One of `allow` or `deny` values.
 func LookupCdnResource(ctx *pulumi.Context, args *LookupCdnResourceArgs, opts ...pulumi.InvokeOption) (*LookupCdnResourceResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupCdnResourceResult

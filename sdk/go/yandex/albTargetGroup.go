@@ -7,10 +7,76 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Creates a target group in the specified folder and adds the specified targets to it. For more information, see [the official documentation](https://yandex.cloud/docs/application-load-balancer/concepts/target-group).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new ALB Target Group
+//			_, err := yandex.NewAlbTargetGroup(ctx, "foo", &yandex.AlbTargetGroupArgs{
+//				Targets: yandex.AlbTargetGroupTargetArray{
+//					&yandex.AlbTargetGroupTargetArgs{
+//						SubnetId:  pulumi.Any(yandex_vpc_subnet.MySubnet.Id),
+//						IpAddress: pulumi.Any(yandex_compute_instance.MyInstance1.Network_interface[0].Ip_address),
+//					},
+//					&yandex.AlbTargetGroupTargetArgs{
+//						SubnetId:  pulumi.Any(yandex_vpc_subnet.MySubnet.Id),
+//						IpAddress: pulumi.Any(yandex_compute_instance.MyInstance2.Network_interface[0].Ip_address),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The resource name.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `target` [Block]. A Target resource.
+//   - `externalAddress` (Bool). External address of the target.
+//   - `ipAddress` (**Required**)(String). IP address of the target.
+//   - `privateIpv4Address` (Bool). Private IPv4 address of the target.
+//   - `subnetId` (String). ID of the subnet that targets are connected to. All targets in the target group must be connected to the same subnet within a single availability zone.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_alb_target_group.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/albTargetGroup:AlbTargetGroup my_target_group ds77d**********g4pqc
+// ```
 type AlbTargetGroup struct {
 	pulumi.CustomResourceState
 

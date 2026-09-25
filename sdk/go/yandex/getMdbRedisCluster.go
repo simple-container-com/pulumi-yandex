@@ -7,10 +7,112 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Managed Redis cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-redis/concepts).
+//
+// > Either `clusterId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			foo, err := yandex.GetMdbRedisCluster(ctx, &yandex.LookupMdbRedisClusterArgs{
+//				Name: pulumi.StringRef("test"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("networkId", foo.NetworkId)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `announceHostnames` (*Read-Only*) (Bool). Announce fqdn instead of ip address.
+// - `authSentinel` (*Read-Only*) (Bool). Allows to use ACL users to auth in sentinel
+// - `clusterId` (String). The ID of the Redis cluster.
+// - `config` (*Read-Only*) (List Of Object). Configuration of the Redis cluster.
+//   - `allowDataLoss` .
+//   - `backupWindowStart` .
+//   - `hours` .
+//   - `minutes` .
+//   - `clientOutputBufferLimitNormal` .
+//   - `clientOutputBufferLimitPubsub` .
+//   - `clusterAllowPubsubshardWhenDown` .
+//   - `clusterAllowReadsWhenDown` .
+//   - `clusterRequireFullCoverage` .
+//   - `databases` .
+//   - `ioThreadsAllowed` .
+//   - `lfuDecayTime` .
+//   - `lfuLogFactor` .
+//   - `luaTimeLimit` .
+//   - `maxmemoryPercent` .
+//   - `maxmemoryPolicy` .
+//   - `notifyKeyspaceEvents` .
+//   - `replBacklogSizePercent` .
+//   - `slowlogLogSlowerThan` .
+//   - `slowlogMaxLen` .
+//   - `timeout` .
+//   - `turnBeforeSwitchover` .
+//   - `useLuajit` .
+//   - `version` .
+//   - `zsetMaxListpackEntries` .
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `diskEncryptionKeyId` (String). ID of the KMS key for cluster disk encryption.
+// - `diskSizeAutoscaling` (*Read-Only*) (List Of Object). Disk size autoscaling settings.
+//   - `diskSizeLimit` .
+//   - `emergencyUsageThreshold` .
+//   - `plannedUsageThreshold` .
+//
+// - `environment` (*Read-Only*) (String). Deployment environment of the Redis cluster. Can be either `PRESTABLE` or `PRODUCTION`.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `health` (*Read-Only*) (String). Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-redis/api-ref/Cluster/).
+// - `host` (*Read-Only*) (List Of Object). A host of the Redis cluster.
+//   - `assignPublicIp` .
+//   - `fqdn` .
+//   - `replicaPriority` .
+//   - `shardName` .
+//   - `subnetId` .
+//   - `zone` .
+//
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `maintenanceWindow` (*Read-Only*) (List Of Object). Maintenance window settings.
+//   - `day` .
+//   - `hour` .
+//   - `type` .
+//
+// - `name` (String). The name of the Redis cluster.
+// - `networkId` (*Read-Only*) (String). The `VPC Network ID` of subnets which resource attached to.
+// - `persistenceMode` (*Read-Only*) (String). Persistence mode. Possible values: `ON`, `OFF`.
+// - `resources` (*Read-Only*) (List Of Object). Resources allocated to hosts of the Redis cluster.
+//   - `diskSize` .
+//   - `diskTypeId` .
+//   - `resourcePresetId` .
+//
+// - `securityGroupIds` (*Read-Only*) (Set Of String). The list of security groups applied to resource or their components.
+// - `sharded` (*Read-Only*) (Bool). Redis Cluster mode enabled/disabled. Enables sharding when cluster non-sharded. If cluster is sharded - disabling is not allowed.
+// - `status` (*Read-Only*) (String). Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-redis/api-ref/Cluster/).
+// - `tlsEnabled` (*Read-Only*) (Bool). TLS support mode enabled/disabled.
 func LookupMdbRedisCluster(ctx *pulumi.Context, args *LookupMdbRedisClusterArgs, opts ...pulumi.InvokeOption) (*LookupMdbRedisClusterResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMdbRedisClusterResult

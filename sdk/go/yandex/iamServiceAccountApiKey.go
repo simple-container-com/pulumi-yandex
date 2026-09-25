@@ -8,10 +8,65 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of a [Yandex Cloud IAM service account API key](https://yandex.cloud/docs/iam/concepts/authorization/api-key). The API key is a private key used for simplified authorization in the Yandex Cloud API. API keys are only used for [service accounts](https://yandex.cloud/docs/iam/concepts/users/service-accounts).
+//
+// API keys do not expire. This means that this authentication method is simpler, but less secure. Use it if you can't automatically request an [IAM token](https://yandex.cloud/docs/iam/concepts/authorization/iam-token).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new IAM Service Account API Key.
+//			_, err := yandex.NewIamServiceAccountApiKey(ctx, "sa-api-key", &yandex.IamServiceAccountApiKeyArgs{
+//				ServiceAccountId: pulumi.String("aje5a**********qspd3"),
+//				Description:      pulumi.String("api key for authorization"),
+//				Scopes: pulumi.StringArray{
+//					pulumi.String("yc.ydb.topics.manage"),
+//					pulumi.String("yc.ydb.tables.manage"),
+//				},
+//				ExpiresAt: pulumi.String("2024-11-11T00:00:00Z"),
+//				PgpKey:    pulumi.String("keybase:keybaseusername"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `encryptedSecretKey` (*Read-Only*) (String). The encrypted secret key, base64 encoded. This is only populated when `pgpKey` is supplied.
+// - `expiresAt` (String). The key will be no longer valid after expiration timestamp.
+// - `id` (String).
+// - `keyFingerprint` (*Read-Only*) (String). The fingerprint of the PGP key used to encrypt the secret key. This is only populated when `pgpKey` is supplied.
+// - `outputToLockboxVersionId` (*Read-Only*) (String). ID of the Lockbox secret version that contains the value of `secretKey`. This is only populated when `outputToLockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when `outputToLockbox` is removed.
+// - `pgpKey` (String). An optional PGP key to encrypt the resulting secret key material. May either be a base64-encoded public key or a keybase username in the form `keybase:keybaseusername`.
+// - `scope` (String). The scope of the key. Use `lifecycle {ignore_changes = [scope]}` directive to avoid false changes on apply.
+// - `scopes` (List Of String). The list of scopes of the key.
+// - `secretKey` (*Read-Only*) (String). The secret key. This is only populated when neither `pgpKey` nor `outputToLockbox` are provided.
+// - `serviceAccountId` (**Required**)(String). ID of the service account to an API key for.
+// - `outputToLockbox` [Block]. option to create a Lockbox secret version from sensitive outputs
+//   - `entryForSecretKey` (**Required**)(String). entry that will store the value of secretKey
+//   - `secretId` (**Required**)(String). ID of the Lockbox secret where to store the sensible values.
 type IamServiceAccountApiKey struct {
 	pulumi.CustomResourceState
 

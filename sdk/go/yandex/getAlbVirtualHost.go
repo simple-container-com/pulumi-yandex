@@ -7,10 +7,173 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex ALB Virtual Host. For more information, see [Yandex Cloud Application Load Balancer](https://yandex.cloud/docs/application-load-balancer/quickstart).
+//
+// This data source is used to define [Application Load Balancer Virtual Host](https://yandex.cloud/docs/application-load-balancer/concepts/http-router) that can be used by other resources.
+//
+// > One of `virtualHostId` or `name` with `httpRouterId` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetAlbVirtualHost(ctx, &yandex.LookupAlbVirtualHostArgs{
+//				Name:         pulumi.StringRef(yandex_alb_virtual_host.MyVh.Name),
+//				HttpRouterId: pulumi.StringRef(yandex_alb_virtual_host.MyRouter.Id),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `authority` (*Read-Only*) (Set Of String). A list of domains (host/authority header) that will be matched to this virtual host. Wildcard hosts are supported in the form of '*.foo.com' or '*-bar.foo.com'. If not specified, all domains will be matched.
+// - `httpRouterId` (String). The ID of the HTTP router to which the virtual host belongs.
+// - `id` (String).
+// - `modifyRequestHeaders` (*Read-Only*) (List Of Object). Apply the following modifications to the Request/Response header.
+//
+// > Only one type of actions `append` or `replace` or `remove` should be specified.
+//
+//   - `append` .
+//   - `name` .
+//   - `remove` .
+//   - `replace` .
+//
+// - `modifyResponseHeaders` (*Read-Only*) (List Of Object). Apply the following modifications to the Request/Response header.
+//
+// > Only one type of actions `append` or `replace` or `remove` should be specified.
+//
+//   - `append` .
+//   - `name` .
+//   - `remove` .
+//   - `replace` .
+//
+// - `name` (String). The resource name.
+// - `rateLimit` (*Read-Only*) (List Of Object). Rate limit configuration applied for a whole virtual host
+//   - `allRequests` .
+//   - `perMinute` .
+//   - `perSecond` .
+//   - `requestsPerIp` .
+//   - `perMinute` .
+//   - `perSecond` .
+//
+// - `route` (*Read-Only*) (List Of Object). A Route resource. Routes are matched *in-order*. Be careful when adding them to the end. For instance, having http '/' match first makes all other routes unused.
+//
+// > Exactly one type of routes `httpRoute` or `grpcRoute` should be specified.
+//
+//   - `clientCertificateForward` .
+//   - `httpHeader` .
+//   - `issuerHeaderName` .
+//   - `subjectHeaderName` .
+//   - `disableSecurityProfile` .
+//   - `grpcRoute` .
+//   - `grpcMatch` .
+//   - `fqmn` .
+//   - `exact` .
+//   - `prefix` .
+//   - `regex` .
+//   - `grpcRouteAction` .
+//   - `autoHostRewrite` .
+//   - `backendGroupId` .
+//   - `hostRewrite` .
+//   - `idleTimeout` .
+//   - `maxTimeout` .
+//   - `rateLimit` .
+//   - `allRequests` .
+//   - `perMinute` .
+//   - `perSecond` .
+//   - `requestsPerIp` .
+//   - `perMinute` .
+//   - `perSecond` .
+//   - `grpcStatusResponseAction` .
+//   - `status` .
+//   - `httpRoute` .
+//   - `directResponseAction` .
+//   - `body` .
+//   - `status` .
+//   - `httpMatch` .
+//   - `httpMethod` .
+//   - `path` .
+//   - `exact` .
+//   - `prefix` .
+//   - `regex` .
+//   - `httpRouteAction` .
+//   - `autoHostRewrite` .
+//   - `backendGroupId` .
+//   - `hostRewrite` .
+//   - `idleTimeout` .
+//   - `prefixRewrite` .
+//   - `rateLimit` .
+//   - `allRequests` .
+//   - `perMinute` .
+//   - `perSecond` .
+//   - `requestsPerIp` .
+//   - `perMinute` .
+//   - `perSecond` .
+//   - `regexRewrite` .
+//   - `regex` .
+//   - `substitute` .
+//   - `timeout` .
+//   - `upgradeTypes` .
+//   - `redirectAction` .
+//   - `removeQuery` .
+//   - `replaceHost` .
+//   - `replacePath` .
+//   - `replacePort` .
+//   - `replacePrefix` .
+//   - `replaceScheme` .
+//   - `responseCode` .
+//   - `name` .
+//   - `routeOptions` .
+//   - `rbac` .
+//   - `action` .
+//   - `principals` .
+//   - `andPrincipals` .
+//   - `any` .
+//   - `header` .
+//   - `name` .
+//   - `value` .
+//   - `exact` .
+//   - `prefix` .
+//   - `regex` .
+//   - `remoteIp` .
+//   - `securityProfileId` .
+//
+// - `routeOptions` (*Read-Only*) (List Of Object).
+//   - `rbac` .
+//   - `action` .
+//   - `principals` .
+//   - `andPrincipals` .
+//   - `any` .
+//   - `header` .
+//   - `name` .
+//   - `value` .
+//   - `exact` .
+//   - `prefix` .
+//   - `regex` .
+//   - `remoteIp` .
+//   - `securityProfileId` .
+//
+// - `virtualHostId` (String). The ID of a specific Virtual Host. Virtual Host ID is concatenation of HTTP Router ID and Virtual Host name with `/` symbol between them. For Example, `http_router_id/vhost_name`.
 func LookupAlbVirtualHost(ctx *pulumi.Context, args *LookupAlbVirtualHostArgs, opts ...pulumi.InvokeOption) (*LookupAlbVirtualHostResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupAlbVirtualHostResult

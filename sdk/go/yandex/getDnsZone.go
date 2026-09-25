@@ -7,10 +7,58 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a DNS Zone.
+//
+// > One of `dnsZoneId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			foo, err := yandex.GetDnsZone(ctx, &yandex.LookupDnsZoneArgs{
+//				DnsZoneId: pulumi.StringRef(yandex_dns_zone.Zone1.Id),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("zone", foo.Zone)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (*Read-Only*) (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `dnsZoneId` (String). The ID of the DNS Zone.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `privateNetworks` (*Read-Only*) (Set Of String). For privately visible zones, the set of Virtual Private Cloud resources that the zone is visible from.
+// - `public` (*Read-Only*) (Bool). The zone's visibility: public zones are exposed to the Internet, while private zones are visible only to Virtual Private Cloud resources.
+// - `zone` (*Read-Only*) (String). The DNS name of this zone, e.g. `example.com.`. Must ends with dot.
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
 func LookupDnsZone(ctx *pulumi.Context, args *LookupDnsZoneArgs, opts ...pulumi.InvokeOption) (*LookupDnsZoneResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupDnsZoneResult

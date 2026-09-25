@@ -7,10 +7,63 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Database serverless cluster. For more information, see [the official documentation](https://yandex.cloud/docs/ydb/concepts/serverless_and_dedicated).
+//
+// > If `databaseId` is not specified `name` and `folderId` will be used to designate Yandex Database serverless cluster.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myDatabase, err := yandex.GetYdbDatabaseServerless(ctx, &yandex.LookupYdbDatabaseServerlessArgs{
+//				DatabaseId: pulumi.StringRef("some_ydb_serverless_database_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("ydbApiEndpoint", myDatabase.YdbApiEndpoint)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `databaseId` (String). ID of the Yandex Database serverless cluster.
+// - `databasePath` (*Read-Only*) (String). Full database path of the Yandex Database serverless cluster. Useful for SDK configuration.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `documentApiEndpoint` (*Read-Only*) (String). Document API endpoint of the Yandex Database serverless cluster.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `locationId` (*Read-Only*) (String). Location ID for the Yandex Database serverless cluster.
+// - `name` (String). The resource name.
+// - `status` (*Read-Only*) (String). Status of the Yandex Database serverless cluster.
+// - `tlsEnabled` (*Read-Only*) (Bool). Whether TLS is enabled for the Yandex Database serverless cluster. Useful for SDK configuration.
+// - `ydbApiEndpoint` (*Read-Only*) (String). API endpoint of the Yandex Database serverless cluster. Useful for SDK configuration.
+// - `ydbFullEndpoint` (*Read-Only*) (String). Full endpoint of the Yandex Database serverless cluster.
+// - `serverlessDatabase` [Block].
+//   - `enableThrottlingRcuLimit` (Bool).
+//   - `provisionedRcuLimit` (Number).
+//   - `storageSizeLimit` (Number).
+//   - `throttlingRcuLimit` (Number).
 func LookupYdbDatabaseServerless(ctx *pulumi.Context, args *LookupYdbDatabaseServerlessArgs, opts ...pulumi.InvokeOption) (*LookupYdbDatabaseServerlessResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupYdbDatabaseServerlessResult

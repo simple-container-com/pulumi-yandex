@@ -7,10 +7,53 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Managed PostgreSQL database. For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			foo, err := yandex.GetMdbPostgresqlDatabase(ctx, &yandex.LookupMdbPostgresqlDatabaseArgs{
+//				ClusterId: "some_cluster_id",
+//				Name:      "test",
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("owner", foo.Owner)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `clusterId` (**Required**)(String). The ID of the PostgreSQL cluster.
+// - `deletionProtection` (*Read-Only*) (String). The `true` value means that resource is protected from accidental deletion.
+// - `extension` (*Read-Only*) (Set Of Object). Set of database extensions.
+//   - `name` .
+//
+// - `id` (String).
+// - `lcCollate` (*Read-Only*) (String). POSIX locale for string sorting order. Forbidden to change in an existing database.
+// - `lcType` (*Read-Only*) (String). POSIX locale for character classification. Forbidden to change in an existing database.
+// - `name` (**Required**)(String). The name of the PostgreSQL database.
+// - `owner` (*Read-Only*) (String). Name of the user assigned as the owner of the database. Changing this value transfers ownership of the database to another user.
+// - `templateDb` (*Read-Only*) (String). Name of the template database.
 func LookupMdbPostgresqlDatabase(ctx *pulumi.Context, args *LookupMdbPostgresqlDatabaseArgs, opts ...pulumi.InvokeOption) (*LookupMdbPostgresqlDatabaseResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMdbPostgresqlDatabaseResult

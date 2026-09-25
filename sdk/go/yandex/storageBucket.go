@@ -7,10 +7,737 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud Storage Bucket](https://yandex.cloud/docs/storage/concepts/bucket).
+//
+// > By default, for authentication, you need to use [IAM token](https://yandex.cloud/docs/iam/concepts/authorization/iam-token) with the necessary permissions.
+//
+// > Alternatively, you can provide [static access keys](https://yandex.cloud/docs/iam/concepts/authorization/access-key) (Access and Secret). To generate these keys, you will need a Service Account with the appropriate permissions.
+//
+// > For extended API usage, such as setting the `maxSize`, `folderId`, `anonymousAccessFlags`, `defaultStorageClass`, and `https` parameters for a bucket, only the default authorization method will be used. This means the `IAM` token from the `provider` block will be applied.
+// This can be confusing in cases where a separate service account is used for managing buckets because, in such scenarios,buckets may be accessed by two different accounts, each with potentially different permissions for the buckets.
+//
+// > In case you are using IAM token from UserAccount, you are needed to explicitly specify `folderId` in the resource, as it cannot be identified from such type of account. In case you are using IAM token from ServiceAccount or static access keys, `folderId` does not need to be specified unless you want to create the resource in a different folder than the account folder.
+//
+// > Terraform will import this resource with `forceDestroy` set to `false` in state. If you've set it to `true` in config, run `pulumi up` to update the value set in state. If you delete this resource before updating the value, objects in the bucket will not be destroyed.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.NewStorageBucket(ctx, "testBucket", &yandex.StorageBucketArgs{
+//				Bucket: pulumi.String("tf-test-bucket"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Using Policy Configuration
+//			_, err := yandex.NewStorageBucket(ctx, "storageBucket", &yandex.StorageBucketArgs{
+//				Bucket: pulumi.String("my-policy-bucket"),
+//				Policy: pulumi.String(`{
+//	  "Version": "2012-10-17",
+//	  "Statement": [
+//	    {
+//	      "Effect": "Allow",
+//	      "Principal": "*",
+//	      "Action": "s3:*",
+//	      "Resource": [
+//	        "arn:aws:s3:::my-policy-bucket/*",
+//	        "arn:aws:s3:::my-policy-bucket"
+//	      ]
+//	    },
+//	    {
+//	      "Effect": "Deny",
+//	      "Principal": "*",
+//	      "Action": "s3:PutObject",
+//	      "Resource": [
+//	        "arn:aws:s3:::my-policy-bucket/*",
+//	        "arn:aws:s3:::my-policy-bucket"
+//	      ]
+//	    }
+//	  ]
+//	}
+//
+// `),
+//
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Using Bucket Tagging
+//			_, err := yandex.NewStorageBucket(ctx, "storageBucket", &yandex.StorageBucketArgs{
+//				Bucket: pulumi.String("my-policy-bucket"),
+//				Tags: pulumi.StringMap{
+//					"other_key": pulumi.String("other_value"),
+//					"test_key":  pulumi.String("test_value"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Set Bucket Max Size.
+//			_, err := yandex.NewStorageBucket(ctx, "storageBucket", &yandex.StorageBucketArgs{
+//				Bucket:  pulumi.String("my-policy-bucket"),
+//				MaxSize: pulumi.Int(1048576),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Set Bucket Folder Id.
+//			_, err := yandex.NewStorageBucket(ctx, "storageBucket", &yandex.StorageBucketArgs{
+//				Bucket:   pulumi.String("my-policy-bucket"),
+//				FolderId: pulumi.String("<folder_id>"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Using Bucket Anonymous Access Flags.
+//			_, err := yandex.NewStorageBucket(ctx, "storageBucket", &yandex.StorageBucketArgs{
+//				AnonymousAccessFlags: &yandex.StorageBucketAnonymousAccessFlagsArgs{
+//					ConfigRead: pulumi.Bool(true),
+//					List:       pulumi.Bool(false),
+//					Read:       pulumi.Bool(true),
+//				},
+//				Bucket: pulumi.String("my-policy-bucket"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Bucket HTTPS Certificate.
+//			_, err := yandex.NewStorageBucket(ctx, "storageBucket", &yandex.StorageBucketArgs{
+//				Bucket: pulumi.String("my-policy-bucket"),
+//				Https: &yandex.StorageBucketHttpsArgs{
+//					CertificateId: pulumi.String("<certificate_id_from_certificate_manager>"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Set Bucket Default Storage Class.
+//			_, err := yandex.NewStorageBucket(ctx, "storageBucket", &yandex.StorageBucketArgs{
+//				Bucket:              pulumi.String("my-policy-bucket"),
+//				DefaultStorageClass: pulumi.String("COLD"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			logBucket, err := yandex.NewStorageBucket(ctx, "logBucket", &yandex.StorageBucketArgs{
+//				Bucket: pulumi.String("my-tf-log-bucket"),
+//				LifecycleRules: yandex.StorageBucketLifecycleRuleArray{
+//					&yandex.StorageBucketLifecycleRuleArgs{
+//						Id:      pulumi.String("cleanupoldlogs"),
+//						Enabled: pulumi.Bool(true),
+//						Expiration: &yandex.StorageBucketLifecycleRuleExpirationArgs{
+//							Days: pulumi.Int(365),
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			key_a, err := yandex.NewKmsSymmetricKey(ctx, "key-a", &yandex.KmsSymmetricKeyArgs{
+//				Description:      pulumi.String("description for key"),
+//				DefaultAlgorithm: pulumi.String("AES_128"),
+//				RotationPeriod:   pulumi.String("8760h"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewStorageBucket(ctx, "allSettings", &yandex.StorageBucketArgs{
+//				Bucket: pulumi.String("example-tf-settings-bucket"),
+//				Website: &yandex.StorageBucketWebsiteArgs{
+//					IndexDocument: pulumi.String("index.html"),
+//					ErrorDocument: pulumi.String("error.html"),
+//				},
+//				LifecycleRules: yandex.StorageBucketLifecycleRuleArray{
+//					&yandex.StorageBucketLifecycleRuleArgs{
+//						Id:      pulumi.String("test"),
+//						Enabled: pulumi.Bool(true),
+//						Prefix:  pulumi.String("prefix/"),
+//						Expiration: &yandex.StorageBucketLifecycleRuleExpirationArgs{
+//							Days: pulumi.Int(30),
+//						},
+//					},
+//					&yandex.StorageBucketLifecycleRuleArgs{
+//						Id:      pulumi.String("log"),
+//						Enabled: pulumi.Bool(true),
+//						Prefix:  pulumi.String("log/"),
+//						Transitions: yandex.StorageBucketLifecycleRuleTransitionArray{
+//							&yandex.StorageBucketLifecycleRuleTransitionArgs{
+//								Days:         pulumi.Int(30),
+//								StorageClass: pulumi.String("COLD"),
+//							},
+//						},
+//						Expiration: &yandex.StorageBucketLifecycleRuleExpirationArgs{
+//							Days: pulumi.Int(90),
+//						},
+//					},
+//					&yandex.StorageBucketLifecycleRuleArgs{
+//						Id:      pulumi.String("everything180"),
+//						Prefix:  pulumi.String(""),
+//						Enabled: pulumi.Bool(true),
+//						Expiration: &yandex.StorageBucketLifecycleRuleExpirationArgs{
+//							Days: pulumi.Int(180),
+//						},
+//					},
+//					&yandex.StorageBucketLifecycleRuleArgs{
+//						Id:      pulumi.String("cleanupoldversions"),
+//						Prefix:  pulumi.String("config/"),
+//						Enabled: pulumi.Bool(true),
+//						NoncurrentVersionTransitions: yandex.StorageBucketLifecycleRuleNoncurrentVersionTransitionArray{
+//							&yandex.StorageBucketLifecycleRuleNoncurrentVersionTransitionArgs{
+//								Days:         pulumi.Int(30),
+//								StorageClass: pulumi.String("COLD"),
+//							},
+//						},
+//						NoncurrentVersionExpiration: &yandex.StorageBucketLifecycleRuleNoncurrentVersionExpirationArgs{
+//							Days: pulumi.Int(90),
+//						},
+//					},
+//					&yandex.StorageBucketLifecycleRuleArgs{
+//						Id:                                 pulumi.String("abortmultiparts"),
+//						Prefix:                             pulumi.String(""),
+//						Enabled:                            pulumi.Bool(true),
+//						AbortIncompleteMultipartUploadDays: pulumi.Int(7),
+//					},
+//				},
+//				CorsRules: yandex.StorageBucketCorsRuleArray{
+//					&yandex.StorageBucketCorsRuleArgs{
+//						AllowedHeaders: pulumi.StringArray{
+//							pulumi.String("*"),
+//						},
+//						AllowedMethods: pulumi.StringArray{
+//							pulumi.String("GET"),
+//							pulumi.String("PUT"),
+//						},
+//						AllowedOrigins: pulumi.StringArray{
+//							pulumi.String("https://storage-cloud.example.com"),
+//						},
+//						ExposeHeaders: pulumi.StringArray{
+//							pulumi.String("ETag"),
+//						},
+//						MaxAgeSeconds: pulumi.Int(3000),
+//					},
+//				},
+//				Versioning: &yandex.StorageBucketVersioningArgs{
+//					Enabled: pulumi.Bool(true),
+//				},
+//				ServerSideEncryptionConfiguration: &yandex.StorageBucketServerSideEncryptionConfigurationArgs{
+//					Rule: &yandex.StorageBucketServerSideEncryptionConfigurationRuleArgs{
+//						ApplyServerSideEncryptionByDefault: &yandex.StorageBucketServerSideEncryptionConfigurationRuleApplyServerSideEncryptionByDefaultArgs{
+//							KmsMasterKeyId: key_a.KmsSymmetricKeyId,
+//							SseAlgorithm:   pulumi.String("aws:kms"),
+//						},
+//					},
+//				},
+//				Loggings: yandex.StorageBucketLoggingArray{
+//					&yandex.StorageBucketLoggingArgs{
+//						TargetBucket: logBucket.ID().ToIDOutput().ToStringOutput(),
+//						TargetPrefix: pulumi.String("tf-logs/"),
+//					},
+//				},
+//				MaxSize:             pulumi.Int(1024),
+//				FolderId:            pulumi.String("<folder_id>"),
+//				DefaultStorageClass: pulumi.String("COLD"),
+//				AnonymousAccessFlags: &yandex.StorageBucketAnonymousAccessFlagsArgs{
+//					Read: pulumi.Bool(true),
+//					List: pulumi.Bool(true),
+//				},
+//				Https: &yandex.StorageBucketHttpsArgs{
+//					CertificateId: pulumi.String("<certificate_id>"),
+//				},
+//				Tags: pulumi.StringMap{
+//					"some_key": pulumi.String("some_value"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"fmt"
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			folderId := "<folder-id>"
+//			// Create SA
+//			sa, err := yandex.NewIamServiceAccount(ctx, "sa", &yandex.IamServiceAccountArgs{
+//				FolderId: pulumi.String(folderId),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Grant permissions
+//			_, err = yandex.NewResourcemanagerFolderIamMember(ctx, "sa-editor", &yandex.ResourcemanagerFolderIamMemberArgs{
+//				FolderId: pulumi.String(folderId),
+//				Role:     pulumi.String("storage.editor"),
+//				Member: sa.IamServiceAccountId.ApplyT(func(iamServiceAccountId string) (string, error) {
+//					return fmt.Sprintf("serviceAccount:%v", iamServiceAccountId), nil
+//				}).(pulumi.StringOutput),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create Static Access Keys
+//			sa_static_key, err := yandex.NewIamServiceAccountStaticAccessKey(ctx, "sa-static-key", &yandex.IamServiceAccountStaticAccessKeyArgs{
+//				ServiceAccountId: sa.IamServiceAccountId,
+//				Description:      pulumi.String("static access key for object storage"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Use keys to create bucket
+//			_, err = yandex.NewStorageBucket(ctx, "test", &yandex.StorageBucketArgs{
+//				AccessKey: sa_static_key.AccessKey,
+//				SecretKey: sa_static_key.SecretKey,
+//				Bucket:    pulumi.String("tf-test-bucket"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Static Website Hosting.
+//			_, err := yandex.NewStorageBucket(ctx, "test", &yandex.StorageBucketArgs{
+//				Acl:    pulumi.String("public-read"),
+//				Bucket: pulumi.String("storage-website-test.hashicorp.com"),
+//				Website: &yandex.StorageBucketWebsiteArgs{
+//					ErrorDocument: pulumi.String("error.html"),
+//					IndexDocument: pulumi.String("index.html"),
+//					RoutingRules: pulumi.String(`[{
+//	    "Condition": {
+//	        "KeyPrefixEquals": "docs/"
+//	    },
+//	    "Redirect": {
+//	        "ReplaceKeyPrefixWith": "documents/"
+//	    }
+//	}]
+//
+// `),
+//
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Using ACL policy grants.
+//			_, err := yandex.NewStorageBucket(ctx, "test", &yandex.StorageBucketArgs{
+//				Bucket: pulumi.String("mybucket"),
+//				Grants: yandex.StorageBucketGrantTypeArray{
+//					&yandex.StorageBucketGrantTypeArgs{
+//						Id: pulumi.String("myuser"),
+//						Permissions: pulumi.StringArray{
+//							pulumi.String("FULL_CONTROL"),
+//						},
+//						Type: pulumi.String("CanonicalUser"),
+//					},
+//					&yandex.StorageBucketGrantTypeArgs{
+//						Permissions: pulumi.StringArray{
+//							pulumi.String("READ"),
+//							pulumi.String("WRITE"),
+//						},
+//						Type: pulumi.String("Group"),
+//						Uri:  pulumi.String("http://acs.amazonaws.com/groups/global/AllUsers"),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Using CORS.
+//			_, err := yandex.NewStorageBucket(ctx, "storageBucket", &yandex.StorageBucketArgs{
+//				Acl:    pulumi.String("public-read"),
+//				Bucket: pulumi.String("s3-website-test.hashicorp.com"),
+//				CorsRules: yandex.StorageBucketCorsRuleArray{
+//					&yandex.StorageBucketCorsRuleArgs{
+//						AllowedHeaders: pulumi.StringArray{
+//							pulumi.String("*"),
+//						},
+//						AllowedMethods: pulumi.StringArray{
+//							pulumi.String("PUT"),
+//							pulumi.String("POST"),
+//						},
+//						AllowedOrigins: pulumi.StringArray{
+//							pulumi.String("https://s3-website-test.hashicorp.com"),
+//						},
+//						ExposeHeaders: pulumi.StringArray{
+//							pulumi.String("ETag"),
+//						},
+//						MaxAgeSeconds: pulumi.Int(3000),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Using versioning.
+//			_, err := yandex.NewStorageBucket(ctx, "storageBucket", &yandex.StorageBucketArgs{
+//				Acl:    pulumi.String("private"),
+//				Bucket: pulumi.String("my-tf-test-bucket"),
+//				Versioning: &yandex.StorageBucketVersioningArgs{
+//					Enabled: pulumi.Bool(true),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `accessKey` (String). The access key to use when applying changes. This value can also be provided as `storageAccessKey` specified in provider config (explicitly or within `sharedCredentialsFile`) is used.
+// - `acl` (String). The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. Conflicts with `grant`.
+//
+// > To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.
+//
+// - `bucket` (String). The name of the bucket. If omitted, Terraform will assign a random, unique name.
+// - `bucketDomainName` (*Read-Only*) (String). The bucket domain name.
+// - `bucketPrefix` (String). Creates a unique bucket name beginning with the specified prefix. Conflicts with `bucket`.
+// - `defaultStorageClass` (String). Storage class which is used for storing objects by default. Available values are: "STANDARD", "COLD", "ICE". Default is `"STANDARD"`. See [Storage Class](https://yandex.cloud/docs/storage/concepts/storage-class) for more information.
+// - `disabledStatickeyAuth` (Bool). If true, static key authentication in bucket is forbidden. Default is `false`.
+// - `folderId` (String). Allow to create bucket in different folder. In case you are using IAM token from UserAccount, you are needed to explicitly specify folderId in the resource, as it cannot be identified from such type of account. In case you are using IAM token from ServiceAccount or static access keys, folderId does not need to be specified unless you want to create the resource in a different folder than the account folder.
+//
+// > It will try to create bucket using `IAM-token`, not using `access keys`.
+//
+// - `forceDestroy` (Bool).  A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are *not* recoverable. Default is `false`.
+// - `id` (String).
+// - `maxSize` (Number). The size of bucket, in bytes. See [Size Limiting](https://yandex.cloud/docs/storage/operations/buckets/limit-max-volume) for more information.
+// - `policy` (String). The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://yandex.cloud/docs/storage/concepts/policy) for more information on policy format.
+// - `secretKey` (String). The secret key to use when applying changes. This value can also be provided as `storageSecretKey` specified in provider config (explicitly or within `sharedCredentialsFile`) is used.
+// - `tags` (Map Of String). The `tags` object for setting tags (or labels) for bucket. See [Tags](https://yandex.cloud/docs/storage/concepts/tags) for more information.
+// - `websiteDomain` (String). The domain of the website endpoint, if the bucket is configured with a website. If not, this will be an empty string.
+// - `websiteEndpoint` (String). The website endpoint, if the bucket is configured with a website. If not, this will be an empty string.
+// - `anonymousAccessFlags` [Block]. Provides various access to objects. See [Bucket Availability](https://yandex.cloud/docs/storage/operations/buckets/bucket-availability) for more information.
+//   - `configRead` (Bool). Allows to read bucket configuration anonymously.
+//   - `list` (Bool). Allows to list object in bucket anonymously.
+//   - `read` (Bool). Allows to read objects in bucket anonymously.
+//
+// - `corsRule` [Block]. A rule of [Cross-Origin Resource Sharing](https://yandex.cloud/docs/storage/concepts/cors) (CORS object).
+//   - `allowedHeaders` (List Of String). Specifies which headers are allowed.
+//   - `allowedMethods` (**Required**)(List Of String). Specifies which methods are allowed. Can be `GET`, `PUT`, `POST`, `DELETE` or `HEAD`.
+//   - `allowedOrigins` (**Required**)(List Of String). Specifies which origins are allowed.
+//   - `exposeHeaders` (List Of String). Specifies expose header in the response.
+//   - `maxAgeSeconds` (Number). Specifies time in seconds that browser can cache the response for a preflight request.
+//
+// - `grant` [Block]. An [ACL policy grant](https://yandex.cloud/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.
+//
+// > To manage `grant` argument, service account with `storage.admin` role should be used.
+//
+//   - `id` (String). Canonical user id to grant for. Used only when type is `CanonicalUser`.
+//   - `permissions` (**Required**)(Set Of String). List of permissions to apply for grantee. Valid values are `READ`, `WRITE`, `FULL_CONTROL`.
+//   - `type` (**Required**)(String). Type of grantee to apply for. Valid values are `CanonicalUser` and `Group`.
+//   - `uri` (String). URI address to grant for. Used only when type is Group.
+//
+// - `https` [Block]. Manages https certificates for bucket. See [https](https://yandex.cloud/docs/storage/operations/hosting/certificate) for more information.
+//   - `certificateId` (**Required**)(String). Id of the certificate in Certificate Manager, that will be used for bucket.
+//
+// - `lifecycleRule` [Block]. A configuration of [object lifecycle management](https://yandex.cloud/docs/storage/concepts/lifecycles).
+//   - `abortIncompleteMultipartUploadDays` (Number). Specifies the number of days after initiating a multipart upload when the multipart upload must be completed.
+//   - `enabled` (**Required**)(Bool). Specifies lifecycle rule status.
+//   - `id` (String). Unique identifier for the rule. Must be less than or equal to 255 characters in length.
+//   - `prefix` (String). Object key prefix identifying one or more objects to which the rule applies.
+//   - `expiration` [Block]. Specifies a period in the object's expire.
+//   - `date` (String). Specifies the date after which you want the corresponding action to take effect.
+//   - `days` (Number). Specifies the number of days after object creation when the specific rule action takes effect.
+//   - `expiredObjectDeleteMarker` (Bool). n a versioned bucket (versioning-enabled or versioning-suspended bucket), you can add this element in the lifecycle configuration to direct Object Storage to delete expired object delete markers.
+//   - `filter` [Block]. Filter block identifies one or more objects to which the rule applies. A Filter must have exactly one of Prefix, Tag, or And specified. The filter supports options listed below.
+//
+// At least one of `abortIncompleteMultipartUploadDays`, `expiration`, `transition`, `noncurrentVersionExpiration`, `noncurrentVersionTransition` must be specified.
+//   - `objectSizeGreaterThan` (Number). Minimum object size to which the rule applies.
+//   - `objectSizeLessThan` (Number). Maximum object size to which the rule applies.
+//   - `prefix` (String). Object key prefix identifying one or more objects to which the rule applies.
+//   - `and` [Block]. A logical `and` operator applied to one or more filter parameters. It should be used when two or more of the above parameters are used.
+//   - `objectSizeGreaterThan` (Number). Minimum object size to which the rule applies.
+//   - `objectSizeLessThan` (Number). Maximum object size to which the rule applies.
+//   - `prefix` (String). Object key prefix identifying one or more objects to which the rule applies.
+//   - `tags` (Map Of String). The `tags` object for setting tags (or labels) for bucket. See [Tags](https://yandex.cloud/docs/storage/concepts/tags) for more information.
+//   - `tag` [Block]. A key and value pair for filtering objects. E.g.: `key=key1, value=value1`.
+//   - `key` (**Required**)(String). A key.
+//   - `value` (**Required**)(String). A value.
+//   - `noncurrentVersionExpiration` [Block]. Specifies when noncurrent object versions expire.
+//   - `days` (Number). Specifies the number of days noncurrent object versions expire.
+//   - `newerNoncurrentVersions` (Number). Specifies the number of noncurrent versions to retain. Object Storage permanently deletes any additional noncurrent versions beyond this number.
+//   - `noncurrentVersionTransition` [Block]. Specifies when noncurrent object versions transitions.
+//   - `days` (Number). Specifies the number of days noncurrent object versions transition.
+//   - `newerNoncurrentVersions` (Number). Specifies the number of noncurrent versions to retain. Object Storage permanently deletes any additional noncurrent versions beyond this number.
+//   - `storageClass` (**Required**)(String). Specifies the storage class to which you want the noncurrent object versions to transition. Supported values: [`STANDARD_IA`, `COLD`, `ICE`, `INTELLIGENT_TIERING`].
+//   - `transition` [Block]. Specifies a period in the object's transitions.
+//   - `date` (String). Specifies the date after which you want the corresponding action to take effect.
+//   - `days` (Number). Specifies the number of days after object creation when the specific rule action takes effect.
+//   - `storageClass` (**Required**)(String). Specifies the storage class to which you want the object to transition. Supported values: [`STANDARD_IA`, `COLD`, `ICE`, `INTELLIGENT_TIERING`].
+//
+// - `logging` [Block]. A settings of [bucket logging](https://yandex.cloud/docs/storage/concepts/server-logs).
+//   - `targetBucket` (**Required**)(String). The name of the bucket that will receive the log objects.
+//   - `targetPrefix` (String). To specify a key prefix for log objects.
+//
+// - `objectLockConfiguration` [Block]. A configuration of [object lock management](https://yandex.cloud/docs/storage/concepts/object-lock).
+//   - `objectLockEnabled` (String). Enable object locking in a bucket. Require versioning to be enabled.
+//   - `rule` [Block]. Specifies a default locking configuration for added objects. Require objectLockEnabled to be enabled.
+//   - `defaultRetention` [Block]. Default retention object.
+//   - `days` (Number). Specifies a retention period in days after uploading an object version. It must be a positive integer. You can't set it simultaneously with `years`.
+//   - `mode` (**Required**)(String). Specifies a type of object lock. One of `["GOVERNANCE", "COMPLIANCE"]`.
+//   - `years` (Number). Specifies a retention period in years after uploading an object version. It must be a positive integer. You can't set it simultaneously with `days`.
+//
+// - `serverSideEncryptionConfiguration` [Block]. A configuration of server-side encryption for the bucket.
+//   - `rule` [Block]. A single object for server-side encryption by default configuration.
+//   - `applyServerSideEncryptionByDefault` [Block]. A single object for setting server-side encryption by default.
+//   - `kmsMasterKeyId` (**Required**)(String). The KMS master key ID used for the SSE-KMS encryption.
+//   - `sseAlgorithm` (**Required**)(String). The server-side encryption algorithm to use. Single valid value is `aws:kms`.
+//
+// - `versioning` [Block]. A state of [versioning](https://yandex.cloud/docs/storage/concepts/versioning).
+//
+// > To manage `versioning` argument, service account with `storage.admin` role should be used.
+//
+//   - `enabled` (Bool). Enable versioning. Once you version-enable a bucket, it can never return to an unversioned state. You can, however, suspend versioning on that bucket.
+//
+// - `website` [Block]. A [Website Object](https://yandex.cloud/docs/storage/concepts/hosting)
+//   - `errorDocument` (String). An absolute path to the document to return in case of a 4XX error.
+//   - `indexDocument` (String). Storage returns this index document when requests are made to the root domain or any of the subfolders (unless using `redirectAllRequestsTo`).
+//   - `redirectAllRequestsTo` (String). A hostname to redirect all website requests for this bucket to. Hostname can optionally be prefixed with a protocol (`http://` or `https://`) to use when redirecting requests. The default is the protocol that is used in the original request.
+//   - `routingRules` (String). A JSON array containing [routing rules](https://yandex.cloud/docs/storage/s3/api-ref/hosting/upload#request-scheme) describing redirect behavior and when redirects are applied.
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_storage_bucket.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/storageBucket:StorageBucket test_bucket ...
+// ```
 type StorageBucket struct {
 	pulumi.CustomResourceState
 
@@ -20,7 +747,7 @@ type StorageBucket struct {
 	//
 	// > To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.
 	//
-	// Deprecated: Use `yandexStorageBucketGrant` instead.
+	// Deprecated: Use `StorageBucketGrant` instead.
 	Acl pulumi.StringOutput `pulumi:"acl"`
 	// Provides various access to objects. See [Bucket Availability](https://yandex.cloud/docs/storage/operations/buckets/bucket-availability) for more information.
 	AnonymousAccessFlags StorageBucketAnonymousAccessFlagsOutput `pulumi:"anonymousAccessFlags"`
@@ -46,8 +773,8 @@ type StorageBucket struct {
 	//
 	// > To manage `grant` argument, service account with `storage.admin` role should be used.
 	//
-	// Deprecated: Use `yandexStorageBucketGrant` instead.
-	Grants StorageBucketGrantArrayOutput `pulumi:"grants"`
+	// Deprecated: Use `StorageBucketGrant` instead.
+	Grants StorageBucketGrantTypeArrayOutput `pulumi:"grants"`
 	// Manages https certificates for bucket. See [https](https://yandex.cloud/docs/storage/operations/hosting/certificate) for more information.
 	Https StorageBucketHttpsPtrOutput `pulumi:"https"`
 	// A configuration of [object lifecycle management](https://yandex.cloud/docs/storage/concepts/lifecycles).
@@ -60,7 +787,7 @@ type StorageBucket struct {
 	ObjectLockConfiguration StorageBucketObjectLockConfigurationPtrOutput `pulumi:"objectLockConfiguration"`
 	// The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://yandex.cloud/docs/storage/concepts/policy) for more information on policy format.
 	//
-	// Deprecated: Use `yandexStorageBucketPolicy` resource instead.
+	// Deprecated: Use `StorageBucketPolicy` resource instead.
 	Policy pulumi.StringOutput `pulumi:"policy"`
 	// The secret key to use when applying changes. This value can also be provided as `storageSecretKey` specified in provider config (explicitly or within `sharedCredentialsFile`) is used.
 	SecretKey pulumi.StringPtrOutput `pulumi:"secretKey"`
@@ -123,7 +850,7 @@ type storageBucketState struct {
 	//
 	// > To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.
 	//
-	// Deprecated: Use `yandexStorageBucketGrant` instead.
+	// Deprecated: Use `StorageBucketGrant` instead.
 	Acl *string `pulumi:"acl"`
 	// Provides various access to objects. See [Bucket Availability](https://yandex.cloud/docs/storage/operations/buckets/bucket-availability) for more information.
 	AnonymousAccessFlags *StorageBucketAnonymousAccessFlags `pulumi:"anonymousAccessFlags"`
@@ -149,8 +876,8 @@ type storageBucketState struct {
 	//
 	// > To manage `grant` argument, service account with `storage.admin` role should be used.
 	//
-	// Deprecated: Use `yandexStorageBucketGrant` instead.
-	Grants []StorageBucketGrant `pulumi:"grants"`
+	// Deprecated: Use `StorageBucketGrant` instead.
+	Grants []StorageBucketGrantType `pulumi:"grants"`
 	// Manages https certificates for bucket. See [https](https://yandex.cloud/docs/storage/operations/hosting/certificate) for more information.
 	Https *StorageBucketHttps `pulumi:"https"`
 	// A configuration of [object lifecycle management](https://yandex.cloud/docs/storage/concepts/lifecycles).
@@ -163,7 +890,7 @@ type storageBucketState struct {
 	ObjectLockConfiguration *StorageBucketObjectLockConfiguration `pulumi:"objectLockConfiguration"`
 	// The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://yandex.cloud/docs/storage/concepts/policy) for more information on policy format.
 	//
-	// Deprecated: Use `yandexStorageBucketPolicy` resource instead.
+	// Deprecated: Use `StorageBucketPolicy` resource instead.
 	Policy *string `pulumi:"policy"`
 	// The secret key to use when applying changes. This value can also be provided as `storageSecretKey` specified in provider config (explicitly or within `sharedCredentialsFile`) is used.
 	SecretKey *string `pulumi:"secretKey"`
@@ -190,7 +917,7 @@ type StorageBucketState struct {
 	//
 	// > To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.
 	//
-	// Deprecated: Use `yandexStorageBucketGrant` instead.
+	// Deprecated: Use `StorageBucketGrant` instead.
 	Acl pulumi.StringPtrInput
 	// Provides various access to objects. See [Bucket Availability](https://yandex.cloud/docs/storage/operations/buckets/bucket-availability) for more information.
 	AnonymousAccessFlags StorageBucketAnonymousAccessFlagsPtrInput
@@ -216,8 +943,8 @@ type StorageBucketState struct {
 	//
 	// > To manage `grant` argument, service account with `storage.admin` role should be used.
 	//
-	// Deprecated: Use `yandexStorageBucketGrant` instead.
-	Grants StorageBucketGrantArrayInput
+	// Deprecated: Use `StorageBucketGrant` instead.
+	Grants StorageBucketGrantTypeArrayInput
 	// Manages https certificates for bucket. See [https](https://yandex.cloud/docs/storage/operations/hosting/certificate) for more information.
 	Https StorageBucketHttpsPtrInput
 	// A configuration of [object lifecycle management](https://yandex.cloud/docs/storage/concepts/lifecycles).
@@ -230,7 +957,7 @@ type StorageBucketState struct {
 	ObjectLockConfiguration StorageBucketObjectLockConfigurationPtrInput
 	// The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://yandex.cloud/docs/storage/concepts/policy) for more information on policy format.
 	//
-	// Deprecated: Use `yandexStorageBucketPolicy` resource instead.
+	// Deprecated: Use `StorageBucketPolicy` resource instead.
 	Policy pulumi.StringPtrInput
 	// The secret key to use when applying changes. This value can also be provided as `storageSecretKey` specified in provider config (explicitly or within `sharedCredentialsFile`) is used.
 	SecretKey pulumi.StringPtrInput
@@ -261,7 +988,7 @@ type storageBucketArgs struct {
 	//
 	// > To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.
 	//
-	// Deprecated: Use `yandexStorageBucketGrant` instead.
+	// Deprecated: Use `StorageBucketGrant` instead.
 	Acl *string `pulumi:"acl"`
 	// Provides various access to objects. See [Bucket Availability](https://yandex.cloud/docs/storage/operations/buckets/bucket-availability) for more information.
 	AnonymousAccessFlags *StorageBucketAnonymousAccessFlags `pulumi:"anonymousAccessFlags"`
@@ -285,8 +1012,8 @@ type storageBucketArgs struct {
 	//
 	// > To manage `grant` argument, service account with `storage.admin` role should be used.
 	//
-	// Deprecated: Use `yandexStorageBucketGrant` instead.
-	Grants []StorageBucketGrant `pulumi:"grants"`
+	// Deprecated: Use `StorageBucketGrant` instead.
+	Grants []StorageBucketGrantType `pulumi:"grants"`
 	// Manages https certificates for bucket. See [https](https://yandex.cloud/docs/storage/operations/hosting/certificate) for more information.
 	Https *StorageBucketHttps `pulumi:"https"`
 	// A configuration of [object lifecycle management](https://yandex.cloud/docs/storage/concepts/lifecycles).
@@ -299,7 +1026,7 @@ type storageBucketArgs struct {
 	ObjectLockConfiguration *StorageBucketObjectLockConfiguration `pulumi:"objectLockConfiguration"`
 	// The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://yandex.cloud/docs/storage/concepts/policy) for more information on policy format.
 	//
-	// Deprecated: Use `yandexStorageBucketPolicy` resource instead.
+	// Deprecated: Use `StorageBucketPolicy` resource instead.
 	Policy *string `pulumi:"policy"`
 	// The secret key to use when applying changes. This value can also be provided as `storageSecretKey` specified in provider config (explicitly or within `sharedCredentialsFile`) is used.
 	SecretKey *string `pulumi:"secretKey"`
@@ -327,7 +1054,7 @@ type StorageBucketArgs struct {
 	//
 	// > To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.
 	//
-	// Deprecated: Use `yandexStorageBucketGrant` instead.
+	// Deprecated: Use `StorageBucketGrant` instead.
 	Acl pulumi.StringPtrInput
 	// Provides various access to objects. See [Bucket Availability](https://yandex.cloud/docs/storage/operations/buckets/bucket-availability) for more information.
 	AnonymousAccessFlags StorageBucketAnonymousAccessFlagsPtrInput
@@ -351,8 +1078,8 @@ type StorageBucketArgs struct {
 	//
 	// > To manage `grant` argument, service account with `storage.admin` role should be used.
 	//
-	// Deprecated: Use `yandexStorageBucketGrant` instead.
-	Grants StorageBucketGrantArrayInput
+	// Deprecated: Use `StorageBucketGrant` instead.
+	Grants StorageBucketGrantTypeArrayInput
 	// Manages https certificates for bucket. See [https](https://yandex.cloud/docs/storage/operations/hosting/certificate) for more information.
 	Https StorageBucketHttpsPtrInput
 	// A configuration of [object lifecycle management](https://yandex.cloud/docs/storage/concepts/lifecycles).
@@ -365,7 +1092,7 @@ type StorageBucketArgs struct {
 	ObjectLockConfiguration StorageBucketObjectLockConfigurationPtrInput
 	// The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://yandex.cloud/docs/storage/concepts/policy) for more information on policy format.
 	//
-	// Deprecated: Use `yandexStorageBucketPolicy` resource instead.
+	// Deprecated: Use `StorageBucketPolicy` resource instead.
 	Policy pulumi.StringPtrInput
 	// The secret key to use when applying changes. This value can also be provided as `storageSecretKey` specified in provider config (explicitly or within `sharedCredentialsFile`) is used.
 	SecretKey pulumi.StringPtrInput
@@ -481,7 +1208,7 @@ func (o StorageBucketOutput) AccessKey() pulumi.StringPtrOutput {
 //
 // > To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.
 //
-// Deprecated: Use `yandexStorageBucketGrant` instead.
+// Deprecated: Use `StorageBucketGrant` instead.
 func (o StorageBucketOutput) Acl() pulumi.StringOutput {
 	return o.ApplyT(func(v *StorageBucket) pulumi.StringOutput { return v.Acl }).(pulumi.StringOutput)
 }
@@ -537,9 +1264,9 @@ func (o StorageBucketOutput) ForceDestroy() pulumi.BoolPtrOutput {
 //
 // > To manage `grant` argument, service account with `storage.admin` role should be used.
 //
-// Deprecated: Use `yandexStorageBucketGrant` instead.
-func (o StorageBucketOutput) Grants() StorageBucketGrantArrayOutput {
-	return o.ApplyT(func(v *StorageBucket) StorageBucketGrantArrayOutput { return v.Grants }).(StorageBucketGrantArrayOutput)
+// Deprecated: Use `StorageBucketGrant` instead.
+func (o StorageBucketOutput) Grants() StorageBucketGrantTypeArrayOutput {
+	return o.ApplyT(func(v *StorageBucket) StorageBucketGrantTypeArrayOutput { return v.Grants }).(StorageBucketGrantTypeArrayOutput)
 }
 
 // Manages https certificates for bucket. See [https](https://yandex.cloud/docs/storage/operations/hosting/certificate) for more information.
@@ -569,7 +1296,7 @@ func (o StorageBucketOutput) ObjectLockConfiguration() StorageBucketObjectLockCo
 
 // The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://yandex.cloud/docs/storage/concepts/policy) for more information on policy format.
 //
-// Deprecated: Use `yandexStorageBucketPolicy` resource instead.
+// Deprecated: Use `StorageBucketPolicy` resource instead.
 func (o StorageBucketOutput) Policy() pulumi.StringOutput {
 	return o.ApplyT(func(v *StorageBucket) pulumi.StringOutput { return v.Policy }).(pulumi.StringOutput)
 }

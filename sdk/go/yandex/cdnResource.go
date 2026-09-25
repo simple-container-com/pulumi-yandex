@@ -8,10 +8,21 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud CDN Resource](https://yandex.cloud/docs/cdn/concepts/resource).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_cdn_resource.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/cdnResource:CdnResource my_cdn_resource ...
+// ```
 type CdnResource struct {
 	pulumi.CustomResourceState
 

@@ -7,10 +7,128 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Managed PostgreSQL cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/). [How to connect to the DB](https://yandex.cloud/docs/managed-postgresql/quickstart#connect). To connect, use port 6432. The port number is not configurable.
+//
+// > Either `clusterId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myCluster, err := yandex.GetMdbPostgresqlCluster(ctx, &yandex.LookupMdbPostgresqlClusterArgs{
+//				Name: pulumi.StringRef("test"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("fqdn", myCluster.Hosts[0].Fqdn)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `clusterId` (String). The ID of the PostgreSQL cluster.
+// - `config` (*Read-Only*) (List Of Object). Configuration of the PostgreSQL cluster.
+//   - `access` .
+//   - `dataLens` .
+//   - `dataTransfer` .
+//   - `serverless` .
+//   - `webSql` .
+//   - `yandexQuery` .
+//   - `backupRetainPeriodDays` .
+//   - `backupWindowStart` .
+//   - `hours` .
+//   - `minutes` .
+//   - `connectionManager` .
+//   - `connectionsFolderId` .
+//   - `enabled` .
+//   - `secretsFolderId` .
+//   - `diskSizeAutoscaling` .
+//   - `diskSizeLimit` .
+//   - `emergencyUsageThreshold` .
+//   - `plannedUsageThreshold` .
+//   - `managedRepack` .
+//   - `enabled` .
+//   - `performanceDiagnostics` .
+//   - `advancedMode` .
+//   - `enabled` .
+//   - `sessionsSamplingInterval` .
+//   - `statementsSamplingInterval` .
+//   - `poolerConfig` .
+//   - `poolDiscard` .
+//   - `poolerPoolDiscard` .
+//   - `poolingMode` .
+//   - `postgresqlConfig` .
+//   - `resources` .
+//   - `diskSize` .
+//   - `diskTypeId` .
+//   - `resourcePresetId` .
+//   - `version` .
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `database` (*Read-Only*) (Set Of Object). > Deprecated! To manage databases, please switch to using a separate resource type `MdbPostgresqlDatabase`.
+//   - `extension` .
+//   - `name` .
+//   - `version` .
+//   - `lcCollate` .
+//   - `lcType` .
+//   - `name` .
+//   - `owner` .
+//   - `templateDb` .
+//
+// - `deletionProtection` (*Read-Only*) (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `diskEncryptionKeyId` (*Read-Only*) (String). ID of the KMS key used for cluster disk encryption. Encryption can`t be disabled for an existing cluster. If the source cluster is encrypted and you leave this field empty when restoring, the restored cluster will be created without encryption.
+// - `environment` (*Read-Only*) (String). Deployment environment of the PostgreSQL cluster.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `health` (*Read-Only*) (String). Aggregated health of the cluster.
+// - `host` (*Read-Only*) (List Of Object). A host of the PostgreSQL cluster.
+//   - `assignPublicIp` .
+//   - `fqdn` .
+//   - `priority` .
+//   - `replicationSource` .
+//   - `replicationSourceName` .
+//   - `role` .
+//   - `subnetId` .
+//   - `zone` .
+//
+// - `hostGroupIds` (*Read-Only*) (Set Of String). Host Group IDs.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `maintenanceWindow` (*Read-Only*) (List Of Object). Maintenance policy of the PostgreSQL cluster.
+//   - `day` .
+//   - `hour` .
+//   - `type` .
+//
+// - `name` (String). The name of PostgreSQL cluster.
+// - `networkId` (*Read-Only*) (String). The `VPC Network ID` of subnets which resource attached to.
+// - `securityGroupIds` (*Read-Only*) (Set Of String). The list of security groups applied to resource or their components.
+// - `status` (*Read-Only*) (String). Status of the cluster.
+// - `user` (*Read-Only*) (List Of Object). > Deprecated! To manage users, please switch to using a separate resource type `MdbPostgresqlUser`.
+//   - `connLimit` .
+//   - `grants` .
+//   - `login` .
+//   - `name` .
+//   - `permission` .
+//   - `databaseName` .
+//   - `settings` .
 func LookupMdbPostgresqlCluster(ctx *pulumi.Context, args *LookupMdbPostgresqlClusterArgs, opts ...pulumi.InvokeOption) (*LookupMdbPostgresqlClusterResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMdbPostgresqlClusterResult
@@ -24,6 +142,7 @@ func LookupMdbPostgresqlCluster(ctx *pulumi.Context, args *LookupMdbPostgresqlCl
 // A collection of arguments for invoking getMdbPostgresqlCluster.
 type LookupMdbPostgresqlClusterArgs struct {
 	ClusterId *string `pulumi:"clusterId"`
+	FolderId  *string `pulumi:"folderId"`
 	Name      *string `pulumi:"name"`
 }
 
@@ -64,6 +183,7 @@ func LookupMdbPostgresqlClusterOutput(ctx *pulumi.Context, args LookupMdbPostgre
 // A collection of arguments for invoking getMdbPostgresqlCluster.
 type LookupMdbPostgresqlClusterOutputArgs struct {
 	ClusterId pulumi.StringPtrInput `pulumi:"clusterId"`
+	FolderId  pulumi.StringPtrInput `pulumi:"folderId"`
 	Name      pulumi.StringPtrInput `pulumi:"name"`
 }
 

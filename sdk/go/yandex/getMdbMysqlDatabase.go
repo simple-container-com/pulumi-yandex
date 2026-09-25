@@ -7,10 +7,36 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get details from MySQL database at MySQL Cluster.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `clusterId` (**Required**)(String). The MySQL cluster ID.
+// - `id` (String).
+// - `name` (**Required**)(String). The name of the database.
 func LookupMdbMysqlDatabase(ctx *pulumi.Context, args *LookupMdbMysqlDatabaseArgs, opts ...pulumi.InvokeOption) (*LookupMdbMysqlDatabaseResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMdbMysqlDatabaseResult

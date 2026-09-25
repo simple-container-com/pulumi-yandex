@@ -7,13 +7,57 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
-func GetLoggingGroup(ctx *pulumi.Context, args *GetLoggingGroupArgs, opts ...pulumi.InvokeOption) (*GetLoggingGroupResult, error) {
+// Get information about a Yandex Cloud Logging group. For more information, see [the official documentation](https://yandex.cloud/docs/logging/concepts/log-group).
+//
+// > If `groupId` is not specified `name` and `folderId` will be used to designate Yandex Cloud Logging group.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myGroup, err := yandex.GetLoggingGroup(ctx, &yandex.LookupLoggingGroupArgs{
+//				GroupId: pulumi.StringRef("some_yandex_logging_group_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("logGroupRetentionPeriod", myGroup.RetentionPeriod)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `cloudId` (*Read-Only*) (String). The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `dataStream` (*Read-Only*) (String). Data Stream.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `groupId` (String). The Yandex Cloud Logging group ID.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `retentionPeriod` (*Read-Only*) (String). Log entries retention period for the Yandex Cloud Logging group.
+// - `status` (*Read-Only*) (String). The Yandex Cloud Logging group status.
+func LookupLoggingGroup(ctx *pulumi.Context, args *LookupLoggingGroupArgs, opts ...pulumi.InvokeOption) (*LookupLoggingGroupResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
-	var rv GetLoggingGroupResult
+	var rv LookupLoggingGroupResult
 	err := ctx.Invoke("yandex:index/getLoggingGroup:getLoggingGroup", args, &rv, opts...)
 	if err != nil {
 		return nil, err
@@ -22,14 +66,14 @@ func GetLoggingGroup(ctx *pulumi.Context, args *GetLoggingGroupArgs, opts ...pul
 }
 
 // A collection of arguments for invoking getLoggingGroup.
-type GetLoggingGroupArgs struct {
+type LookupLoggingGroupArgs struct {
 	FolderId *string `pulumi:"folderId"`
 	GroupId  *string `pulumi:"groupId"`
 	Name     *string `pulumi:"name"`
 }
 
 // A collection of values returned by getLoggingGroup.
-type GetLoggingGroupResult struct {
+type LookupLoggingGroupResult struct {
 	CloudId     string `pulumi:"cloudId"`
 	CreatedAt   string `pulumi:"createdAt"`
 	DataStream  string `pulumi:"dataStream"`
@@ -44,86 +88,86 @@ type GetLoggingGroupResult struct {
 	Status          string            `pulumi:"status"`
 }
 
-func GetLoggingGroupOutput(ctx *pulumi.Context, args GetLoggingGroupOutputArgs, opts ...pulumi.InvokeOption) GetLoggingGroupResultOutput {
+func LookupLoggingGroupOutput(ctx *pulumi.Context, args LookupLoggingGroupOutputArgs, opts ...pulumi.InvokeOption) LookupLoggingGroupResultOutput {
 	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetLoggingGroupResultOutput, error) {
-			args := v.(GetLoggingGroupArgs)
+		ApplyT(func(v interface{}) (LookupLoggingGroupResultOutput, error) {
+			args := v.(LookupLoggingGroupArgs)
 			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("yandex:index/getLoggingGroup:getLoggingGroup", args, GetLoggingGroupResultOutput{}, options).(GetLoggingGroupResultOutput), nil
-		}).(GetLoggingGroupResultOutput)
+			return ctx.InvokeOutput("yandex:index/getLoggingGroup:getLoggingGroup", args, LookupLoggingGroupResultOutput{}, options).(LookupLoggingGroupResultOutput), nil
+		}).(LookupLoggingGroupResultOutput)
 }
 
 // A collection of arguments for invoking getLoggingGroup.
-type GetLoggingGroupOutputArgs struct {
+type LookupLoggingGroupOutputArgs struct {
 	FolderId pulumi.StringPtrInput `pulumi:"folderId"`
 	GroupId  pulumi.StringPtrInput `pulumi:"groupId"`
 	Name     pulumi.StringPtrInput `pulumi:"name"`
 }
 
-func (GetLoggingGroupOutputArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetLoggingGroupArgs)(nil)).Elem()
+func (LookupLoggingGroupOutputArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupLoggingGroupArgs)(nil)).Elem()
 }
 
 // A collection of values returned by getLoggingGroup.
-type GetLoggingGroupResultOutput struct{ *pulumi.OutputState }
+type LookupLoggingGroupResultOutput struct{ *pulumi.OutputState }
 
-func (GetLoggingGroupResultOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetLoggingGroupResult)(nil)).Elem()
+func (LookupLoggingGroupResultOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupLoggingGroupResult)(nil)).Elem()
 }
 
-func (o GetLoggingGroupResultOutput) ToGetLoggingGroupResultOutput() GetLoggingGroupResultOutput {
+func (o LookupLoggingGroupResultOutput) ToLookupLoggingGroupResultOutput() LookupLoggingGroupResultOutput {
 	return o
 }
 
-func (o GetLoggingGroupResultOutput) ToGetLoggingGroupResultOutputWithContext(ctx context.Context) GetLoggingGroupResultOutput {
+func (o LookupLoggingGroupResultOutput) ToLookupLoggingGroupResultOutputWithContext(ctx context.Context) LookupLoggingGroupResultOutput {
 	return o
 }
 
-func (o GetLoggingGroupResultOutput) CloudId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetLoggingGroupResult) string { return v.CloudId }).(pulumi.StringOutput)
+func (o LookupLoggingGroupResultOutput) CloudId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupLoggingGroupResult) string { return v.CloudId }).(pulumi.StringOutput)
 }
 
-func (o GetLoggingGroupResultOutput) CreatedAt() pulumi.StringOutput {
-	return o.ApplyT(func(v GetLoggingGroupResult) string { return v.CreatedAt }).(pulumi.StringOutput)
+func (o LookupLoggingGroupResultOutput) CreatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupLoggingGroupResult) string { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-func (o GetLoggingGroupResultOutput) DataStream() pulumi.StringOutput {
-	return o.ApplyT(func(v GetLoggingGroupResult) string { return v.DataStream }).(pulumi.StringOutput)
+func (o LookupLoggingGroupResultOutput) DataStream() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupLoggingGroupResult) string { return v.DataStream }).(pulumi.StringOutput)
 }
 
-func (o GetLoggingGroupResultOutput) Description() pulumi.StringOutput {
-	return o.ApplyT(func(v GetLoggingGroupResult) string { return v.Description }).(pulumi.StringOutput)
+func (o LookupLoggingGroupResultOutput) Description() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupLoggingGroupResult) string { return v.Description }).(pulumi.StringOutput)
 }
 
-func (o GetLoggingGroupResultOutput) FolderId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetLoggingGroupResult) string { return v.FolderId }).(pulumi.StringOutput)
+func (o LookupLoggingGroupResultOutput) FolderId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupLoggingGroupResult) string { return v.FolderId }).(pulumi.StringOutput)
 }
 
-func (o GetLoggingGroupResultOutput) GroupId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetLoggingGroupResult) string { return v.GroupId }).(pulumi.StringOutput)
+func (o LookupLoggingGroupResultOutput) GroupId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupLoggingGroupResult) string { return v.GroupId }).(pulumi.StringOutput)
 }
 
 // The provider-assigned unique ID for this managed resource.
-func (o GetLoggingGroupResultOutput) Id() pulumi.StringOutput {
-	return o.ApplyT(func(v GetLoggingGroupResult) string { return v.Id }).(pulumi.StringOutput)
+func (o LookupLoggingGroupResultOutput) Id() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupLoggingGroupResult) string { return v.Id }).(pulumi.StringOutput)
 }
 
-func (o GetLoggingGroupResultOutput) Labels() pulumi.StringMapOutput {
-	return o.ApplyT(func(v GetLoggingGroupResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
+func (o LookupLoggingGroupResultOutput) Labels() pulumi.StringMapOutput {
+	return o.ApplyT(func(v LookupLoggingGroupResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
 }
 
-func (o GetLoggingGroupResultOutput) Name() pulumi.StringOutput {
-	return o.ApplyT(func(v GetLoggingGroupResult) string { return v.Name }).(pulumi.StringOutput)
+func (o LookupLoggingGroupResultOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupLoggingGroupResult) string { return v.Name }).(pulumi.StringOutput)
 }
 
-func (o GetLoggingGroupResultOutput) RetentionPeriod() pulumi.StringOutput {
-	return o.ApplyT(func(v GetLoggingGroupResult) string { return v.RetentionPeriod }).(pulumi.StringOutput)
+func (o LookupLoggingGroupResultOutput) RetentionPeriod() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupLoggingGroupResult) string { return v.RetentionPeriod }).(pulumi.StringOutput)
 }
 
-func (o GetLoggingGroupResultOutput) Status() pulumi.StringOutput {
-	return o.ApplyT(func(v GetLoggingGroupResult) string { return v.Status }).(pulumi.StringOutput)
+func (o LookupLoggingGroupResultOutput) Status() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupLoggingGroupResult) string { return v.Status }).(pulumi.StringOutput)
 }
 
 func init() {
-	pulumi.RegisterOutputType(GetLoggingGroupResultOutput{})
+	pulumi.RegisterOutputType(LookupLoggingGroupResultOutput{})
 }

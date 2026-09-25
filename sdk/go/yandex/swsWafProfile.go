@@ -7,36 +7,586 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new SWS WAF Profile (Minimal).
+//			_, err := yandex.NewSwsWafProfile(ctx, "minimal", &yandex.SwsWafProfileArgs{
+//				RuleSets: yandex.SwsWafProfileRuleSetArray{
+//					&yandex.SwsWafProfileRuleSetArgs{
+//						Action: pulumi.String("DENY"),
+//						CoreRuleSet: &yandex.SwsWafProfileRuleSetCoreRuleSetArgs{
+//							InboundAnomalyScore: pulumi.Int(2),
+//							ParanoiaLevel:       pulumi.Int(1),
+//							RuleSet: &yandex.SwsWafProfileRuleSetCoreRuleSetRuleSetArgs{
+//								Name:    pulumi.String("OWASP Core Ruleset"),
+//								Type:    pulumi.String("CORE"),
+//								Version: pulumi.String("4.0.0"),
+//							},
+//						},
+//						IsEnabled: pulumi.Bool(true),
+//						Priority:  pulumi.Int(1),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			wafParanoiaLevel := 1
+//			owasp4, err := yandex.GetSwsWafRuleSetDescriptor(ctx, &yandex.GetSwsWafRuleSetDescriptorArgs{
+//				Name:    "OWASP Core Ruleset",
+//				Version: "4.0.0",
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewSwsWafProfile(ctx, "default", &yandex.SwsWafProfileArgs{
+//				RuleSets: yandex.SwsWafProfileRuleSetArray{
+//					&yandex.SwsWafProfileRuleSetArgs{
+//						Action:    pulumi.String("DENY"),
+//						IsEnabled: pulumi.Bool(true),
+//						Priority:  pulumi.Int(1),
+//						CoreRuleSet: &yandex.SwsWafProfileRuleSetCoreRuleSetArgs{
+//							InboundAnomalyScore: pulumi.Int(2),
+//							ParanoiaLevel:       pulumi.Int(wafParanoiaLevel),
+//							RuleSet: &yandex.SwsWafProfileRuleSetCoreRuleSetRuleSetArgs{
+//								Name:    pulumi.String("OWASP Core Ruleset"),
+//								Version: pulumi.String("4.0.0"),
+//								Type:    pulumi.String("CORE"),
+//							},
+//						},
+//					},
+//				},
+//				Dynamic: []map[string]interface{}{
+//					map[string]interface{}{
+//						"forEach": "TODO: For expression",
+//						"content": []map[string]interface{}{
+//							map[string]interface{}{
+//								"ruleId":     rule.Value.Id,
+//								"isEnabled":  true,
+//								"isBlocking": false,
+//							},
+//						},
+//					},
+//				},
+//				AnalyzeRequestBody: &yandex.SwsWafProfileAnalyzeRequestBodyArgs{
+//					IsEnabled:       pulumi.Bool(true),
+//					SizeLimit:       pulumi.Int(8),
+//					SizeLimitAction: pulumi.String("IGNORE"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `cloudId` (String). ID of the cloud that the WAF profile belongs to.
+// - `createdAt` (*Read-Only*) (String). Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+// - `description` (String). Optional description of the WAF profile.
+// - `folderId` (String). ID of the folder that the WAF profile belongs to.
+// - `id` (String). ID of the WafProfile resource to return.
+// - `labels` (Map Of String). Labels as “key:value“ pairs. Maximum of 64 per resource.
+// - `matchAllRuleSets` (Bool). Determines
+// - `name` (**Required**)(String). Name of the WAF profile. The name is unique within the folder. 1-50 characters long.
+// - `updatedAt` (*Read-Only*) (String). Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+// - `wafProfileId` (String). ID of the WafProfile resource to return.
+// - `analyzeRequestBody` [Block]. The parameter is deprecated. Parameters for request body analyzer.
+//   - `isEnabled` (Bool). Possible to turn analyzer on and turn if off.
+//   - `sizeLimit` (Number). Maximum size of body to pass to analyzer. In kilobytes.
+//   - `sizeLimitAction` (String). Action to perform if maximum size of body exceeded.
+//
+// - `coreRuleSet` [Block]. The parameter is deprecated. Core rule set settings.
+//   - `inboundAnomalyScore` (Number). Anomaly score.
+//     Enter an integer within the range of 2 and 10000.
+//     The higher this value, the more likely it is that the request that satisfies the rule is an attack.
+//     See [Rules](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#anomaly) for more details.
+//   - `paranoiaLevel` (Number). Paranoia level.
+//     Enter an integer within the range of 1 and 4.
+//     Paranoia level classifies rules according to their aggression. The higher the paranoia level, the better your protection,
+//     but also the higher the probability of WAF false positives.
+//     See [Rules](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#paranoia) for more details.
+//     NOTE: this option has no effect on enabling or disabling rules.
+//     it is used only as recommendation for user to enable all rules with paranoiaLevel <= this value.
+//   - `ruleSet` [Block]. Rule set.
+//   - `id` (String). ID of rule set.
+//   - `name` (**Required**)(String). Name of rule set.
+//   - `type` (String). Type of rule set.
+//   - `version` (**Required**)(String). Version of rule set.
+//
+// - `exclusionRule` [Block]. List of exclusion rules. See [Rules](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#exclusion-rules).
+//   - `description` (String). Optional description of the rule. 0-512 characters long.
+//   - `logExcluded` (Bool). Records the fact that an exception rule is triggered.
+//   - `name` (**Required**)(String). Name of exclusion rule.
+//   - `condition` [Block]. The condition for matching traffic.
+//   - `authority` [Block]. Match authority (Host header).
+//   - `authorities` [Block]. List of authorities. OR semantics implied.
+//   - `defined` (Bool). Matches if the field is defined.
+//   - `exactMatch` (String). Exact match condition.
+//   - `exactNotMatch` (String). Exact not match condition.
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//   - `prefixMatch` (String). Prefix match condition.
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `authorityMatcher` [Block]. Authority matcher.
+//   - `defined` (Bool). Matches if the field is defined.
+//   - `exactMatch` (String). Exact match condition.
+//   - `exactNotMatch` (String). Exact not match condition.
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//   - `prefixMatch` (String). Prefix match condition.
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `botCategory` [Block]. Match bot category.
+//   - `botCategoryListsMatch` [Block]. Bot category lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `botCategoryListsNotMatch` [Block]. Bot category lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `botName` [Block]. Match bot name.
+//   - `botNameListsMatch` [Block]. Bot name lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `botNameListsNotMatch` [Block]. Bot name lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `botScore` [Block]. Match bot score.
+//   - `value` [Block]. List of integer matchers for bot score. OR semantics implied.
+//   - `eqMatch` [Block]. Equal condition.
+//   - `value` (Number). Value to match against.
+//   - `geMatch` [Block]. Greater than or equal condition.
+//   - `value` (Number). Lower bound value (inclusive).
+//   - `leMatch` [Block]. Less than or equal condition.
+//   - `value` (Number). Upper bound value (inclusive).
+//   - `neMatch` [Block]. Not equal condition.
+//   - `value` (Number). Value to not match against.
+//   - `cookies` [Block]. Match cookies.
+//   - `name` (**Required**)(String). Name of the cookie parametr.
+//   - `value` [Block]. Value of the cookie parametr.
+//   - `defined` (Bool). Matches if the field is defined.
+//   - `exactMatch` (String). Exact match condition.
+//   - `exactNotMatch` (String). Exact not match condition.
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//   - `prefixMatch` (String). Prefix match condition.
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `fingerPrint` [Block]. Match fingerprint.
+//   - `ja3Matcher` [Block]. JA3 fingerprint matcher.
+//   - `defined` (Bool). Matches if the field is defined.
+//   - `exactMatch` (String). Exact match condition.
+//   - `exactNotMatch` (String). Exact not match condition.
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//   - `prefixMatch` (String). Prefix match condition.
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `ja3Ranges` [Block]. List of JA3 fingerprint matchers. OR semantics implied.
+//   - `defined` (Bool). Matches if the field is defined.
+//   - `exactMatch` (String). Exact match condition.
+//   - `exactNotMatch` (String). Exact not match condition.
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//   - `prefixMatch` (String). Prefix match condition.
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `ja4Matcher` [Block]. JA4 fingerprint matcher.
+//   - `defined` (Bool). Matches if the field is defined.
+//   - `exactMatch` (String). Exact match condition.
+//   - `exactNotMatch` (String). Exact not match condition.
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//   - `prefixMatch` (String). Prefix match condition.
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `ja4Ranges` [Block]. List of JA4 fingerprint matchers. OR semantics implied.
+//   - `defined` (Bool). Matches if the field is defined.
+//   - `exactMatch` (String). Exact match condition.
+//   - `exactNotMatch` (String). Exact not match condition.
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//   - `prefixMatch` (String). Prefix match condition.
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `headers` [Block]. Match HTTP headers.
+//   - `name` (**Required**)(String). Name of header (case insensitive).
+//   - `value` [Block]. Value of the header.
+//   - `defined` (Bool). Matches if the field is defined.
+//   - `exactMatch` (String). Exact match condition.
+//   - `exactNotMatch` (String). Exact not match condition.
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//   - `prefixMatch` (String). Prefix match condition.
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `httpMethod` [Block]. Match HTTP method.
+//   - `httpMethodMatcher` [Block]. HTTP method matcher.
+//   - `defined` (Bool). Matches if the field is defined.
+//   - `exactMatch` (String). Exact match condition.
+//   - `exactNotMatch` (String). Exact not match condition.
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//   - `prefixMatch` (String). Prefix match condition.
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `httpMethods` [Block]. List of HTTP methods. OR semantics implied.
+//   - `defined` (Bool). Matches if the field is defined.
+//   - `exactMatch` (String). Exact match condition.
+//   - `exactNotMatch` (String). Exact not match condition.
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//   - `prefixMatch` (String). Prefix match condition.
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `requestUri` [Block]. Match Request URI.
+//   - `path` [Block]. Path of the URI [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3).
+//   - `defined` (Bool). Matches if the field is defined.
+//   - `exactMatch` (String). Exact match condition.
+//   - `exactNotMatch` (String). Exact not match condition.
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//   - `prefixMatch` (String). Prefix match condition.
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `queries` [Block]. List of query matchers. AND semantics implied.
+//   - `key` (**Required**)(String). Key of the query parameter.
+//   - `value` [Block]. Value of the query parameter.
+//   - `defined` (Bool). Matches if the field is defined.
+//   - `exactMatch` (String). Exact match condition.
+//   - `exactNotMatch` (String). Exact not match condition.
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//   - `prefixMatch` (String). Prefix match condition.
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `sourceIp` [Block]. Match IP.
+//   - `asnListsMatch` [Block]. ASN lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `asnListsNotMatch` [Block]. ASN lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `asnRangesMatch` [Block]. ASN ranges to match with.
+//   - `asnRanges` (List Of Number). List of ASN values to match against. OR semantics implied.
+//   - `asnRangesNotMatch` [Block]. ASN ranges to not match with.
+//   - `asnRanges` (List Of Number). List of ASN values to match against. OR semantics implied.
+//   - `geoIpMatch` [Block]. Geo locations to match with.
+//   - `locations` (List Of String). ISO 3166-1 alpha 2. OR semantics implied.
+//   - `geoIpNotMatch` [Block]. Geo locations to not match with.
+//   - `locations` (List Of String). ISO 3166-1 alpha 2. OR semantics implied.
+//   - `ipListsMatch` [Block]. IP lists to match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `ipListsNotMatch` [Block]. IP lists to not match with.
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `ipRangesMatch` [Block]. IP ranges to match with.
+//   - `ipRanges` (List Of String). List of IP ranges. OR semantics implied.
+//   - `ipRangesNotMatch` [Block]. IP ranges to not match with.
+//   - `ipRanges` (List Of String). List of IP ranges. OR semantics implied.
+//   - `verifiedBot` [Block]. Match verified bot.
+//   - `verified` [Block]. Matches if the bot is verified or not.
+//   - `match` (Bool). Boolean value to match against.
+//   - `excludeRules` [Block]. Exclude rules.
+//   - `excludeAll` (Bool). Set this option true to exclude all rules.
+//   - `ruleIds` (List Of String). List of rules to exclude.
+//   - `requestCondition` [Block]. Additional condition applied to specific parts of the request to refine when the exclusion is triggered.
+//   - `bodyMatcher` [Block]. Matcher for request body exclusion flag.
+//   - `isExcluded` (Bool). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `bodyValue` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `caseSensitive` (Bool). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `value` (String). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `cookieMatcher` [Block]. Matcher for request cookies.
+//   - `cookieName` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `caseSensitive` (Bool). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `value` (String). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `headerMatcher` [Block]. Matcher for request headers.
+//   - `headerName` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `caseSensitive` (Bool). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `value` (String). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `paramMatcher` [Block]. Matcher for request query parameters.
+//   - `paramName` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `caseSensitive` (Bool). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `value` (String). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+// - `rule` [Block]. Settings for each rule in rule set.
+//   - `isBlocking` (Bool). Determines is it rule blocking or not.
+//   - `isEnabled` (Bool). Determines is it rule enabled or not.
+//   - `ruleId` (**Required**)(String). Rule ID.
+//
+// - `ruleSet` [Block]. List of rule sets.
+//   - `action` (String). Action to perfome on rule set match.
+//   - `isEnabled` (Bool). Determines is it rule set enabled or not.
+//   - `priority` (Number). Priority of rule set.
+//   - `coreRuleSet` [Block]. Core rule set settings. See [Basic rule set](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#rules-set) for details.
+//   - `inboundAnomalyScore` (Number). Matcher for request headers.
+//   - `paranoiaLevel` (Number). Matcher for request cookies.
+//   - `ruleSet` [Block]. Matcher for request query parameters.
+//   - `id` (String). ID of rule set.
+//   - `name` (**Required**)(String). Name of rule set.
+//   - `type` (String). Type of rule set.
+//   - `version` (**Required**)(String). Version of rule set.
+//   - `mlRuleSet` [Block]. Yandex Machine learning rule set settings.
+//   - `ruleGroups` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `action` (String). List of rules to exclude.
+//   - `id` (String). Set this option true to exclude all rules.
+//   - `inboundAnomalyScore` (Number). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `isEnabled` (Bool). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `ruleSet` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `id` (String). ID of rule set.
+//   - `name` (**Required**)(String). Name of rule set.
+//   - `type` (String). Type of rule set.
+//   - `version` (**Required**)(String). Version of rule set.
+//   - `yaRuleSet` [Block]. Yandex rule set settings.
+//   - `ruleGroup` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `action` (String). List of rules to exclude.
+//   - `id` (String). Set this option true to exclude all rules.
+//   - `inboundAnomalyScore` (Number). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `isEnabled` (Bool). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `ruleSet` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `id` (String). ID of rule set.
+//   - `name` (**Required**)(String). Name of rule set.
+//   - `type` (String). Type of rule set.
+//   - `version` (**Required**)(String). Version of rule set.
+//
+// - `timeouts` [Block].
+//   - `create` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+//   - `delete` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+//   - `read` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Read operations occur during any refresh or planning operation when refresh is enabled.
+//   - `update` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_sws_waf_profile.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/swsWafProfile:SwsWafProfile default ...
+// ```
 type SwsWafProfile struct {
 	pulumi.CustomResourceState
 
-	// Parameters for request body analyzer.
+	// The parameter is deprecated. Parameters for request body analyzer.
 	AnalyzeRequestBody SwsWafProfileAnalyzeRequestBodyPtrOutput `pulumi:"analyzeRequestBody"`
-	// The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+	// ID of the cloud that the WAF profile belongs to.
 	CloudId pulumi.StringOutput `pulumi:"cloudId"`
-	// Core rule set settings. See [Basic rule set](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#rules-set) for details.
+	// The parameter is deprecated. Core rule set settings.
 	CoreRuleSet SwsWafProfileCoreRuleSetPtrOutput `pulumi:"coreRuleSet"`
-	// The creation timestamp of the resource.
+	// Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// The resource description.
-	Description pulumi.StringPtrOutput `pulumi:"description"`
-	// List of exclusion rules. See [Rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#exclusion-rules).
+	// Optional description of the WAF profile.
+	Description pulumi.StringOutput `pulumi:"description"`
+	// List of exclusion rules. See [Rules](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#exclusion-rules).
 	ExclusionRules SwsWafProfileExclusionRuleArrayOutput `pulumi:"exclusionRules"`
-	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+	// ID of the folder that the WAF profile belongs to.
 	FolderId pulumi.StringOutput `pulumi:"folderId"`
-	// A set of key/value label pairs which assigned to resource.
-	Labels           pulumi.StringMapOutput `pulumi:"labels"`
-	MatchAllRuleSets pulumi.BoolPtrOutput   `pulumi:"matchAllRuleSets"`
-	// The resource name.
+	// Labels as ``key:value`` pairs. Maximum of 64 per resource.
+	Labels pulumi.StringMapOutput `pulumi:"labels"`
+	// Determines
+	MatchAllRuleSets pulumi.BoolOutput `pulumi:"matchAllRuleSets"`
+	// Name of the WAF profile. The name is unique within the folder. 1-50 characters long.
 	Name pulumi.StringOutput `pulumi:"name"`
-	// Rule set.
+	// List of rule sets.
 	RuleSets SwsWafProfileRuleSetArrayOutput `pulumi:"ruleSets"`
 	// Settings for each rule in rule set.
 	Rules SwsWafProfileRuleArrayOutput `pulumi:"rules"`
+	// ID of the WafProfile resource to return.
+	SwsWafProfileId pulumi.StringOutput            `pulumi:"swsWafProfileId"`
+	Timeouts        SwsWafProfileTimeoutsPtrOutput `pulumi:"timeouts"`
+	// Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+	UpdatedAt pulumi.StringOutput `pulumi:"updatedAt"`
+	// ID of the WafProfile resource to return.
+	WafProfileId pulumi.StringOutput `pulumi:"wafProfileId"`
 }
 
 // NewSwsWafProfile registers a new resource with the given unique name, arguments, and options.
@@ -69,55 +619,71 @@ func GetSwsWafProfile(ctx *pulumi.Context,
 
 // Input properties used for looking up and filtering SwsWafProfile resources.
 type swsWafProfileState struct {
-	// Parameters for request body analyzer.
+	// The parameter is deprecated. Parameters for request body analyzer.
 	AnalyzeRequestBody *SwsWafProfileAnalyzeRequestBody `pulumi:"analyzeRequestBody"`
-	// The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+	// ID of the cloud that the WAF profile belongs to.
 	CloudId *string `pulumi:"cloudId"`
-	// Core rule set settings. See [Basic rule set](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#rules-set) for details.
+	// The parameter is deprecated. Core rule set settings.
 	CoreRuleSet *SwsWafProfileCoreRuleSet `pulumi:"coreRuleSet"`
-	// The creation timestamp of the resource.
+	// Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
 	CreatedAt *string `pulumi:"createdAt"`
-	// The resource description.
+	// Optional description of the WAF profile.
 	Description *string `pulumi:"description"`
-	// List of exclusion rules. See [Rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#exclusion-rules).
+	// List of exclusion rules. See [Rules](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#exclusion-rules).
 	ExclusionRules []SwsWafProfileExclusionRule `pulumi:"exclusionRules"`
-	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+	// ID of the folder that the WAF profile belongs to.
 	FolderId *string `pulumi:"folderId"`
-	// A set of key/value label pairs which assigned to resource.
-	Labels           map[string]string `pulumi:"labels"`
-	MatchAllRuleSets *bool             `pulumi:"matchAllRuleSets"`
-	// The resource name.
+	// Labels as ``key:value`` pairs. Maximum of 64 per resource.
+	Labels map[string]string `pulumi:"labels"`
+	// Determines
+	MatchAllRuleSets *bool `pulumi:"matchAllRuleSets"`
+	// Name of the WAF profile. The name is unique within the folder. 1-50 characters long.
 	Name *string `pulumi:"name"`
-	// Rule set.
+	// List of rule sets.
 	RuleSets []SwsWafProfileRuleSet `pulumi:"ruleSets"`
 	// Settings for each rule in rule set.
 	Rules []SwsWafProfileRule `pulumi:"rules"`
+	// ID of the WafProfile resource to return.
+	SwsWafProfileId *string                `pulumi:"swsWafProfileId"`
+	Timeouts        *SwsWafProfileTimeouts `pulumi:"timeouts"`
+	// Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+	UpdatedAt *string `pulumi:"updatedAt"`
+	// ID of the WafProfile resource to return.
+	WafProfileId *string `pulumi:"wafProfileId"`
 }
 
 type SwsWafProfileState struct {
-	// Parameters for request body analyzer.
+	// The parameter is deprecated. Parameters for request body analyzer.
 	AnalyzeRequestBody SwsWafProfileAnalyzeRequestBodyPtrInput
-	// The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+	// ID of the cloud that the WAF profile belongs to.
 	CloudId pulumi.StringPtrInput
-	// Core rule set settings. See [Basic rule set](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#rules-set) for details.
+	// The parameter is deprecated. Core rule set settings.
 	CoreRuleSet SwsWafProfileCoreRuleSetPtrInput
-	// The creation timestamp of the resource.
+	// Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
 	CreatedAt pulumi.StringPtrInput
-	// The resource description.
+	// Optional description of the WAF profile.
 	Description pulumi.StringPtrInput
-	// List of exclusion rules. See [Rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#exclusion-rules).
+	// List of exclusion rules. See [Rules](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#exclusion-rules).
 	ExclusionRules SwsWafProfileExclusionRuleArrayInput
-	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+	// ID of the folder that the WAF profile belongs to.
 	FolderId pulumi.StringPtrInput
-	// A set of key/value label pairs which assigned to resource.
-	Labels           pulumi.StringMapInput
+	// Labels as ``key:value`` pairs. Maximum of 64 per resource.
+	Labels pulumi.StringMapInput
+	// Determines
 	MatchAllRuleSets pulumi.BoolPtrInput
-	// The resource name.
+	// Name of the WAF profile. The name is unique within the folder. 1-50 characters long.
 	Name pulumi.StringPtrInput
-	// Rule set.
+	// List of rule sets.
 	RuleSets SwsWafProfileRuleSetArrayInput
 	// Settings for each rule in rule set.
 	Rules SwsWafProfileRuleArrayInput
+	// ID of the WafProfile resource to return.
+	SwsWafProfileId pulumi.StringPtrInput
+	Timeouts        SwsWafProfileTimeoutsPtrInput
+	// Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+	UpdatedAt pulumi.StringPtrInput
+	// ID of the WafProfile resource to return.
+	WafProfileId pulumi.StringPtrInput
 }
 
 func (SwsWafProfileState) ElementType() reflect.Type {
@@ -125,52 +691,64 @@ func (SwsWafProfileState) ElementType() reflect.Type {
 }
 
 type swsWafProfileArgs struct {
-	// Parameters for request body analyzer.
+	// The parameter is deprecated. Parameters for request body analyzer.
 	AnalyzeRequestBody *SwsWafProfileAnalyzeRequestBody `pulumi:"analyzeRequestBody"`
-	// The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+	// ID of the cloud that the WAF profile belongs to.
 	CloudId *string `pulumi:"cloudId"`
-	// Core rule set settings. See [Basic rule set](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#rules-set) for details.
+	// The parameter is deprecated. Core rule set settings.
 	CoreRuleSet *SwsWafProfileCoreRuleSet `pulumi:"coreRuleSet"`
-	// The resource description.
+	// Optional description of the WAF profile.
 	Description *string `pulumi:"description"`
-	// List of exclusion rules. See [Rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#exclusion-rules).
+	// List of exclusion rules. See [Rules](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#exclusion-rules).
 	ExclusionRules []SwsWafProfileExclusionRule `pulumi:"exclusionRules"`
-	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+	// ID of the folder that the WAF profile belongs to.
 	FolderId *string `pulumi:"folderId"`
-	// A set of key/value label pairs which assigned to resource.
-	Labels           map[string]string `pulumi:"labels"`
-	MatchAllRuleSets *bool             `pulumi:"matchAllRuleSets"`
-	// The resource name.
+	// Labels as ``key:value`` pairs. Maximum of 64 per resource.
+	Labels map[string]string `pulumi:"labels"`
+	// Determines
+	MatchAllRuleSets *bool `pulumi:"matchAllRuleSets"`
+	// Name of the WAF profile. The name is unique within the folder. 1-50 characters long.
 	Name *string `pulumi:"name"`
-	// Rule set.
+	// List of rule sets.
 	RuleSets []SwsWafProfileRuleSet `pulumi:"ruleSets"`
 	// Settings for each rule in rule set.
 	Rules []SwsWafProfileRule `pulumi:"rules"`
+	// ID of the WafProfile resource to return.
+	SwsWafProfileId *string                `pulumi:"swsWafProfileId"`
+	Timeouts        *SwsWafProfileTimeouts `pulumi:"timeouts"`
+	// ID of the WafProfile resource to return.
+	WafProfileId *string `pulumi:"wafProfileId"`
 }
 
 // The set of arguments for constructing a SwsWafProfile resource.
 type SwsWafProfileArgs struct {
-	// Parameters for request body analyzer.
+	// The parameter is deprecated. Parameters for request body analyzer.
 	AnalyzeRequestBody SwsWafProfileAnalyzeRequestBodyPtrInput
-	// The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+	// ID of the cloud that the WAF profile belongs to.
 	CloudId pulumi.StringPtrInput
-	// Core rule set settings. See [Basic rule set](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#rules-set) for details.
+	// The parameter is deprecated. Core rule set settings.
 	CoreRuleSet SwsWafProfileCoreRuleSetPtrInput
-	// The resource description.
+	// Optional description of the WAF profile.
 	Description pulumi.StringPtrInput
-	// List of exclusion rules. See [Rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#exclusion-rules).
+	// List of exclusion rules. See [Rules](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#exclusion-rules).
 	ExclusionRules SwsWafProfileExclusionRuleArrayInput
-	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+	// ID of the folder that the WAF profile belongs to.
 	FolderId pulumi.StringPtrInput
-	// A set of key/value label pairs which assigned to resource.
-	Labels           pulumi.StringMapInput
+	// Labels as ``key:value`` pairs. Maximum of 64 per resource.
+	Labels pulumi.StringMapInput
+	// Determines
 	MatchAllRuleSets pulumi.BoolPtrInput
-	// The resource name.
+	// Name of the WAF profile. The name is unique within the folder. 1-50 characters long.
 	Name pulumi.StringPtrInput
-	// Rule set.
+	// List of rule sets.
 	RuleSets SwsWafProfileRuleSetArrayInput
 	// Settings for each rule in rule set.
 	Rules SwsWafProfileRuleArrayInput
+	// ID of the WafProfile resource to return.
+	SwsWafProfileId pulumi.StringPtrInput
+	Timeouts        SwsWafProfileTimeoutsPtrInput
+	// ID of the WafProfile resource to return.
+	WafProfileId pulumi.StringPtrInput
 }
 
 func (SwsWafProfileArgs) ElementType() reflect.Type {
@@ -260,56 +838,57 @@ func (o SwsWafProfileOutput) ToSwsWafProfileOutputWithContext(ctx context.Contex
 	return o
 }
 
-// Parameters for request body analyzer.
+// The parameter is deprecated. Parameters for request body analyzer.
 func (o SwsWafProfileOutput) AnalyzeRequestBody() SwsWafProfileAnalyzeRequestBodyPtrOutput {
 	return o.ApplyT(func(v *SwsWafProfile) SwsWafProfileAnalyzeRequestBodyPtrOutput { return v.AnalyzeRequestBody }).(SwsWafProfileAnalyzeRequestBodyPtrOutput)
 }
 
-// The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+// ID of the cloud that the WAF profile belongs to.
 func (o SwsWafProfileOutput) CloudId() pulumi.StringOutput {
 	return o.ApplyT(func(v *SwsWafProfile) pulumi.StringOutput { return v.CloudId }).(pulumi.StringOutput)
 }
 
-// Core rule set settings. See [Basic rule set](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#rules-set) for details.
+// The parameter is deprecated. Core rule set settings.
 func (o SwsWafProfileOutput) CoreRuleSet() SwsWafProfileCoreRuleSetPtrOutput {
 	return o.ApplyT(func(v *SwsWafProfile) SwsWafProfileCoreRuleSetPtrOutput { return v.CoreRuleSet }).(SwsWafProfileCoreRuleSetPtrOutput)
 }
 
-// The creation timestamp of the resource.
+// Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
 func (o SwsWafProfileOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *SwsWafProfile) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// The resource description.
-func (o SwsWafProfileOutput) Description() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v *SwsWafProfile) pulumi.StringPtrOutput { return v.Description }).(pulumi.StringPtrOutput)
+// Optional description of the WAF profile.
+func (o SwsWafProfileOutput) Description() pulumi.StringOutput {
+	return o.ApplyT(func(v *SwsWafProfile) pulumi.StringOutput { return v.Description }).(pulumi.StringOutput)
 }
 
-// List of exclusion rules. See [Rules](https://yandex.cloud/en/docs/smartwebsecurity/concepts/waf#exclusion-rules).
+// List of exclusion rules. See [Rules](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#exclusion-rules).
 func (o SwsWafProfileOutput) ExclusionRules() SwsWafProfileExclusionRuleArrayOutput {
 	return o.ApplyT(func(v *SwsWafProfile) SwsWafProfileExclusionRuleArrayOutput { return v.ExclusionRules }).(SwsWafProfileExclusionRuleArrayOutput)
 }
 
-// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// ID of the folder that the WAF profile belongs to.
 func (o SwsWafProfileOutput) FolderId() pulumi.StringOutput {
 	return o.ApplyT(func(v *SwsWafProfile) pulumi.StringOutput { return v.FolderId }).(pulumi.StringOutput)
 }
 
-// A set of key/value label pairs which assigned to resource.
+// Labels as “key:value“ pairs. Maximum of 64 per resource.
 func (o SwsWafProfileOutput) Labels() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *SwsWafProfile) pulumi.StringMapOutput { return v.Labels }).(pulumi.StringMapOutput)
 }
 
-func (o SwsWafProfileOutput) MatchAllRuleSets() pulumi.BoolPtrOutput {
-	return o.ApplyT(func(v *SwsWafProfile) pulumi.BoolPtrOutput { return v.MatchAllRuleSets }).(pulumi.BoolPtrOutput)
+// Determines
+func (o SwsWafProfileOutput) MatchAllRuleSets() pulumi.BoolOutput {
+	return o.ApplyT(func(v *SwsWafProfile) pulumi.BoolOutput { return v.MatchAllRuleSets }).(pulumi.BoolOutput)
 }
 
-// The resource name.
+// Name of the WAF profile. The name is unique within the folder. 1-50 characters long.
 func (o SwsWafProfileOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *SwsWafProfile) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
 
-// Rule set.
+// List of rule sets.
 func (o SwsWafProfileOutput) RuleSets() SwsWafProfileRuleSetArrayOutput {
 	return o.ApplyT(func(v *SwsWafProfile) SwsWafProfileRuleSetArrayOutput { return v.RuleSets }).(SwsWafProfileRuleSetArrayOutput)
 }
@@ -317,6 +896,25 @@ func (o SwsWafProfileOutput) RuleSets() SwsWafProfileRuleSetArrayOutput {
 // Settings for each rule in rule set.
 func (o SwsWafProfileOutput) Rules() SwsWafProfileRuleArrayOutput {
 	return o.ApplyT(func(v *SwsWafProfile) SwsWafProfileRuleArrayOutput { return v.Rules }).(SwsWafProfileRuleArrayOutput)
+}
+
+// ID of the WafProfile resource to return.
+func (o SwsWafProfileOutput) SwsWafProfileId() pulumi.StringOutput {
+	return o.ApplyT(func(v *SwsWafProfile) pulumi.StringOutput { return v.SwsWafProfileId }).(pulumi.StringOutput)
+}
+
+func (o SwsWafProfileOutput) Timeouts() SwsWafProfileTimeoutsPtrOutput {
+	return o.ApplyT(func(v *SwsWafProfile) SwsWafProfileTimeoutsPtrOutput { return v.Timeouts }).(SwsWafProfileTimeoutsPtrOutput)
+}
+
+// Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+func (o SwsWafProfileOutput) UpdatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v *SwsWafProfile) pulumi.StringOutput { return v.UpdatedAt }).(pulumi.StringOutput)
+}
+
+// ID of the WafProfile resource to return.
+func (o SwsWafProfileOutput) WafProfileId() pulumi.StringOutput {
+	return o.ApplyT(func(v *SwsWafProfile) pulumi.StringOutput { return v.WafProfileId }).(pulumi.StringOutput)
 }
 
 type SwsWafProfileArrayOutput struct{ *pulumi.OutputState }

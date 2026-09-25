@@ -7,10 +7,53 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex VPC network. For more information, see [Yandex Cloud VPC](https://yandex.cloud/docs/vpc/concepts/index).
+//
+// This data source is used to define [VPC Networks](https://yandex.cloud/docs/vpc/concepts/network) that can be used by other resources.
+//
+// > One of `networkId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetVpcNetwork(ctx, &yandex.LookupVpcNetworkArgs{
+//				NetworkId: pulumi.StringRef("my-network-id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `defaultSecurityGroupId` (*Read-Only*) (String). ID of default Security Group of this network.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `networkId` (String). ID of the network.
+// - `subnetIds` (*Read-Only*) (List Of String). The list of VPC subnets identifiers which resource is attached.
 func LookupVpcNetwork(ctx *pulumi.Context, args *LookupVpcNetworkArgs, opts ...pulumi.InvokeOption) (*LookupVpcNetworkResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupVpcNetworkResult

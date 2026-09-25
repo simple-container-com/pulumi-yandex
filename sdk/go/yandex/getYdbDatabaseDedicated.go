@@ -7,10 +7,79 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Database (dedicated) cluster. For more information, see [the official documentation](https://yandex.cloud/docs/ydb/concepts/serverless_and_dedicated).
+//
+// > If `databaseId` is not specified `name` and `folderId` will be used to designate Yandex Database cluster.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myDatabase, err := yandex.GetYdbDatabaseDedicated(ctx, &yandex.LookupYdbDatabaseDedicatedArgs{
+//				DatabaseId: pulumi.StringRef("some_ydb_dedicated_database_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("ydbApiEndpoint", myDatabase.YdbApiEndpoint)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `assignPublicIps` (*Read-Only*) (Bool). Whether public IP addresses should be assigned to the Yandex Database cluster.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `databaseId` (String). ID of the Yandex Database cluster.
+// - `databasePath` (*Read-Only*) (String). Full database path of the Yandex Database cluster. Useful for SDK configuration.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `location` (*Read-Only*) (List Of Object). Location for the Yandex Database cluster.
+//   - `region` .
+//   - `id` .
+//
+// - `locationId` (*Read-Only*) (String). Location ID for the Yandex Database cluster.
+// - `name` (String). The resource name.
+// - `networkId` (*Read-Only*) (String). The `VPC Network ID` of subnets which resource attached to.
+// - `resourcePresetId` (*Read-Only*) (String). The Yandex Database cluster preset. Available presets can be obtained via `yc ydb resource-preset list` command.
+// - `scalePolicy` (*Read-Only*) (List Of Object). Scaling policy for the Yandex Database cluster.
+//   - `autoScale` .
+//   - `maxSize` .
+//   - `minSize` .
+//   - `targetTracking` .
+//   - `cpuUtilizationPercent` .
+//   - `fixedScale` .
+//   - `size` .
+//
+// - `securityGroupIds` (*Read-Only*) (Set Of String). The list of security groups applied to resource or their components.
+// - `status` (*Read-Only*) (String). Status of the Yandex Database cluster.
+// - `storageConfig` (*Read-Only*) (List Of Object). A list of storage configuration options for the Yandex Database cluster.
+//   - `groupCount` .
+//   - `storageTypeId` .
+//
+// - `subnetIds` (*Read-Only*) (Set Of String). The list of VPC subnets identifiers which resource is attached.
+// - `tlsEnabled` (*Read-Only*) (Bool). Whether TLS is enabled for the Yandex Database cluster. Useful for SDK configuration.
+// - `ydbApiEndpoint` (*Read-Only*) (String). API endpoint of the Yandex Database cluster. Useful for SDK configuration.
+// - `ydbFullEndpoint` (*Read-Only*) (String). Full endpoint of the Yandex Database cluster.
 func LookupYdbDatabaseDedicated(ctx *pulumi.Context, args *LookupYdbDatabaseDedicatedArgs, opts ...pulumi.InvokeOption) (*LookupYdbDatabaseDedicatedResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupYdbDatabaseDedicatedResult

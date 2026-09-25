@@ -7,10 +7,64 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// A Placement group resource. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/placement-groups).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Compute Placement Group.
+//			_, err := yandex.NewComputePlacementGroup(ctx, "group1", &yandex.ComputePlacementGroupArgs{
+//				Description: pulumi.String("my description"),
+//				FolderId:    pulumi.String("abc*********123"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `placementStrategyPartitions` (Number). A number of partitions in the placement strategy with partitions policy of the Placement Group (conflicts with placement_strategy_spread).
+// - `placementStrategySpread` (Bool). A placement strategy with spread policy of the Placement Group. Should be true or unset (conflicts with placement_strategy_partitions).
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_compute_placement_group.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/computePlacementGroup:ComputePlacementGroup my_pg1 ...
+// ```
 type ComputePlacementGroup struct {
 	pulumi.CustomResourceState
 

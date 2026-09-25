@@ -7,10 +7,123 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Creates a new snapshot schedule. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/snapshot-schedule).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Compute Snapshot Schedule.
+//			_, err := yandex.NewComputeSnapshotSchedule(ctx, "vmSnapSch1", &yandex.ComputeSnapshotScheduleArgs{
+//				DiskIds: pulumi.StringArray{
+//					pulumi.String("test_disk_id"),
+//					pulumi.String("another_test_disk_id"),
+//				},
+//				Labels: pulumi.StringMap{
+//					"my-label": pulumi.String("my-label-value"),
+//				},
+//				SchedulePolicy: &yandex.ComputeSnapshotScheduleSchedulePolicyArgs{
+//					Expression: pulumi.String("0 0 * * *"),
+//				},
+//				SnapshotCount: pulumi.Int(1),
+//				SnapshotSpec: &yandex.ComputeSnapshotScheduleSnapshotSpecArgs{
+//					Description: pulumi.String("snapshot-description"),
+//					Labels: pulumi.StringMap{
+//						"snapshot-label": pulumi.String("my-snapshot-label-value"),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Compute Snapshot Schedule with retention period.
+//			_, err := yandex.NewComputeSnapshotSchedule(ctx, "vmSnapSch2", &yandex.ComputeSnapshotScheduleArgs{
+//				DiskIds: pulumi.StringArray{
+//					pulumi.String("test_disk_id"),
+//					pulumi.String("another_test_disk_id"),
+//				},
+//				RetentionPeriod: pulumi.String("12h"),
+//				SchedulePolicy: &yandex.ComputeSnapshotScheduleSchedulePolicyArgs{
+//					Expression: pulumi.String("0 0 * * *"),
+//				},
+//				SnapshotSpec: &yandex.ComputeSnapshotScheduleSnapshotSpecArgs{
+//					Description: pulumi.String("retention-snapshot"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `diskIds` (Set Of String). IDs of the disk for snapshot schedule.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `retentionPeriod` (String). Time duration applied to snapshots created by this snapshot schedule. This is a signed sequence of decimal numbers, each with optional fraction and a unit suffix. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. Examples: `300ms`, `1.5h` or `2h45m`.
+// - `snapshotCount` (Number). Maximum number of snapshots for every disk of the snapshot schedule.
+// - `status` (*Read-Only*) (String). The status of the snapshot schedule.
+// - `schedulePolicy` [Block]. Schedule policy of the snapshot schedule.
+//   - `expression` (String). Cron expression to schedule snapshots (in cron format `" * ****"`).
+//   - `startAt` (String). Time to start the snapshot schedule (in format RFC3339 `2006-01-02T15:04:05Z07:00`). If empty current time will be used. Unlike an `expression` that specifies regularity rules, the `startAt` parameter determines from what point these rules will be applied.
+//
+// - `snapshotSpec` [Block]. Additional attributes for snapshots created by this snapshot schedule.
+//   - `description` (String). Description to assign to snapshots created by this snapshot schedule.
+//   - `labels` (Map Of String). A set of key/value label pairs to assign to snapshots created by this snapshot schedule.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_compute_snapshot_schedule.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/computeSnapshotSchedule:ComputeSnapshotSchedule my_snapshot_schedule fd8hc**********o4qe2
+// ```
 type ComputeSnapshotSchedule struct {
 	pulumi.CustomResourceState
 

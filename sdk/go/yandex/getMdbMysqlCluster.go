@@ -7,10 +7,116 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Managed MySQL cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).
+//
+// > Either `clusterId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myCluster, err := yandex.GetMdbMysqlCluster(ctx, &yandex.LookupMdbMysqlClusterArgs{
+//				Name: pulumi.StringRef("test"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("networkId", myCluster.NetworkId)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `backupRetainPeriodDays` (*Read-Only*) (Number). The period in days during which backups are stored.
+// - `backupWindowStart` (*Read-Only*) (List Of Object). Time to start the daily backup, in the UTC.
+//   - `hours` .
+//   - `minutes` .
+//
+// - `clusterId` (String). The ID of the MySQL cluster.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `database` (*Read-Only*) (Set Of Object). To manage databases, please switch to using a separate resource type `yandexMdbMysqlDatabases`.
+//   - `name` .
+//
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `diskEncryptionKeyId` (String). ID of the KMS key for cluster disk encryption. Restoring without an encryption key will disable encryption if any exists.
+// - `diskSizeAutoscaling` (*Read-Only*) (List Of Object). Cluster disk size autoscaling settings.
+//   - `diskSizeLimit` .
+//   - `emergencyUsageThreshold` .
+//   - `plannedUsageThreshold` .
+//
+// - `environment` (*Read-Only*) (String). Deployment environment of the MySQL cluster.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `health` (*Read-Only*) (String). Aggregated health of the cluster.
+// - `host` (*Read-Only*) (List Of Object). A host of the MySQL cluster.
+//   - `assignPublicIp` .
+//   - `backupPriority` .
+//   - `fqdn` .
+//   - `priority` .
+//   - `replicationSource` .
+//   - `subnetId` .
+//   - `zone` .
+//
+// - `hostGroupIds` (*Read-Only*) (Set Of String). A list of host group IDs to place VMs of the cluster on.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `maintenanceWindow` (*Read-Only*) (List Of Object). Maintenance policy of the MySQL cluster.
+//   - `day` .
+//   - `hour` .
+//   - `type` .
+//
+// - `mysqlConfig` (Map Of String). MySQL cluster configuration. For detailed information specific to your MySQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/mysql/v1/config).
+// - `name` (String). The resource name.
+// - `networkId` (*Read-Only*) (String). The `VPC Network ID` of subnets which resource attached to.
+// - `performanceDiagnostics` (*Read-Only*) (List Of Object). Cluster performance diagnostics settings. [YC Documentation](https://yandex.cloud/docs/managed-mysql/api-ref/grpc/cluster_service#PerformanceDiagnostics).
+//   - `enabled` .
+//   - `sessionsSamplingInterval` .
+//   - `statementsSamplingInterval` .
+//
+// - `resources` (*Read-Only*) (List Of Object). Resources allocated to hosts of the MySQL cluster.
+//   - `diskSize` .
+//   - `diskTypeId` .
+//   - `resourcePresetId` .
+//
+// - `securityGroupIds` (*Read-Only*) (Set Of String). The list of security groups applied to resource or their components.
+// - `status` (*Read-Only*) (String). Status of the cluster.
+// - `user` (*Read-Only*) (List Of Object). To manage users, please switch to using a separate resource type `MdbMysqlUser`.
+//   - `authenticationPlugin` .
+//   - `connectionLimits` .
+//   - `maxConnectionsPerHour` .
+//   - `maxQuestionsPerHour` .
+//   - `maxUpdatesPerHour` .
+//   - `maxUserConnections` .
+//   - `globalPermissions` .
+//   - `name` .
+//   - `password` .
+//   - `permission` .
+//   - `databaseName` .
+//   - `roles` .
+//
+// - `version` (*Read-Only*) (String). Version of the MySQL cluster. (allowed versions are: 5.7, 8.0, 8.4).
+// - `access` [Block]. Access policy to the MySQL cluster.
+//   - `dataLens` (Bool). Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
+//   - `dataTransfer` (Bool). Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer).
+//   - `webSql` (Bool). Allows access for [SQL queries in the management console](https://yandex.cloud/docs/managed-mysql/operations/web-sql-query).
+//   - `yandexQuery` (Bool). Allow access for [YandexQuery](https://yandex.cloud/services/query).
 func LookupMdbMysqlCluster(ctx *pulumi.Context, args *LookupMdbMysqlClusterArgs, opts ...pulumi.InvokeOption) (*LookupMdbMysqlClusterResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMdbMysqlClusterResult

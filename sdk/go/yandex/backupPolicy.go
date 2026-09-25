@@ -8,10 +8,254 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud Backup Policy](https://yandex.cloud/docs/backup/concepts/policy).
+//
+// > Cloud Backup Provider must be activated in order to manipulate with policies. Active it either by UI Console or by `yc` command.
+//
+// ## Defined types
+//
+// ### intervalType
+//
+//  A string type, that accepts values in the format of: `number` + `time type`, where `time type` might be:
+// * `s` — seconds
+// * `m` — minutes
+// * `h` — hours
+// * `d` — days
+// * `w` — weekdays
+// * `M` — months
+//
+// Example of interval value: `5m`, `10d`, `2M`, `5w`
+//
+// ### dayType
+//
+// A string type, that accepts the following values: `ALWAYS_INCREMENTAL`, `ALWAYS_FULL`, `WEEKLY_FULL_DAILY_INCREMENTAL`, `WEEKLY_INCREMENTAL`.
+//
+// ### backupSetType
+//
+// `TYPE_AUTO`, `TYPE_FULL`, `TYPE_INCREMENTAL`, `TYPE_DIFFERENTIAL`.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new basic Cloud Backup Policy
+//			_, err := yandex.NewBackupPolicy(ctx, "basicPolicy", &yandex.BackupPolicyArgs{
+//				Reattempts: &yandex.BackupPolicyReattemptsArgs{},
+//				Retention: &yandex.BackupPolicyRetentionArgs{
+//					AfterBackup: pulumi.Bool(false),
+//				},
+//				Scheduling: &yandex.BackupPolicySchedulingArgs{
+//					BackupSets: yandex.BackupPolicySchedulingBackupSetArray{
+//						&yandex.BackupPolicySchedulingBackupSetArgs{
+//							ExecuteByInterval: pulumi.Int(86400),
+//						},
+//					},
+//					Enabled: pulumi.Bool(false),
+//				},
+//				VmSnapshotReattempts: &yandex.BackupPolicyVmSnapshotReattemptsArgs{},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new full Cloud Backup Policy
+//			_, err := yandex.NewBackupPolicy(ctx, "myPolicy", &yandex.BackupPolicyArgs{
+//				ArchiveName:                    pulumi.String("[Machine Name]-[Plan ID]-[Unique ID]a"),
+//				Cbt:                            pulumi.String("USE_IF_ENABLED"),
+//				Compression:                    pulumi.String("NORMAL"),
+//				FastBackupEnabled:              pulumi.Bool(true),
+//				Format:                         pulumi.String("AUTO"),
+//				MultiVolumeSnapshottingEnabled: pulumi.Bool(true),
+//				PerformanceWindowEnabled:       pulumi.Bool(true),
+//				PreserveFileSecuritySettings:   pulumi.Bool(true),
+//				QuiesceSnapshottingEnabled:     pulumi.Bool(true),
+//				Reattempts: &yandex.BackupPolicyReattemptsArgs{
+//					Enabled:     pulumi.Bool(true),
+//					Interval:    pulumi.String("1m"),
+//					MaxAttempts: pulumi.Int(10),
+//				},
+//				Retention: &yandex.BackupPolicyRetentionArgs{
+//					AfterBackup: pulumi.Bool(false),
+//					Rules: yandex.BackupPolicyRetentionRuleArray{
+//						&yandex.BackupPolicyRetentionRuleArgs{
+//							MaxAge:       pulumi.String("365d"),
+//							RepeatPeriod: []interface{}{},
+//						},
+//					},
+//				},
+//				Scheduling: &yandex.BackupPolicySchedulingArgs{
+//					BackupSets: yandex.BackupPolicySchedulingBackupSetArray{
+//						&yandex.BackupPolicySchedulingBackupSetArgs{
+//							ExecuteByTime: []map[string]interface{}{
+//								map[string]interface{}{
+//									"includeLastDayOfMonth": true,
+//									"monthdays":             []interface{}{},
+//									"months": []int{
+//										1,
+//										2,
+//										3,
+//										4,
+//										5,
+//										6,
+//										7,
+//										8,
+//										9,
+//										10,
+//										11,
+//										12,
+//									},
+//									"repeatAt": []string{
+//										"04:10",
+//									},
+//									"repeatEvery": "30m",
+//									"type":        "MONTHLY",
+//									"weekdays":    []interface{}{},
+//								},
+//							},
+//						},
+//					},
+//					Enabled:            pulumi.Bool(false),
+//					MaxParallelBackups: pulumi.Int(0),
+//					RandomMaxDelay:     pulumi.String("30m"),
+//					Scheme:             pulumi.String("ALWAYS_INCREMENTAL"),
+//					WeeklyBackupDay:    pulumi.String("MONDAY"),
+//				},
+//				SilentModeEnabled: pulumi.Bool(true),
+//				SplittingBytes:    pulumi.String("9223372036854775807"),
+//				VmSnapshotReattempts: &yandex.BackupPolicyVmSnapshotReattemptsArgs{
+//					Enabled:     pulumi.Bool(true),
+//					Interval:    pulumi.String("1m"),
+//					MaxAttempts: pulumi.Int(10),
+//				},
+//				VssProvider: pulumi.String("NATIVE"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `archiveName` (String). The name of generated archives. Default `[Machine Name]-[Plan ID]-[Unique ID]a`.
+// - `cbt` (String). Configuration of Changed Block Tracking. Available values are: `USE_IF_ENABLED`, `ENABLED_AND_USE`, `DO_NOT_USE`. Default `DO_NOT_USE`.
+// - `compression` (String). Archive compression level. Affects CPU. Available values: `NORMAL`, `HIGH`, `MAX`, `OFF`. Default: `NORMAL`.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `enabled` (*Read-Only*) (Bool). If this field is true, it means that the policy is enabled.
+// - `fastBackupEnabled` (Bool). If true, determines whether a file has changed by the file size and timestamp. Otherwise, the entire file contents are compared to those stored in the backup.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `format` (String). Format of the backup. It's strongly recommend to leave this option empty or `AUTO`. Available values: `AUTO`, `VERSION_11`, `VERSION_12`.
+// - `id` (String).
+// - `lvmSnapshottingEnabled` (Bool). LVM will be used to create the volume snapshot. If LVM fails to create a snapshot (for example, because there is not enough free space), the software will create the snapshot itself.
+// - `multiVolumeSnapshottingEnabled` (Bool). If true, snapshots of multiple volumes will be taken simultaneously. Default `true`.
+// - `name` (**Required**)(String). The resource name.
+// - `performanceWindowEnabled` (Bool). Time windows for performance limitations of backup. Default `false`.
+// - `preserveFileSecuritySettings` (Bool). If true, a quiesced snapshot of the virtual machine will be taken. Default `true`.
+// - `quiesceSnapshottingEnabled` (Bool). If true, a quiesced snapshot of the virtual machine will be taken. Default `true`.
+// - `sectorBySector` (Bool). A sector-by-sector backup of a disk or volume creates a backup copy of all sectors of the disk or volume, including those that do not contain data. Therefore, the size of such a backup copy will be equal to the size of the original disk or volume.
+// - `silentModeEnabled` (Bool). If true, a user interaction will be avoided when possible. Default `true`.
+// - `splittingBytes` (String). Determines the size to split backups. It's better to leave this option unchanged. Default `9223372036854775807`.
+// - `updatedAt` (*Read-Only*) (String). The update timestamp of the resource.
+// - `validationEnabled` (Bool). Validation is a time-consuming process, even with incremental or differential backups of small amounts of data. This is because not only the data physically contained in the backup copy is verified, but all data restored when it is selected. This option requires access to previously created backup copies.
+// - `vssProvider` (String). Settings for the volume shadow copy service. Available values are: `NATIVE`, `TARGET_SYSTEM_DEFINED`. Default `NATIVE`.
+// - `fileFilters` [Block]. File filters to specify masks of files to backup or to exclude of backuping.
+//   - `exclusionMasks` (List Of String). Do not backup files that match the following criteria.
+//   - `inclusionMasks` (List Of String). Backup only files that match the following criteria.
+//
+// - `reattempts` [Block]. Amount of reattempts that should be performed while trying to make backup at the host.
+//   - `enabled` (Bool). Enable flag. Default `true`.
+//   - `interval` (String). Retry interval. See `intervalType` for available values. Default: `5m`.
+//   - `maxAttempts` (Number). Maximum number of attempts before throwing an error. Default `5`.
+//
+// - `retention` [Block]. Retention policy for backups. Allows to setup backups lifecycle.
+//   - `afterBackup` (Bool). Defines whether retention rule applies after creating backup or before.
+//   - `rules` [Block]. A list of retention rules.
+//   - `maxAge` (String). Deletes backups that older than `maxAge`. Exactly one of `maxCount` or `maxAge` should be set.
+//   - `maxCount` (Number). Deletes backups if it's count exceeds `maxCount`. Exactly one of `maxCount` or `maxAge` should be set.
+//   - `repeatPeriod` (List Of String). Possible types: `REPEATE_PERIOD_UNSPECIFIED`, `HOURLY`, `DAILY`, `WEEKLY`, `MONTHLY`. Specifies repeat period of the backupset.
+//
+// - `scheduling` [Block]. Schedule settings for creating backups on the host.
+//   - `enabled` (Bool). Enables or disables scheduling. Default `true`.
+//   - `executeByInterval` (Number).  Perform backup by interval, since last backup of the host. Maximum value is: 9999 days. See `intervalType` for available values. Exactly on of options should be set: `executeByInterval` or `executeByTime`.
+//   - `maxParallelBackups` (Number). Maximum number of backup processes allowed to run in parallel. 0 for unlimited. Default `0`.
+//   - `randomMaxDelay` (String). Configuration of the random delay between the execution of parallel tasks. See `intervalType` for available values. Default `30m`.
+//   - `scheme` (String). Scheme of the backups. Available values are: `ALWAYS_INCREMENTAL`, `ALWAYS_FULL`, `WEEKLY_FULL_DAILY_INCREMENTAL`, `WEEKLY_INCREMENTAL`. Default `ALWAYS_INCREMENTAL`.
+//   - `weeklyBackupDay` (String). A day of week to start weekly backups. See `dayType` for available values. Default `MONDAY`.
+//   - `backupSets` [Block]. A list of schedules with backup sets that compose the whole scheme.
+//   - `executeByInterval` (Number). Perform backup by interval, since last backup of the host. Maximum value is: 9999 days. See `intervalType` for available values. Exactly on of options should be set: `executeByInterval` or `executeByTime`.
+//   - `type` (String). BackupSet type. See `backupSetType` for available values. Default `TYPE_AUTO`.
+//   - `executeByTime` [Block]. Perform backup periodically at specific time. Exactly on of options should be set: `executeByInterval` or `executeByTime`.
+//   - `includeLastDayOfMonth` (Bool). If true, schedule will be applied on the last day of month. See `dayType` for available values. Default `false`.
+//   - `monthdays` (List Of Number). List of days when schedule applies. Used in `MONTHLY` type.
+//   - `months` (List Of Number). Set of values. Allowed values form 1 to 12.
+//   - `repeatAt` (List Of String). List of time in format `HH:MM` (24-hours format), when the schedule applies.
+//   - `repeatEvery` (String). Frequency of backup repetition. See `intervalType` for available values.
+//   - `runLater` (Bool). If true and if the machine is off, launch missed tasks on boot up. Default `false`.
+//   - `type` (**Required**)(String). Type of the scheduling. Available values are: `HOURLY`, `DAILY`, `WEEKLY`, `MONTHLY`.
+//   - `weekdays` (List Of String). List of weekdays when the backup will be applied. Used in `WEEKLY` type.
+//   - `executeByTime` [Block]. Perform backup periodically at specific time. Exactly on of options should be set: `executeByInterval` or `executeByTime`.
+//   - `includeLastDayOfMonth` (Bool). If true, schedule will be applied on the last day of month. See `dayType` for available values. Default `false`.
+//   - `monthdays` (List Of Number). List of days when schedule applies. Used in `MONTHLY` type.
+//   - `months` (List Of Number). Set of values. Allowed values form 1 to 12.
+//   - `repeatAt` (List Of String). List of time in format `HH:MM` (24-hours format), when the schedule applies.
+//   - `repeatEvery` (String). Frequency of backup repetition. See `intervalType` for available values.
+//   - `runLater` (Bool). If true and if the machine is off, launch missed tasks on boot up. Default `false`.
+//   - `type` (**Required**)(String). Type of the scheduling. Available values are: `HOURLY`, `DAILY`, `WEEKLY`, `MONTHLY`.
+//   - `weekdays` (List Of String). List of weekdays when the backup will be applied. Used in `WEEKLY` type.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// - `vmSnapshotReattempts` [Block]. Amount of reattempts that should be performed while trying to make snapshot.
+//   - `enabled` (Bool). Enable flag. Default `true`.
+//   - `interval` (String). Retry interval. See `intervalType` for available values. Default: `5m`.
+//   - `maxAttempts` (Number). Maximum number of attempts before throwing an error. Default `5`.
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_backup_policy.<resource Name> <Resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/backupPolicy:BackupPolicy my_backup_policy ...
+// ```
 type BackupPolicy struct {
 	pulumi.CustomResourceState
 

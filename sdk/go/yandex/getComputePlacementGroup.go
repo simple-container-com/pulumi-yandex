@@ -7,10 +7,51 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Compute Placement group. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/placement-groups).
+//
+// > One of `groupId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myGroup, err := yandex.GetComputePlacementGroup(ctx, &yandex.LookupComputePlacementGroupArgs{
+//				GroupId: pulumi.StringRef("some_group_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("placementGroupName", myGroup.Name)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `groupId` (String). The ID of a specific group.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `placementStrategy` (Map Of String). Placement strategy set for group.
 func LookupComputePlacementGroup(ctx *pulumi.Context, args *LookupComputePlacementGroupArgs, opts ...pulumi.InvokeOption) (*LookupComputePlacementGroupResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupComputePlacementGroupResult

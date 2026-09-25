@@ -8,10 +8,333 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// An Instance group resource. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/instance-groups/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"os"
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func readFileOrPanic(path string) string {
+//		data, err := os.ReadFile(path)
+//		if err != nil {
+//			panic(err.Error())
+//		}
+//		return string(data)
+//	}
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Compute Instance Group (IG)
+//			_, err := yandex.NewComputeInstanceGroup(ctx, "group1", &yandex.ComputeInstanceGroupArgs{
+//				FolderId:           pulumi.Any(data.Yandex_resourcemanager_folder.Test_folder.Id),
+//				ServiceAccountId:   pulumi.Any(yandex_iam_service_account.Test_account.Id),
+//				DeletionProtection: pulumi.Bool(true),
+//				InstanceTemplate: &yandex.ComputeInstanceGroupInstanceTemplateArgs{
+//					PlatformId: pulumi.String("standard-v1"),
+//					Resources: &yandex.ComputeInstanceGroupInstanceTemplateResourcesArgs{
+//						Memory: pulumi.Float64(2),
+//						Cores:  pulumi.Int(2),
+//					},
+//					BootDisk: &yandex.ComputeInstanceGroupInstanceTemplateBootDiskArgs{
+//						Mode: pulumi.String("READ_WRITE"),
+//						InitializeParams: &yandex.ComputeInstanceGroupInstanceTemplateBootDiskInitializeParamsArgs{
+//							ImageId: pulumi.Any(data.Yandex_compute_image.Ubuntu.Id),
+//							Size:    pulumi.Int(4),
+//						},
+//					},
+//					NetworkInterfaces: yandex.ComputeInstanceGroupInstanceTemplateNetworkInterfaceArray{
+//						&yandex.ComputeInstanceGroupInstanceTemplateNetworkInterfaceArgs{
+//							NetworkId: pulumi.Any(yandex_vpc_network.MyInstGroupNetwork.Id),
+//							SubnetIds: pulumi.StringArray{
+//								yandex_vpc_subnet.MyInstGroupSubnet.Id,
+//							},
+//						},
+//					},
+//					Labels: pulumi.StringMap{
+//						"label1": pulumi.String("label1-value"),
+//						"label2": pulumi.String("label2-value"),
+//					},
+//					Metadata: pulumi.StringMap{
+//						"foo":      pulumi.String("bar"),
+//						"ssh-keys": pulumi.Sprintf("ubuntu:%v", readFileOrPanic("~/.ssh/id_rsa.pub")),
+//					},
+//					NetworkSettings: yandex.ComputeInstanceGroupInstanceTemplateNetworkSettingArray{
+//						&yandex.ComputeInstanceGroupInstanceTemplateNetworkSettingArgs{
+//							Type: pulumi.String("STANDARD"),
+//						},
+//					},
+//				},
+//				Variables: pulumi.StringMap{
+//					"test_key1": pulumi.String("test_value1"),
+//					"test_key2": pulumi.String("test_value2"),
+//				},
+//				ScalePolicy: &yandex.ComputeInstanceGroupScalePolicyArgs{
+//					FixedScale: &yandex.ComputeInstanceGroupScalePolicyFixedScaleArgs{
+//						Size: pulumi.Int(3),
+//					},
+//				},
+//				AllocationPolicy: &yandex.ComputeInstanceGroupAllocationPolicyArgs{
+//					Zones: pulumi.StringArray{
+//						pulumi.String("ru-central1-a"),
+//					},
+//				},
+//				DeployPolicy: &yandex.ComputeInstanceGroupDeployPolicyArgs{
+//					MaxUnavailable: pulumi.Int(2),
+//					MaxCreating:    pulumi.Int(2),
+//					MaxExpansion:   pulumi.Int(2),
+//					MaxDeleting:    pulumi.Int(2),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `instances` (*Read-Only*) (List Of Object). Instances block.
+//   - `fqdn` .
+//   - `instanceId` .
+//   - `instanceTag` .
+//   - `name` .
+//   - `networkInterface` .
+//   - `index` .
+//   - `ipAddress` .
+//   - `ipv4` .
+//   - `ipv6` .
+//   - `ipv6Address` .
+//   - `macAddress` .
+//   - `nat` .
+//   - `natIpAddress` .
+//   - `natIpVersion` .
+//   - `subnetId` .
+//   - `status` .
+//   - `statusChangedAt` .
+//   - `statusMessage` .
+//   - `zoneId` .
+//
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `maxCheckingHealthDuration` (Number). Timeout for waiting for the VM to become healthy. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
+// - `name` (String). The resource name.
+// - `serviceAccountId` (**Required**)(String). [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+// - `status` (*Read-Only*) (String). The status of the instance.
+// - `variables` (Map Of String). A set of key/value variables pairs to assign to the instance group.
+// - `allocationPolicy` [Block]. The allocation policy of the instance group by zone and region.
+//   - `zones` (**Required**)(Set Of String). A list of [availability zones](https://yandex.cloud/docs/overview/concepts/geo-scope).
+//   - `instanceTagsPool` [Block]. Array of availability zone IDs with list of instance tags.
+//   - `tags` (**Required**)(List Of String). List of tags for instances in zone.
+//   - `zone` (**Required**)(String). Availability zone.
+//
+// - `applicationLoadBalancer` [Block]. Application Load balancing (L7) specifications.
+//   - `ignoreHealthChecks` (Bool). Do not wait load balancer health checks.
+//   - `maxOpeningTrafficDuration` (Number). Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
+//   - `statusMessage` (*Read-Only*) (String). The status message of the instance.
+//   - `targetGroupDescription` (String). A description of the target group.
+//   - `targetGroupId` (*Read-Only*) (String). The ID of the target group.
+//   - `targetGroupLabels` (Map Of String). A set of key/value label pairs.
+//   - `targetGroupName` (String). The name of the target group.
+//
+// - `deployPolicy` [Block]. The deployment policy of the instance group.
+//   - `maxCreating` (Number). The maximum number of instances that can be created at the same time.
+//   - `maxDeleting` (Number). The maximum number of instances that can be deleted at the same time.
+//   - `maxExpansion` (**Required**)(Number). The maximum number of instances that can be temporarily allocated above the group's target size during the update process.
+//   - `maxUnavailable` (**Required**)(Number). The maximum number of running instances that can be taken offline (stopped or deleted) at the same time during the update process.
+//   - `startupDuration` (Number). The amount of time in seconds to allow for an instance to start. Instance will be considered up and running (and start receiving traffic) only after the startupDuration has elapsed and all health checks are passed.
+//   - `strategy` (String). Affects the lifecycle of the instance during deployment. If set to `proactive` (default), Instance Groups can forcefully stop a running instance. If `opportunistic`, Instance Groups does not stop a running instance. Instead, it will wait until the instance stops itself or becomes unhealthy.
+//
+// - `healthCheck` [Block]. Health check specifications.
+//   - `healthyThreshold` (Number). The number of successful health checks before the managed instance is declared healthy.
+//   - `interval` (Number). The interval to wait between health checks in seconds.
+//   - `timeout` (Number). The length of time to wait for a response before the health check times out in seconds.
+//   - `unhealthyThreshold` (Number). The number of failed health checks before the managed instance is declared unhealthy.
+//   - `httpOptions` [Block]. HTTP check options.
+//   - `path` (**Required**)(String). The URL path used for health check requests.
+//   - `port` (**Required**)(Number). The port used for HTTP health checks.
+//   - `tcpOptions` [Block]. TCP check options.
+//   - `port` (**Required**)(Number). The port used for TCP health checks.
+//
+// - `instanceTemplate` [Block]. The template for creating new instances.
+//   - `description` (String). A description of the instance.
+//   - `hostname` (String). Hostname template for the instance. This field is used to generate the FQDN value of instance. The `hostname` must be unique within the network and region. If not specified, the hostname will be equal to `id` of the instance and FQDN will be `<id>.auto.internal`. Otherwise FQDN will be `<hostname>.<region_id>.internal`.
+//     In order to be unique it must contain at least on of instance unique placeholders:
+//   - `{instance.short_id}`
+//   - {instance.index}
+//   - combination of `{instance.zone_id}` and `{instance.index_in_zone}`
+//     Example: `my-instance-{instance.index}`. If hostname is not set, `name` value will be used. It may also contain another placeholders, see `metadata` doc for full list.
+//   - `labels` (Map Of String). A set of key/value label pairs to assign to the instance.
+//   - `metadata` (Map Of String). A set of metadata key/value pairs to make available from within the instance.
+//   - `name` (String). Name template of the instance.
+//     In order to be unique it must contain at least one of instance unique placeholders:*`{instance.short_id}`
+//   - `{instance.index}`
+//   - combination of `{instance.zone_id}` and`{instance.index_in_zone}`.
+//     Example: `my-instance-{instance.index}`.
+//     If not set, default name is used: `{instance_group.id}-{instance.short_id}`. It may also contain another placeholders, see `metadata` doc for full list.
+//   - `platformId` (String). The ID of the hardware platform configuration for the instance.
+//   - `reservedInstancePoolId` (String). ID of the reserved instance pool that the instance should belong to.
+//   - `serviceAccountId` (String). The ID of the service account authorized for this instance.
+//   - `bootDisk` [Block]. Boot disk specifications for the instance.
+//   - `deviceName` (String). This value can be used to reference the device under `/dev/disk/by-id/`.
+//   - `diskId` (String). The ID of the existing disk (such as those managed by yandex_compute_disk) to attach as a boot disk.
+//   - `mode` (String). The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
+//   - `name` (String). When set can be later used to change DiskSpec of actual disk.
+//   - `initializeParams` [Block]. Parameters for creating a disk alongside the instance.
+//
+// > `imageId` or `snapshotId` must be specified.
+//
+//   - `description` (String). A description of the boot disk.
+//   - `imageId` (String). The disk image to initialize this disk from.
+//   - `size` (Number). The size of the disk in GB.
+//   - `snapshotId` (String). The snapshot to initialize this disk from.
+//   - `type` (String). The disk type.
+//   - `filesystem` [Block]. List of filesystems to attach to the instance.
+//   - `deviceName` (String). Name of the device representing the filesystem on the instance.
+//   - `filesystemId` (**Required**)(String). ID of the filesystem that should be attached.
+//   - `mode` (String). Mode of access to the filesystem that should be attached. By default, filesystem is attached in `READ_WRITE` mode.
+//   - `metadataOptions` [Block]. Options allow user to configure access to managed instances metadata
+//   - `awsV1HttpEndpoint` (Number). Enables access to AWS flavored metadata (IMDSv1). Possible values: `0`, `1` for `enabled` and `2` for `disabled`.
+//   - `awsV1HttpToken` (Number). Enables access to IAM credentials with AWS flavored metadata (IMDSv1). Possible values: `0`, `1` for `enabled` and `2` for `disabled`.
+//   - `awsV2HttpEndpoint` (Number). Enables access to AWS flavored metadata with session token (IMDSv2). Possible values: `0`, `1` for `enabled` and `2` for `disabled`.
+//   - `awsV2HttpToken` (Number). Enables access to STS credentials with AWS flavored metadata with session token (IMDSv2). Possible values: `0`, `1` for `enabled` and `2` for `disabled`.
+//   - `gceHttpEndpoint` (Number). Enables access to GCE flavored metadata. Possible values: `0`, `1` for `enabled` and `2` for `disabled`.
+//   - `gceHttpToken` (Number). Enables access to IAM credentials with GCE flavored metadata. Possible values: `0`, `1` for `enabled` and `2` for `disabled`.
+//   - `networkInterface` [Block]. Network specifications for the instance. This can be used multiple times for adding multiple interfaces.
+//   - `ipAddress` (String). Manual set static IP address.
+//   - `ipv4` (Bool). Allocate an IPv4 address for the interface. The default value is `true`.
+//   - `ipv6` (Bool). If `true`, allocate an IPv6 address for the interface. The address will be automatically assigned from the specified subnet.
+//   - `ipv6Address` (String). Manual set static IPv6 address.
+//   - `nat` (Bool). Flag for using NAT.
+//   - `natIpAddress` (String). A public address that can be used to access the internet over NAT. Use `variables` to set.
+//   - `networkId` (String). The ID of the network.
+//   - `securityGroupIds` (Set Of String). Security group (SG) `IDs` for network interface.
+//   - `subnetIds` (Set Of String). The ID of the subnets to attach this interface to.
+//   - `dnsRecord` [Block]. List of DNS records.
+//   - `dnsZoneId` (String). DNS zone id (if not set, private zone used).
+//   - `fqdn` (**Required**)(String). DNS record FQDN (must have dot at the end).
+//   - `ptr` (Bool). When set to `true`, also create PTR DNS record.
+//   - `ttl` (Number). DNS record TTL.
+//   - `ipv6DnsRecord` [Block]. List of IPv6 DNS records.
+//   - `dnsZoneId` (String). DNS zone id (if not set, private zone used).
+//   - `fqdn` (**Required**)(String). DNS record FQDN (must have dot at the end).
+//   - `ptr` (Bool). When set to `true`, also create PTR DNS record.
+//   - `ttl` (Number). DNS record TTL.
+//   - `natDnsRecord` [Block]. List of NAT DNS records.
+//   - `dnsZoneId` (String). DNS zone id (if not set, private zone used).
+//   - `fqdn` (**Required**)(String). DNS record FQDN (must have dot at the end).
+//   - `ptr` (Bool). When set to `true`, also create PTR DNS record.
+//   - `ttl` (Number). DNS record TTL.
+//   - `networkSettings` [Block]. Network acceleration type for instance.
+//   - `type` (String). Network acceleration type. By default a network is in `STANDARD` mode.
+//   - `placementPolicy` [Block]. The placement policy configuration.
+//   - `placementGroupId` (**Required**)(String). Specifies the id of the Placement Group to assign to the instances.
+//   - `resources` [Block]. Compute resource specifications for the instance.
+//   - `coreFraction` (Number). If provided, specifies baseline core performance as a percent.
+//   - `cores` (**Required**)(Number). The number of CPU cores for the instance.
+//   - `gpus` (Number). If provided, specifies the number of GPU devices for the instance.
+//   - `memory` (**Required**)(Number). The memory size in GB.
+//   - `schedulingPolicy` [Block]. The scheduling policy configuration.
+//   - `preemptible` (Bool). Specifies if the instance is preemptible. Defaults to `false`.
+//   - `secondaryDisk` [Block]. A list of disks to attach to the instance.
+//   - `deviceName` (String). This value can be used to reference the device under `/dev/disk/by-id/`.
+//   - `diskId` (String). ID of the existing disk. To set use variables.
+//   - `mode` (String). The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
+//   - `name` (String). When set can be later used to change DiskSpec of actual disk.
+//   - `initializeParams` [Block]. Parameters used for creating a disk alongside the instance.
+//
+// > `imageId` or `snapshotId` must be specified.
+//
+//   - `description` (String). A description of the boot disk.
+//   - `imageId` (String). The disk image to initialize this disk from.
+//   - `size` (Number). The size of the disk in GB.
+//   - `snapshotId` (String). The snapshot to initialize this disk from.
+//   - `type` (String). The disk type.
+//
+// - `loadBalancer` [Block]. Load balancing specifications.
+//   - `ignoreHealthChecks` (Bool). Do not wait load balancer health checks.
+//   - `maxOpeningTrafficDuration` (Number). Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
+//   - `statusMessage` (*Read-Only*) (String). The status message of the target group.
+//   - `targetGroupDescription` (String). A description of the target group.
+//   - `targetGroupId` (*Read-Only*) (String). The ID of the target group.
+//   - `targetGroupLabels` (Map Of String). A set of key/value label pairs.
+//   - `targetGroupName` (String). The name of the target group.
+//
+// - `scalePolicy` [Block]. The scaling policy of the instance group.
+//
+// > Either `fixedScale` or `autoScale` must be specified.
+//
+//   - `autoScale` [Block]. The auto scaling policy of the instance group.
+//   - `autoScaleType` (String). Autoscale type, can be `ZONAL` or `REGIONAL`. By default `ZONAL` type is used.
+//   - `cpuUtilizationTarget` (Number). Target CPU load level.
+//   - `initialSize` (**Required**)(Number). The initial number of instances in the instance group.
+//   - `maxSize` (Number). The maximum number of virtual machines in the group.
+//   - `measurementDuration` (**Required**)(Number). The amount of time, in seconds, that metrics are averaged for. If the average value at the end of the interval is higher than the `cpuUtilizationTarget`, the instance group will increase the number of virtual machines in the group.
+//   - `minZoneSize` (Number). The minimum number of virtual machines in a single availability zone.
+//   - `stabilizationDuration` (Number). The minimum time interval, in seconds, to monitor the load before an instance group can reduce the number of virtual machines in the group. During this time, the group will not decrease even if the average load falls below the value of `cpuUtilizationTarget`.
+//   - `warmupDuration` (Number). The warm-up time of the virtual machine, in seconds. During this time, traffic is fed to the virtual machine, but load metrics are not taken into account.
+//   - `customRule` [Block]. A list of custom rules.
+//   - `folderId` (String). If specified, sets the folder id to fetch metrics from. By default, it is the ID of the folder the group belongs to.
+//   - `labels` (Map Of String). Metrics [labels](https://yandex.cloud/en/docs/monitoring/concepts/data-model#label) from Monitoring.
+//   - `metricName` (**Required**)(String). Name of the metric in Monitoring.
+//   - `metricType` (**Required**)(String). Type of metric, can be `GAUGE` or `COUNTER`. `GAUGE` metric reflects the value at particular time point. `COUNTER` metric exhibits a monotonous growth over time.
+//   - `ruleType` (**Required**)(String). The metric rule type (UTILIZATION, WORKLOAD). UTILIZATION for metrics describing resource utilization per VM instance. WORKLOAD for metrics describing total workload on all VM instances.
+//   - `service` (String). If specified, sets the service name to fetch metrics. The default value is `custom`. You can use a label to specify service metrics, e.g., `service` with the `compute` value for Compute Cloud.
+//   - `target` (**Required**)(Number). Target metric value by which Instance Groups calculates the number of required VM instances.
+//   - `fixedScale` [Block]. The fixed scaling policy of the instance group.
+//   - `size` (**Required**)(Number). The number of instances in the instance group.
+//   - `testAutoScale` [Block]. The test auto scaling policy of the instance group. Use it to test how the auto scale works.
+//   - `autoScaleType` (String). Autoscale type, can be `ZONAL` or `REGIONAL`. By default `ZONAL` type is used.
+//   - `cpuUtilizationTarget` (Number). Target CPU load level.
+//   - `initialSize` (**Required**)(Number). The initial number of instances in the instance group.
+//   - `maxSize` (Number). The maximum number of virtual machines in the group.
+//   - `measurementDuration` (**Required**)(Number). The amount of time, in seconds, that metrics are averaged for. If the average value at the end of the interval is higher than the `cpuUtilizationTarget`, the instance group will increase the number of virtual machines in the group.
+//   - `minZoneSize` (Number). The minimum number of virtual machines in a single availability zone.
+//   - `stabilizationDuration` (Number). The minimum time interval, in seconds, to monitor the load before an instance group can reduce the number of virtual machines in the group. During this time, the group will not decrease even if the average load falls below the value of `cpuUtilizationTarget`.
+//   - `warmupDuration` (Number). The warm-up time of the virtual machine, in seconds. During this time, traffic is fed to the virtual machine, but load metrics are not taken into account.
+//   - `customRule` [Block]. A list of custom rules.
+//   - `folderId` (String). Folder ID of custom metric in Yandex Monitoring that should be used for scaling.
+//   - `labels` (Map Of String). A map of labels of metric.
+//   - `metricName` (**Required**)(String). The name of metric.
+//   - `metricType` (**Required**)(String). Metric type, `GAUGE` or `COUNTER`.
+//   - `ruleType` (**Required**)(String). Rule type: `UTILIZATION` - This type means that the metric applies to one instance. First, Instance Groups calculates the average metric value for each instance, then averages the values for instances in one availability zone. This type of metric must have the `instanceId` label. `WORKLOAD` - This type means that the metric applies to instances in one availability zone. This type of metric must have the `zoneId` label.
+//   - `service` (String). Service of custom metric in Yandex Monitoring that should be used for scaling.
+//   - `target` (**Required**)(Number). Target metric value level.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_compute_instance_group.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/computeInstanceGroup:ComputeInstanceGroup my_ig1 cl1jh**********u4275
+// ```
 type ComputeInstanceGroup struct {
 	pulumi.CustomResourceState
 

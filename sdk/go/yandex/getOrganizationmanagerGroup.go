@@ -7,13 +7,57 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
-func GetOrganizationmanagerGroup(ctx *pulumi.Context, args *GetOrganizationmanagerGroupArgs, opts ...pulumi.InvokeOption) (*GetOrganizationmanagerGroupResult, error) {
+// Get information about a Yandex Cloud Organization Manager Group. For more information, see [the official documentation](https://yandex.cloud/docs/organization/manage-groups).
+//
+// > One of `groupId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			group, err := yandex.GetOrganizationmanagerGroup(ctx, &yandex.LookupOrganizationmanagerGroupArgs{
+//				GroupId:        pulumi.StringRef("some_group_id"),
+//				OrganizationId: pulumi.StringRef("some_organization_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("myGroup.name", group.Name)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `groupId` (String). ID of a Group.
+// - `id` (String).
+// - `members` (*Read-Only*) (List Of Object). A list of members of the Group.
+//   - `id` .
+//   - `type` .
+//
+// - `name` (String). The resource name.
+// - `organizationId` (String). Organization that the Group belongs to. If value is omitted, the default provider organization is used.
+func LookupOrganizationmanagerGroup(ctx *pulumi.Context, args *LookupOrganizationmanagerGroupArgs, opts ...pulumi.InvokeOption) (*LookupOrganizationmanagerGroupResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
-	var rv GetOrganizationmanagerGroupResult
+	var rv LookupOrganizationmanagerGroupResult
 	err := ctx.Invoke("yandex:index/getOrganizationmanagerGroup:getOrganizationmanagerGroup", args, &rv, opts...)
 	if err != nil {
 		return nil, err
@@ -22,14 +66,14 @@ func GetOrganizationmanagerGroup(ctx *pulumi.Context, args *GetOrganizationmanag
 }
 
 // A collection of arguments for invoking getOrganizationmanagerGroup.
-type GetOrganizationmanagerGroupArgs struct {
+type LookupOrganizationmanagerGroupArgs struct {
 	GroupId        *string `pulumi:"groupId"`
 	Name           *string `pulumi:"name"`
 	OrganizationId *string `pulumi:"organizationId"`
 }
 
 // A collection of values returned by getOrganizationmanagerGroup.
-type GetOrganizationmanagerGroupResult struct {
+type LookupOrganizationmanagerGroupResult struct {
 	CreatedAt   string `pulumi:"createdAt"`
 	Description string `pulumi:"description"`
 	GroupId     string `pulumi:"groupId"`
@@ -40,70 +84,70 @@ type GetOrganizationmanagerGroupResult struct {
 	OrganizationId *string                             `pulumi:"organizationId"`
 }
 
-func GetOrganizationmanagerGroupOutput(ctx *pulumi.Context, args GetOrganizationmanagerGroupOutputArgs, opts ...pulumi.InvokeOption) GetOrganizationmanagerGroupResultOutput {
+func LookupOrganizationmanagerGroupOutput(ctx *pulumi.Context, args LookupOrganizationmanagerGroupOutputArgs, opts ...pulumi.InvokeOption) LookupOrganizationmanagerGroupResultOutput {
 	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetOrganizationmanagerGroupResultOutput, error) {
-			args := v.(GetOrganizationmanagerGroupArgs)
+		ApplyT(func(v interface{}) (LookupOrganizationmanagerGroupResultOutput, error) {
+			args := v.(LookupOrganizationmanagerGroupArgs)
 			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("yandex:index/getOrganizationmanagerGroup:getOrganizationmanagerGroup", args, GetOrganizationmanagerGroupResultOutput{}, options).(GetOrganizationmanagerGroupResultOutput), nil
-		}).(GetOrganizationmanagerGroupResultOutput)
+			return ctx.InvokeOutput("yandex:index/getOrganizationmanagerGroup:getOrganizationmanagerGroup", args, LookupOrganizationmanagerGroupResultOutput{}, options).(LookupOrganizationmanagerGroupResultOutput), nil
+		}).(LookupOrganizationmanagerGroupResultOutput)
 }
 
 // A collection of arguments for invoking getOrganizationmanagerGroup.
-type GetOrganizationmanagerGroupOutputArgs struct {
+type LookupOrganizationmanagerGroupOutputArgs struct {
 	GroupId        pulumi.StringPtrInput `pulumi:"groupId"`
 	Name           pulumi.StringPtrInput `pulumi:"name"`
 	OrganizationId pulumi.StringPtrInput `pulumi:"organizationId"`
 }
 
-func (GetOrganizationmanagerGroupOutputArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetOrganizationmanagerGroupArgs)(nil)).Elem()
+func (LookupOrganizationmanagerGroupOutputArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupOrganizationmanagerGroupArgs)(nil)).Elem()
 }
 
 // A collection of values returned by getOrganizationmanagerGroup.
-type GetOrganizationmanagerGroupResultOutput struct{ *pulumi.OutputState }
+type LookupOrganizationmanagerGroupResultOutput struct{ *pulumi.OutputState }
 
-func (GetOrganizationmanagerGroupResultOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetOrganizationmanagerGroupResult)(nil)).Elem()
+func (LookupOrganizationmanagerGroupResultOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupOrganizationmanagerGroupResult)(nil)).Elem()
 }
 
-func (o GetOrganizationmanagerGroupResultOutput) ToGetOrganizationmanagerGroupResultOutput() GetOrganizationmanagerGroupResultOutput {
+func (o LookupOrganizationmanagerGroupResultOutput) ToLookupOrganizationmanagerGroupResultOutput() LookupOrganizationmanagerGroupResultOutput {
 	return o
 }
 
-func (o GetOrganizationmanagerGroupResultOutput) ToGetOrganizationmanagerGroupResultOutputWithContext(ctx context.Context) GetOrganizationmanagerGroupResultOutput {
+func (o LookupOrganizationmanagerGroupResultOutput) ToLookupOrganizationmanagerGroupResultOutputWithContext(ctx context.Context) LookupOrganizationmanagerGroupResultOutput {
 	return o
 }
 
-func (o GetOrganizationmanagerGroupResultOutput) CreatedAt() pulumi.StringOutput {
-	return o.ApplyT(func(v GetOrganizationmanagerGroupResult) string { return v.CreatedAt }).(pulumi.StringOutput)
+func (o LookupOrganizationmanagerGroupResultOutput) CreatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupOrganizationmanagerGroupResult) string { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-func (o GetOrganizationmanagerGroupResultOutput) Description() pulumi.StringOutput {
-	return o.ApplyT(func(v GetOrganizationmanagerGroupResult) string { return v.Description }).(pulumi.StringOutput)
+func (o LookupOrganizationmanagerGroupResultOutput) Description() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupOrganizationmanagerGroupResult) string { return v.Description }).(pulumi.StringOutput)
 }
 
-func (o GetOrganizationmanagerGroupResultOutput) GroupId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetOrganizationmanagerGroupResult) string { return v.GroupId }).(pulumi.StringOutput)
+func (o LookupOrganizationmanagerGroupResultOutput) GroupId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupOrganizationmanagerGroupResult) string { return v.GroupId }).(pulumi.StringOutput)
 }
 
 // The provider-assigned unique ID for this managed resource.
-func (o GetOrganizationmanagerGroupResultOutput) Id() pulumi.StringOutput {
-	return o.ApplyT(func(v GetOrganizationmanagerGroupResult) string { return v.Id }).(pulumi.StringOutput)
+func (o LookupOrganizationmanagerGroupResultOutput) Id() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupOrganizationmanagerGroupResult) string { return v.Id }).(pulumi.StringOutput)
 }
 
-func (o GetOrganizationmanagerGroupResultOutput) Members() GetOrganizationmanagerGroupMemberArrayOutput {
-	return o.ApplyT(func(v GetOrganizationmanagerGroupResult) []GetOrganizationmanagerGroupMember { return v.Members }).(GetOrganizationmanagerGroupMemberArrayOutput)
+func (o LookupOrganizationmanagerGroupResultOutput) Members() GetOrganizationmanagerGroupMemberArrayOutput {
+	return o.ApplyT(func(v LookupOrganizationmanagerGroupResult) []GetOrganizationmanagerGroupMember { return v.Members }).(GetOrganizationmanagerGroupMemberArrayOutput)
 }
 
-func (o GetOrganizationmanagerGroupResultOutput) Name() pulumi.StringOutput {
-	return o.ApplyT(func(v GetOrganizationmanagerGroupResult) string { return v.Name }).(pulumi.StringOutput)
+func (o LookupOrganizationmanagerGroupResultOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupOrganizationmanagerGroupResult) string { return v.Name }).(pulumi.StringOutput)
 }
 
-func (o GetOrganizationmanagerGroupResultOutput) OrganizationId() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v GetOrganizationmanagerGroupResult) *string { return v.OrganizationId }).(pulumi.StringPtrOutput)
+func (o LookupOrganizationmanagerGroupResultOutput) OrganizationId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v LookupOrganizationmanagerGroupResult) *string { return v.OrganizationId }).(pulumi.StringPtrOutput)
 }
 
 func init() {
-	pulumi.RegisterOutputType(GetOrganizationmanagerGroupResultOutput{})
+	pulumi.RegisterOutputType(LookupOrganizationmanagerGroupResultOutput{})
 }

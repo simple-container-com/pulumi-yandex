@@ -7,10 +7,147 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Managed Greenplum cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-greenplum/).
+//
+// > Either `clusterId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			foo, err := yandex.GetMdbGreenplumCluster(ctx, &yandex.LookupMdbGreenplumClusterArgs{
+//				Name: pulumi.StringRef("test"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("networkId", foo.NetworkId)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `access` (*Read-Only*) (List Of Object).
+//   - `dataLens` .
+//   - `dataTransfer` .
+//   - `webSql` .
+//   - `yandexQuery` .
+//
+// - `assignPublicIp` (*Read-Only*) (Bool). Sets whether the master hosts should get a public IP address on creation. Changing this parameter for an existing host is not supported at the moment.
+// - `backupWindowStart` (*Read-Only*) (List Of Object).
+//   - `hours` .
+//   - `minutes` .
+//
+// - `cloudStorage` (*Read-Only*) (List Of Object).
+//   - `enable` .
+//
+// - `clusterId` (String). The ID of the Greenplum cluster.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (*Read-Only*) (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `environment` (*Read-Only*) (String). Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `greenplumConfig` (Map Of String).
+// - `health` (*Read-Only*) (String). Aggregated health of the cluster.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `logging` (*Read-Only*) (List Of Object).
+//   - `commandCenterEnabled` .
+//   - `enabled` .
+//   - `folderId` .
+//   - `greenplumEnabled` .
+//   - `logGroupId` .
+//   - `poolerEnabled` .
+//
+// - `maintenanceWindow` (*Read-Only*) (List Of Object).
+//   - `day` .
+//   - `hour` .
+//   - `type` .
+//
+// - `masterHostCount` (*Read-Only*) (Number). Number of hosts in master subcluster (1 or 2).
+// - `masterHostGroupIds` (Set Of String). A list of IDs of the host groups to place master subclusters' VMs of the cluster on.
+// - `masterHosts` (*Read-Only*) (List Of Object).
+//   - `assignPublicIp` .
+//   - `fqdn` .
+//
+// - `masterSubcluster` (*Read-Only*) (List Of Object).
+//   - `resources` .
+//   - `diskSize` .
+//   - `diskTypeId` .
+//   - `resourcePresetId` .
+//
+// - `name` (String). The resource name.
+// - `networkId` (*Read-Only*) (String). The `VPC Network ID` of subnets which resource attached to.
+// - `securityGroupIds` (*Read-Only*) (Set Of String). The list of security groups applied to resource or their components.
+// - `segmentHostCount` (*Read-Only*) (Number). Number of hosts in segment subcluster (from 1 to 32).
+// - `segmentHostGroupIds` (Set Of String). A list of IDs of the host groups to place segment subclusters' VMs of the cluster on.
+// - `segmentHosts` (*Read-Only*) (List Of Object).
+//   - `fqdn` .
+//
+// - `segmentInHost` (*Read-Only*) (Number). Number of segments on segment host (not more then 1 + RAM/8).
+// - `segmentSubcluster` (*Read-Only*) (List Of Object).
+//   - `resources` .
+//   - `diskSize` .
+//   - `diskTypeId` .
+//   - `resourcePresetId` .
+//
+// - `serviceAccountId` (*Read-Only*) (String). ID of service account to use with Yandex Cloud resources (e.g. S3, Cloud Logging).
+// - `status` (*Read-Only*) (String). Status of the cluster.
+// - `subnetId` (*Read-Only*) (String). The ID of the subnet, to which the hosts belongs. The subnet must be a part of the network to which the cluster belongs.
+// - `userName` (*Read-Only*) (String). Greenplum cluster admin user name.
+// - `version` (*Read-Only*) (String). Version of the Greenplum cluster.
+// - `zone` (*Read-Only*) (String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+// - `backgroundActivities` [Block].
+//   - `analyzeAndVacuum` [Block].
+//   - `analyzeTimeout` (Number).
+//   - `startTime` (String).
+//   - `vacuumTimeout` (Number).
+//   - `queryKillerIdle` [Block].
+//   - `enable` (Bool).
+//   - `ignoreUsers` (List Of String).
+//   - `maxAge` (Number).
+//   - `queryKillerIdleInTransaction` [Block].
+//   - `enable` (Bool).
+//   - `ignoreUsers` (List Of String).
+//   - `maxAge` (Number).
+//   - `queryKillerLongRunning` [Block].
+//   - `enable` (Bool).
+//   - `ignoreUsers` (List Of String).
+//   - `maxAge` (Number).
+//
+// - `poolerConfig` [Block].
+//   - `poolClientIdleTimeout` (Number).
+//   - `poolIdleInTransactionTimeout` (Number).
+//   - `poolSize` (Number).
+//   - `poolingMode` (String).
+//
+// - `pxfConfig` [Block].
+//   - `connectionTimeout` (Number).
+//   - `maxThreads` (Number).
+//   - `poolAllowCoreThreadTimeout` (Bool).
+//   - `poolCoreSize` (Number).
+//   - `poolMaxSize` (Number).
+//   - `poolQueueCapacity` (Number).
+//   - `uploadTimeout` (Number).
+//   - `xms` (Number).
+//   - `xmx` (Number).
 func LookupMdbGreenplumCluster(ctx *pulumi.Context, args *LookupMdbGreenplumClusterArgs, opts ...pulumi.InvokeOption) (*LookupMdbGreenplumClusterResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMdbGreenplumClusterResult

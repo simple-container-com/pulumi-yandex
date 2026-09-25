@@ -8,10 +8,108 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a VPC Private Endpoint within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/private-endpoint).
+//
+// * How-to Guides
+//   - [Cloud Networking](https://yandex.cloud/docs/vpc/)
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			lab_net, err := yandex.NewVpcNetwork(ctx, "lab-net", nil)
+//			if err != nil {
+//				return err
+//			}
+//			lab_subnet_a, err := yandex.NewVpcSubnet(ctx, "lab-subnet-a", &yandex.VpcSubnetArgs{
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.2.0.0/16"),
+//				},
+//				Zone:      pulumi.String("ru-central1-a"),
+//				NetworkId: lab_net.ID().ToIDOutput().ToStringOutput(),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new VPC Private Endpoint.
+//			_, err = yandex.NewVpcPrivateEndpoint(ctx, "myPe", &yandex.VpcPrivateEndpointArgs{
+//				Description: pulumi.String("description for private endpoint"),
+//				Labels: pulumi.StringMap{
+//					"my-label": pulumi.String("my-label-value"),
+//				},
+//				NetworkId:     lab_net.ID().ToIDOutput().ToStringOutput(),
+//				ObjectStorage: &yandex.VpcPrivateEndpointObjectStorageArgs{},
+//				DnsOptions: &yandex.VpcPrivateEndpointDnsOptionsArgs{
+//					PrivateDnsRecordsEnabled: pulumi.Bool(true),
+//				},
+//				EndpointAddress: &yandex.VpcPrivateEndpointEndpointAddressArgs{
+//					SubnetId: lab_subnet_a.ID().ToIDOutput().ToStringOutput(),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `dnsRecords` (*Read-Only*) (List Of Object). Private endpoint DNS records block.
+//   - `name` .
+//
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `networkId` (**Required**)(String). ID of the network which private endpoint belongs to.
+// - `serviceName` (String). Name of the cloud service to access through the private endpoint (e.g. `yandex.cloud.storage`).
+// - `status` (*Read-Only*) (String). Status of the private endpoint.
+// - `dnsOptions` [Block]. Private endpoint DNS options block.
+//   - `privateDnsRecordsEnabled` (Bool). If enabled - additional service DNS will be created.
+//
+// - `endpointAddress` [Block]. Private endpoint address specification block.
+//
+// > Only one of `addressId` or `subnetId` + `address` arguments can be specified.
+//
+//   - `address` (String). Specifies IP address within `subnetId`.
+//   - `addressId` (String). ID of the address.
+//   - `subnetId` (String). Subnet of the IP address.
+//
+// - `objectStorage` [Block]. Private endpoint for Object Storage.
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_vpc_private_endpoint.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/vpcPrivateEndpoint:VpcPrivateEndpoint my_pe ...
+// ```
 type VpcPrivateEndpoint struct {
 	pulumi.CustomResourceState
 
@@ -21,6 +119,8 @@ type VpcPrivateEndpoint struct {
 	Description pulumi.StringPtrOutput `pulumi:"description"`
 	// Private endpoint DNS options block.
 	DnsOptions VpcPrivateEndpointDnsOptionsOutput `pulumi:"dnsOptions"`
+	// Private endpoint DNS records block.
+	DnsRecords VpcPrivateEndpointDnsRecordArrayOutput `pulumi:"dnsRecords"`
 	// Private endpoint address specification block.
 	//
 	// > Only one of `addressId` or `subnetId` + `address` arguments can be specified.
@@ -34,7 +134,9 @@ type VpcPrivateEndpoint struct {
 	// ID of the network which private endpoint belongs to.
 	NetworkId pulumi.StringOutput `pulumi:"networkId"`
 	// Private endpoint for Object Storage.
-	ObjectStorage VpcPrivateEndpointObjectStorageOutput `pulumi:"objectStorage"`
+	ObjectStorage VpcPrivateEndpointObjectStoragePtrOutput `pulumi:"objectStorage"`
+	// Name of the cloud service to access through the private endpoint (e.g. `yandex.cloud.storage`).
+	ServiceName pulumi.StringPtrOutput `pulumi:"serviceName"`
 	// Status of the private endpoint.
 	Status pulumi.StringOutput `pulumi:"status"`
 }
@@ -48,9 +150,6 @@ func NewVpcPrivateEndpoint(ctx *pulumi.Context,
 
 	if args.NetworkId == nil {
 		return nil, errors.New("invalid value for required argument 'NetworkId'")
-	}
-	if args.ObjectStorage == nil {
-		return nil, errors.New("invalid value for required argument 'ObjectStorage'")
 	}
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource VpcPrivateEndpoint
@@ -81,6 +180,8 @@ type vpcPrivateEndpointState struct {
 	Description *string `pulumi:"description"`
 	// Private endpoint DNS options block.
 	DnsOptions *VpcPrivateEndpointDnsOptions `pulumi:"dnsOptions"`
+	// Private endpoint DNS records block.
+	DnsRecords []VpcPrivateEndpointDnsRecord `pulumi:"dnsRecords"`
 	// Private endpoint address specification block.
 	//
 	// > Only one of `addressId` or `subnetId` + `address` arguments can be specified.
@@ -95,6 +196,8 @@ type vpcPrivateEndpointState struct {
 	NetworkId *string `pulumi:"networkId"`
 	// Private endpoint for Object Storage.
 	ObjectStorage *VpcPrivateEndpointObjectStorage `pulumi:"objectStorage"`
+	// Name of the cloud service to access through the private endpoint (e.g. `yandex.cloud.storage`).
+	ServiceName *string `pulumi:"serviceName"`
 	// Status of the private endpoint.
 	Status *string `pulumi:"status"`
 }
@@ -106,6 +209,8 @@ type VpcPrivateEndpointState struct {
 	Description pulumi.StringPtrInput
 	// Private endpoint DNS options block.
 	DnsOptions VpcPrivateEndpointDnsOptionsPtrInput
+	// Private endpoint DNS records block.
+	DnsRecords VpcPrivateEndpointDnsRecordArrayInput
 	// Private endpoint address specification block.
 	//
 	// > Only one of `addressId` or `subnetId` + `address` arguments can be specified.
@@ -120,6 +225,8 @@ type VpcPrivateEndpointState struct {
 	NetworkId pulumi.StringPtrInput
 	// Private endpoint for Object Storage.
 	ObjectStorage VpcPrivateEndpointObjectStoragePtrInput
+	// Name of the cloud service to access through the private endpoint (e.g. `yandex.cloud.storage`).
+	ServiceName pulumi.StringPtrInput
 	// Status of the private endpoint.
 	Status pulumi.StringPtrInput
 }
@@ -146,7 +253,9 @@ type vpcPrivateEndpointArgs struct {
 	// ID of the network which private endpoint belongs to.
 	NetworkId string `pulumi:"networkId"`
 	// Private endpoint for Object Storage.
-	ObjectStorage VpcPrivateEndpointObjectStorage `pulumi:"objectStorage"`
+	ObjectStorage *VpcPrivateEndpointObjectStorage `pulumi:"objectStorage"`
+	// Name of the cloud service to access through the private endpoint (e.g. `yandex.cloud.storage`).
+	ServiceName *string `pulumi:"serviceName"`
 }
 
 // The set of arguments for constructing a VpcPrivateEndpoint resource.
@@ -168,7 +277,9 @@ type VpcPrivateEndpointArgs struct {
 	// ID of the network which private endpoint belongs to.
 	NetworkId pulumi.StringInput
 	// Private endpoint for Object Storage.
-	ObjectStorage VpcPrivateEndpointObjectStorageInput
+	ObjectStorage VpcPrivateEndpointObjectStoragePtrInput
+	// Name of the cloud service to access through the private endpoint (e.g. `yandex.cloud.storage`).
+	ServiceName pulumi.StringPtrInput
 }
 
 func (VpcPrivateEndpointArgs) ElementType() reflect.Type {
@@ -273,6 +384,11 @@ func (o VpcPrivateEndpointOutput) DnsOptions() VpcPrivateEndpointDnsOptionsOutpu
 	return o.ApplyT(func(v *VpcPrivateEndpoint) VpcPrivateEndpointDnsOptionsOutput { return v.DnsOptions }).(VpcPrivateEndpointDnsOptionsOutput)
 }
 
+// Private endpoint DNS records block.
+func (o VpcPrivateEndpointOutput) DnsRecords() VpcPrivateEndpointDnsRecordArrayOutput {
+	return o.ApplyT(func(v *VpcPrivateEndpoint) VpcPrivateEndpointDnsRecordArrayOutput { return v.DnsRecords }).(VpcPrivateEndpointDnsRecordArrayOutput)
+}
+
 // Private endpoint address specification block.
 //
 // > Only one of `addressId` or `subnetId` + `address` arguments can be specified.
@@ -301,8 +417,13 @@ func (o VpcPrivateEndpointOutput) NetworkId() pulumi.StringOutput {
 }
 
 // Private endpoint for Object Storage.
-func (o VpcPrivateEndpointOutput) ObjectStorage() VpcPrivateEndpointObjectStorageOutput {
-	return o.ApplyT(func(v *VpcPrivateEndpoint) VpcPrivateEndpointObjectStorageOutput { return v.ObjectStorage }).(VpcPrivateEndpointObjectStorageOutput)
+func (o VpcPrivateEndpointOutput) ObjectStorage() VpcPrivateEndpointObjectStoragePtrOutput {
+	return o.ApplyT(func(v *VpcPrivateEndpoint) VpcPrivateEndpointObjectStoragePtrOutput { return v.ObjectStorage }).(VpcPrivateEndpointObjectStoragePtrOutput)
+}
+
+// Name of the cloud service to access through the private endpoint (e.g. `yandex.cloud.storage`).
+func (o VpcPrivateEndpointOutput) ServiceName() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *VpcPrivateEndpoint) pulumi.StringPtrOutput { return v.ServiceName }).(pulumi.StringPtrOutput)
 }
 
 // Status of the private endpoint.

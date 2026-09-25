@@ -7,10 +7,116 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Cloud Managed Kubernetes Cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kubernetes/concepts/#kubernetes-cluster).
+//
+// > One of `clusterId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myCluster, err := yandex.GetKubernetesCluster(ctx, &yandex.LookupKubernetesClusterArgs{
+//				ClusterId: pulumi.StringRef("some_k8s_cluster_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("clusterExternalV4Endpoint", myCluster.Masters[0].ExternalV4Endpoint)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `clusterId` (String). ID of a specific Kubernetes cluster.
+// - `clusterIpv4Range` (*Read-Only*) (String). CIDR block. IP range for allocating pod addresses. It should not overlap with any subnet in the network the Kubernetes cluster located in. Static routes will be set up for this CIDR blocks in node subnets.
+// - `clusterIpv6Range` (*Read-Only*) (String). Identical to `clusterIpv4Range` but for IPv6 protocol.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `health` (*Read-Only*) (String). Health of the Kubernetes cluster.
+// - `id` (String).
+// - `kmsProvider` (*Read-Only*) (List Of Object). Cluster KMS provider parameters.
+//   - `keyId` .
+//
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `logGroupId` (*Read-Only*) (String). Log group where cluster stores cluster system logs, like audit, events, or control plane logs.
+// - `master` (*Read-Only*) (List Of Object). Kubernetes master configuration options.
+//   - `clusterCaCertificate` .
+//   - `etcdClusterSize` .
+//   - `externalV4Address` .
+//   - `externalV4Endpoint` .
+//   - `externalV6Address` .
+//   - `externalV6Endpoint` .
+//   - `internalV4Address` .
+//   - `internalV4Endpoint` .
+//   - `maintenancePolicy` .
+//   - `autoUpgrade` .
+//   - `maintenanceWindow` .
+//   - `day` .
+//   - `duration` .
+//   - `startTime` .
+//   - `masterLocation` .
+//   - `subnetId` .
+//   - `zone` .
+//   - `masterLogging` .
+//   - `auditEnabled` .
+//   - `clusterAutoscalerEnabled` .
+//   - `enabled` .
+//   - `eventsEnabled` .
+//   - `folderId` .
+//   - `kubeApiserverEnabled` .
+//   - `logGroupId` .
+//   - `publicIp` .
+//   - `regional` .
+//   - `region` .
+//   - `scalePolicy` .
+//   - `autoScale` .
+//   - `minResourcePresetId` .
+//   - `securityGroupIds` .
+//   - `version` .
+//   - `versionInfo` .
+//   - `currentVersion` .
+//   - `newRevisionAvailable` .
+//   - `newRevisionSummary` .
+//   - `versionDeprecated` .
+//   - `zonal` .
+//   - `zone` .
+//
+// - `name` (String). The resource name.
+// - `networkId` (*Read-Only*) (String). The ID of the cluster network.
+// - `networkImplementation` (*Read-Only*) (List Of Object). Network Implementation options.
+//   - `cilium` .
+//   - `routingMode` .
+//
+// - `networkPolicyProvider` (*Read-Only*) (String). Network policy provider for the cluster. Possible values: `CALICO`.
+// - `nodeIpv4CidrMaskSize` (*Read-Only*) (Number). Size of the masks that are assigned to each node in the cluster. Effectively limits maximum number of pods for each node.
+// - `nodeServiceAccountId` (*Read-Only*) (String). Service account to be used by the worker nodes of the Kubernetes cluster to access Container Registry or to push node logs and metrics.
+// - `releaseChannel` (*Read-Only*) (String). Cluster release channel.
+// - `serviceAccountId` (*Read-Only*) (String). Service account to be used for provisioning Compute Cloud and VPC resources for Kubernetes cluster. Selected service account should have `edit` role on the folder where the Kubernetes cluster will be located and on the folder where selected network resides.
+// - `serviceIpv4Range` (*Read-Only*) (String). CIDR block. IP range Kubernetes service Kubernetes cluster IP addresses will be allocated from. It should not overlap with any subnet in the network the Kubernetes cluster located in.
+// - `serviceIpv6Range` (*Read-Only*) (String). Identical to serviceIpv4Range but for IPv6 protocol.
+// - `status` (*Read-Only*) (String). Status of the Kubernetes cluster.
+// - `workloadIdentityFederation` (*Read-Only*) (List Of Object). Workload Identity Federation configuration.
+//   - `enabled` .
+//   - `issuer` .
+//   - `jwksUri` .
 func LookupKubernetesCluster(ctx *pulumi.Context, args *LookupKubernetesClusterArgs, opts ...pulumi.InvokeOption) (*LookupKubernetesClusterResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupKubernetesClusterResult

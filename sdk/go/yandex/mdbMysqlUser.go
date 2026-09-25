@@ -8,10 +8,145 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a MySQL user within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.5.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			myCluster, err := yandex.NewMdbMysqlCluster(ctx, "myCluster", &yandex.MdbMysqlClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Config: []map[string]interface{}{
+//					map[string]interface{}{
+//						"version": 14,
+//						"resources": []map[string]interface{}{
+//							map[string]interface{}{
+//								"resourcePresetId": "s2.micro",
+//								"diskTypeId":       "network-ssd",
+//								"diskSize":         16,
+//							},
+//						},
+//					},
+//				},
+//				Hosts: yandex.MdbMysqlClusterHostArray{
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB MySQL Database User.
+//			_, err = yandex.NewMdbMysqlUser(ctx, "myUser", &yandex.MdbMysqlUserArgs{
+//				ClusterId: myCluster.ID().ToIDOutput().ToStringOutput(),
+//				Password:  pulumi.String("password"),
+//				Permissions: yandex.MdbMysqlUserPermissionArray{
+//					&yandex.MdbMysqlUserPermissionArgs{
+//						DatabaseName: pulumi.Any(yandex_mdb_mysql_database.Testdb.Name),
+//						Roles: pulumi.StringArray{
+//							pulumi.String("ALL"),
+//						},
+//					},
+//					&yandex.MdbMysqlUserPermissionArgs{
+//						DatabaseName: pulumi.Any(yandex_mdb_mysql_database.New_testdb.Name),
+//						Roles: pulumi.StringArray{
+//							pulumi.String("ALL"),
+//							pulumi.String("INSERT"),
+//						},
+//					},
+//				},
+//				ConnectionLimits: &yandex.MdbMysqlUserConnectionLimitsArgs{
+//					MaxQuestionsPerHour:   pulumi.Int(10),
+//					MaxUpdatesPerHour:     pulumi.Int(20),
+//					MaxConnectionsPerHour: pulumi.Int(30),
+//					MaxUserConnections:    pulumi.Int(40),
+//				},
+//				GlobalPermissions: pulumi.StringArray{
+//					pulumi.String("PROCESS"),
+//				},
+//				AuthenticationPlugin: pulumi.String("SHA256_PASSWORD"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `authenticationPlugin` (String). Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH`).
+// - `clusterId` (**Required**)(String). The ID of the MySQL cluster.
+// - `connectionManager` (*Read-Only*) (Map Of String). Connection Manager connection configuration. Filled in by the server automatically.
+// - `generatePassword` (Bool). Generate password using Connection Manager. Allowed values: `true` or `false`. It's used only during user creation and is ignored during updating.
+//
+// > **Must specify either password or generate_password**.
+//
+// - `globalPermissions` (Set Of String). List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS`, `FLUSH_OPTIMIZER_COSTS`, `SHOW_ROUTINE`, `MDB_ADMIN` for clear list use empty list. If the attribute is not specified there will be no changes.
+// - `id` (String).
+// - `name` (**Required**)(String). The name of the user.
+// - `password` (String). The password of the user.
+// - `passwordWo` (String). The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher
+// - `passwordWoVersion` (Number). A version number for the write-only password. Increment this to trigger a password update.
+// - `connectionLimits` [Block]. User's connection limits. If the attribute is not specified there will be no changes. Default value is `-1`. When these parameters are set to `-1`, backend default values will be actually used.
+//   - `maxConnectionsPerHour` (Number). Max connections per hour.
+//   - `maxQuestionsPerHour` (Number). Max questions per hour.
+//   - `maxUpdatesPerHour` (Number). Max updates per hour.
+//   - `maxUserConnections` (Number). Max user connections.
+//
+// - `permission` [Block]. Set of permissions granted to the user.
+//   - `databaseName` (**Required**)(String). The name of the database that the permission grants access to.
+//   - `roles` (List Of String). List user's roles in the database. Allowed roles: `ALL`,`ALTER`,`ALTER_ROUTINE`,`CREATE`,`CREATE_ROUTINE`,`CREATE_TEMPORARY_TABLES`, `CREATE_VIEW`,`DELETE`,`DROP`,`EVENT`,`EXECUTE`,`INDEX`,`INSERT`,`LOCK_TABLES`,`SELECT`,`SHOW_VIEW`,`TRIGGER`,`UPDATE`,`REFERENCES`.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_mdb_mysql_user.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/mdbMysqlUser:MdbMysqlUser my_user ...
+// ```
 type MdbMysqlUser struct {
 	pulumi.CustomResourceState
 
@@ -33,6 +168,11 @@ type MdbMysqlUser struct {
 	Name pulumi.StringOutput `pulumi:"name"`
 	// The password of the user.
 	Password pulumi.StringPtrOutput `pulumi:"password"`
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher
+	PasswordWo pulumi.StringPtrOutput `pulumi:"passwordWo"`
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion pulumi.IntPtrOutput `pulumi:"passwordWoVersion"`
 	// Set of permissions granted to the user.
 	Permissions MdbMysqlUserPermissionArrayOutput `pulumi:"permissions"`
 }
@@ -50,8 +190,12 @@ func NewMdbMysqlUser(ctx *pulumi.Context,
 	if args.Password != nil {
 		args.Password = pulumi.ToSecret(args.Password).(pulumi.StringPtrInput)
 	}
+	if args.PasswordWo != nil {
+		args.PasswordWo = pulumi.ToSecret(args.PasswordWo).(pulumi.StringPtrInput)
+	}
 	secrets := pulumi.AdditionalSecretOutputs([]string{
 		"password",
+		"passwordWo",
 	})
 	opts = append(opts, secrets)
 	opts = internal.PkgResourceDefaultOpts(opts)
@@ -95,6 +239,11 @@ type mdbMysqlUserState struct {
 	Name *string `pulumi:"name"`
 	// The password of the user.
 	Password *string `pulumi:"password"`
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher
+	PasswordWo *string `pulumi:"passwordWo"`
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion *int `pulumi:"passwordWoVersion"`
 	// Set of permissions granted to the user.
 	Permissions []MdbMysqlUserPermission `pulumi:"permissions"`
 }
@@ -118,6 +267,11 @@ type MdbMysqlUserState struct {
 	Name pulumi.StringPtrInput
 	// The password of the user.
 	Password pulumi.StringPtrInput
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher
+	PasswordWo pulumi.StringPtrInput
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion pulumi.IntPtrInput
 	// Set of permissions granted to the user.
 	Permissions MdbMysqlUserPermissionArrayInput
 }
@@ -143,6 +297,11 @@ type mdbMysqlUserArgs struct {
 	Name *string `pulumi:"name"`
 	// The password of the user.
 	Password *string `pulumi:"password"`
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher
+	PasswordWo *string `pulumi:"passwordWo"`
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion *int `pulumi:"passwordWoVersion"`
 	// Set of permissions granted to the user.
 	Permissions []MdbMysqlUserPermission `pulumi:"permissions"`
 }
@@ -165,6 +324,11 @@ type MdbMysqlUserArgs struct {
 	Name pulumi.StringPtrInput
 	// The password of the user.
 	Password pulumi.StringPtrInput
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher
+	PasswordWo pulumi.StringPtrInput
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion pulumi.IntPtrInput
 	// Set of permissions granted to the user.
 	Permissions MdbMysqlUserPermissionArrayInput
 }
@@ -296,6 +460,17 @@ func (o MdbMysqlUserOutput) Name() pulumi.StringOutput {
 // The password of the user.
 func (o MdbMysqlUserOutput) Password() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *MdbMysqlUser) pulumi.StringPtrOutput { return v.Password }).(pulumi.StringPtrOutput)
+}
+
+// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher
+func (o MdbMysqlUserOutput) PasswordWo() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *MdbMysqlUser) pulumi.StringPtrOutput { return v.PasswordWo }).(pulumi.StringPtrOutput)
+}
+
+// A version number for the write-only password. Increment this to trigger a password update.
+func (o MdbMysqlUserOutput) PasswordWoVersion() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *MdbMysqlUser) pulumi.IntPtrOutput { return v.PasswordWoVersion }).(pulumi.IntPtrOutput)
 }
 
 // Set of permissions granted to the user.

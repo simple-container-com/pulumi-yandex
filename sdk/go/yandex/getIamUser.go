@@ -7,10 +7,48 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex IAM user account. For more information about accounts, see [Yandex Cloud IAM accounts](https://yandex.cloud/docs/iam/concepts/#accounts).
+//
+// This data source is used to define [IAM User](https://yandex.cloud/docs/iam/concepts/#passport) that can be used by other resources.
+//
+// > Either `login` or `userId` must be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetIamUser(ctx, &yandex.GetIamUserArgs{
+//				Login: pulumi.StringRef("my-yandex-login"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `defaultEmail` (*Read-Only*) (String). Email address of user account.
+// - `id` (String).
+// - `login` (String). Login name used to sign in to Yandex Passport.
+// - `userId` (String). User ID used to manage IAM access bindings.
 func GetIamUser(ctx *pulumi.Context, args *GetIamUserArgs, opts ...pulumi.InvokeOption) (*GetIamUserResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv GetIamUserResult

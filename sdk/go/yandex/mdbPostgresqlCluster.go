@@ -8,10 +8,466 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a PostgreSQL cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/). [How to connect to the DB](https://yandex.cloud/docs/managed-postgresql/quickstart#connect). To connect, use port 6432. The port number is not configurable.
+//
+// > Historically, `user` and `database` blocks of the `MdbPostgresqlCluster` resource were used to manage users and databases of the PostgreSQL cluster. However, this approach has many disadvantages. In particular, adding and removing a resource from the terraform recipe worked wrong because terraform misleads the user about the planned changes. Now, the recommended way to manage databases and users is using `MdbPostgresqlUser` and `MdbPostgresqlDatabase` resources.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.5.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB PostgreSQL Cluster.
+//			_, err = yandex.NewMdbPostgresqlCluster(ctx, "myCluster", &yandex.MdbPostgresqlClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Config: &yandex.MdbPostgresqlClusterConfigArgs{
+//					Version: pulumi.String("15"),
+//					Resources: &yandex.MdbPostgresqlClusterConfigResourcesArgs{
+//						ResourcePresetId: pulumi.String("s2.micro"),
+//						DiskTypeId:       pulumi.String("network-ssd"),
+//						DiskSize:         pulumi.Int(16),
+//					},
+//					PostgresqlConfig: pulumi.StringMap{
+//						"max_connections":                pulumi.String("395"),
+//						"enable_parallel_hash":           pulumi.String("true"),
+//						"autovacuum_vacuum_scale_factor": pulumi.String("0.34"),
+//						"default_transaction_isolation":  pulumi.String("TRANSACTION_ISOLATION_READ_COMMITTED"),
+//						"shared_preload_libraries":       pulumi.String("SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"),
+//					},
+//				},
+//				MaintenanceWindow: &yandex.MdbPostgresqlClusterMaintenanceWindowArgs{
+//					Type: pulumi.String("WEEKLY"),
+//					Day:  pulumi.String("SAT"),
+//					Hour: pulumi.Int(12),
+//				},
+//				Hosts: yandex.MdbPostgresqlClusterHostArray{
+//					&yandex.MdbPostgresqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-b"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.1.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			bar, err := yandex.NewVpcSubnet(ctx, "bar", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.2.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB High Availability PostgreSQL Cluster.
+//			_, err = yandex.NewMdbPostgresqlCluster(ctx, "myCluster", &yandex.MdbPostgresqlClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Config: &yandex.MdbPostgresqlClusterConfigArgs{
+//					Version: pulumi.String("15"),
+//					Resources: &yandex.MdbPostgresqlClusterConfigResourcesArgs{
+//						ResourcePresetId: pulumi.String("s2.micro"),
+//						DiskTypeId:       pulumi.String("network-ssd"),
+//						DiskSize:         pulumi.Int(16),
+//					},
+//				},
+//				MaintenanceWindow: &yandex.MdbPostgresqlClusterMaintenanceWindowArgs{
+//					Type: pulumi.String("ANYTIME"),
+//				},
+//				Hosts: yandex.MdbPostgresqlClusterHostArray{
+//					&yandex.MdbPostgresqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-b"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//					&yandex.MdbPostgresqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						SubnetId: bar.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			foo, err := yandex.NewVpcNetwork(ctx, "foo", nil)
+//			if err != nil {
+//				return err
+//			}
+//			vpcSubnet, err := yandex.NewVpcSubnet(ctx, "vpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-a"),
+//				NetworkId: foo.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.1.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB High Availability PostgreSQL Cluster.
+//			_, err = yandex.NewMdbPostgresqlCluster(ctx, "myCluster", &yandex.MdbPostgresqlClusterArgs{
+//				Description: pulumi.String("test High-Availability (HA) PostgreSQL Cluster"),
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   foo.ID().ToIDOutput().ToStringOutput(),
+//				Config: &yandex.MdbPostgresqlClusterConfigArgs{
+//					Version: pulumi.String("15"),
+//					Resources: &yandex.MdbPostgresqlClusterConfigResourcesArgs{
+//						ResourcePresetId: pulumi.String("s2.micro"),
+//						DiskSize:         pulumi.Int(10),
+//						DiskTypeId:       pulumi.String("network-ssd"),
+//					},
+//				},
+//				Hosts: yandex.MdbPostgresqlClusterHostArray{
+//					&yandex.MdbPostgresqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-a"),
+//						Name:     pulumi.String("host_name_a"),
+//						SubnetId: vpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//					&yandex.MdbPostgresqlClusterHostArgs{
+//						Zone:                  pulumi.String("ru-central1-b"),
+//						Name:                  pulumi.String("host_name_b"),
+//						ReplicationSourceName: pulumi.String("host_name_d"),
+//						SubnetId:              pulumi.String(index / vpcSubnetVpcSubnet.Id),
+//					},
+//					&yandex.MdbPostgresqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						Name:     pulumi.String("host_name_d"),
+//						SubnetId: pulumi.String(yandexIndex / vpcSubnetVpcSubnet.Id),
+//					},
+//					&yandex.MdbPostgresqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						Name:     pulumi.String("host_name_d_2"),
+//						SubnetId: pulumi.String(yandexIndex / vpcSubnetVpcSubnet.Id),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewVpcSubnet(ctx, "index/vpcSubnetVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-b"),
+//				NetworkId: foo.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.2.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewVpcSubnet(ctx, "yandexIndex/vpcSubnetVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: foo.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.3.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.5.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB PostgreSQL Single Node Cluster from backup.
+//			_, err = yandex.NewMdbPostgresqlCluster(ctx, "myCluster", &yandex.MdbPostgresqlClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Restore: &yandex.MdbPostgresqlClusterRestoreArgs{
+//					BackupId: pulumi.String("c9q99999999999999994cm:base_000000010000005F000000B4"),
+//					Time:     pulumi.String("2021-02-11T15:04:05"),
+//				},
+//				Config: &yandex.MdbPostgresqlClusterConfigArgs{
+//					Version: pulumi.String("15"),
+//					Resources: &yandex.MdbPostgresqlClusterConfigResourcesArgs{
+//						ResourcePresetId: pulumi.String("s2.micro"),
+//						DiskTypeId:       pulumi.String("network-ssd"),
+//						DiskSize:         pulumi.Int(16),
+//					},
+//					PostgresqlConfig: pulumi.StringMap{
+//						"max_connections":                pulumi.String("395"),
+//						"enable_parallel_hash":           pulumi.String("true"),
+//						"autovacuum_vacuum_scale_factor": pulumi.String("0.34"),
+//						"default_transaction_isolation":  pulumi.String("TRANSACTION_ISOLATION_READ_COMMITTED"),
+//						"shared_preload_libraries":       pulumi.String("SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"),
+//					},
+//				},
+//				Hosts: yandex.MdbPostgresqlClusterHostArray{
+//					&yandex.MdbPostgresqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `diskEncryptionKeyId` (String). ID of the KMS key used for cluster disk encryption. Encryption can`t be disabled for an existing cluster. If the source cluster is encrypted and you leave this field empty when restoring, the restored cluster will be created without encryption.
+// - `environment` (**Required**)(String). Deployment environment of the PostgreSQL cluster.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `health` (*Read-Only*) (String). Aggregated health of the cluster.
+// - `hostGroupIds` (Set Of String). Host Group IDs.
+// - `hostMasterName` (String). Deprecated field. Will be removed in future versions.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (**Required**)(String). The name of PostgreSQL cluster.
+// - `networkId` (**Required**)(String). The `VPC Network ID` of subnets which resource attached to.
+// - `securityGroupIds` (Set Of String). The list of security groups applied to resource or their components.
+// - `status` (*Read-Only*) (String). Status of the cluster.
+// - `config` [Block]. Configuration of the PostgreSQL cluster.
+//   - `backupRetainPeriodDays` (Number). The period in days during which backups are stored.
+//   - `postgresqlConfig` (Map Of String). PostgreSQL cluster configuration. For detailed information specific to your PostgreSQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/postgresql/v1/config).
+//   - `version` (**Required**)(String). Version of the PostgreSQL cluster. (allowed versions are: 15, 15-1c, 16, 16-1c, 17, 17-1c, 18, 18-1c, 19, 19-1c).
+//   - `access` [Block]. Access policy to the PostgreSQL cluster.
+//   - `dataLens` (Bool). Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
+//   - `dataTransfer` (Bool). Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer).
+//   - `serverless` (Bool). Allow access for [connection to managed databases from functions](https://yandex.cloud/docs/functions/operations/database-connection).
+//   - `webSql` (Bool). Allow access for [SQL queries in the management console](https://yandex.cloud/docs/managed-postgresql/operations/web-sql-query).
+//   - `yandexQuery` (Bool). Allow access for [YandexQuery](https://yandex.cloud/services/query).
+//   - `backupWindowStart` [Block]. Time to start the daily backup, in the UTC timezone.
+//   - `hours` (Number). The hour at which backup will be started (UTC).
+//   - `minutes` (Number). The minute at which backup will be started.
+//   - `connectionManager` [Block]. Connection Manager integration configuration for the cluster. If the block is omitted, the API enables the integration by default for newly created clusters. Disabling the integration is not supported: `enabled = false` is rejected.
+//   - `connectionsFolderId` (String). ID of the folder where connections for the cluster are created. Defaults to the cluster's folder if not specified.
+//   - `enabled` (Bool). Indicates whether Connection Manager integration is enabled for the cluster. Set to `true` to enable the integration. If the block is omitted, the API enables the integration by default for newly created clusters. Disabling the integration is not supported: `enabled = false` is rejected.
+//   - `secretsFolderId` (String). ID of the folder where connection secrets are created. Defaults to the cluster's folder if not specified.
+//   - `diskSizeAutoscaling` [Block]. Cluster disk size autoscaling settings.
+//   - `diskSizeLimit` (**Required**)(Number). The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-postgresql/concepts/storage#auto-rescale) for details.
+//   - `emergencyUsageThreshold` (Number). Threshold of storage usage (in percent) that triggers immediate automatic scaling of the storage. Zero value means disabled threshold.
+//   - `plannedUsageThreshold` (Number). Threshold of storage usage (in percent) that triggers automatic scaling of the storage during the maintenance window. Zero value means disabled threshold.
+//   - `managedRepack` [Block]. Managed pgRepack settings.
+//   - `enabled` (Bool). Enable managed pgRepack for the cluster.
+//   - `performanceDiagnostics` [Block]. Cluster performance diagnostics settings. [YC Documentation](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/cluster_service#PerformanceDiagnostics).
+//   - `advancedMode` (Bool). Switch performance diagnostics from standard to advanced mode.
+//   - `enabled` (Bool). Enable performance diagnostics.
+//   - `sessionsSamplingInterval` (**Required**)(Number). Interval (in seconds) for pgStatActivity sampling. Acceptable values are 1 to 86400, inclusive.
+//   - `statementsSamplingInterval` (**Required**)(Number). Interval (in seconds) for pgStatStatements sampling. Acceptable values are 1 to 86400, inclusive.
+//   - `poolerConfig` [Block]. Configuration of the connection pooler.
+//   - `poolDiscard` (Bool). Deprecated field. Setting `poolDiscard` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool_discard).
+//   - `poolerPoolDiscard` (String). Setting `poolDiscard` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool_discard). One of:
+//   - 1: `true`
+//   - 2: `false`
+//   - 3: `unspecified`.
+//   - `poolingMode` (String). Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool).
+//   - `resources` [Block]. Resources allocated to hosts of the PostgreSQL cluster.
+//   - `diskSize` (**Required**)(Number). Volume of the storage available to a PostgreSQL host, in gigabytes.
+//   - `diskTypeId` (String). Type of the storage of PostgreSQL hosts.
+//   - `resourcePresetId` (**Required**)(String). The ID of the preset for computational resources available to a PostgreSQL host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/concepts/instance-types).
+//
+// - `database` [Block]. > Deprecated! To manage databases, please switch to using a separate resource type `MdbPostgresqlDatabase`.
+//   - `lcCollate` (String). POSIX locale for string sorting order. Forbidden to change in an existing database.
+//   - `lcType` (String). POSIX locale for character classification. Forbidden to change in an existing database.
+//   - `name` (**Required**)(String). The resource name.
+//   - `owner` (**Required**)(String). Name of the user assigned as the owner of the database. Changing this value transfers ownership of the database to another user.
+//   - `templateDb` (String). Name of the template database.
+//   - `extension` [Block]. Set of database extensions.
+//   - `name` (**Required**)(String). Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).
+//   - `version` (String). Version of the extension.
+//
+// - `host` [Block]. A host of the PostgreSQL cluster.
+//   - `assignPublicIp` (Bool). Whether the host should get a public IP address.
+//   - `fqdn` (*Read-Only*) (String). The fully qualified domain name of the host.
+//   - `name` (String). Host state name. It should be set for all hosts or unset for all hosts. This field can be used by another host, to select which host will be its replication source. Please see `replicationSourceName` parameter.
+//   - `priority` (Number). Host priority in HA group. It works only when `name` is set. Must be between 0 and 100.
+//   - `replicationSource` (*Read-Only*) (String). Host replication source (fqdn), when replicationSource is empty then host is in HA group.
+//   - `replicationSourceName` (String). Host replication source name points to host's `name` from which this host should replicate. When not set then host in HA group. It works only when `name` is set.
+//   - `role` (*Read-Only*) (String). Host's role (replica|primary), computed by server.
+//   - `subnetId` (String). The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
+//   - `zone` (**Required**)(String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+//
+// - `maintenanceWindow` [Block]. Maintenance policy of the PostgreSQL cluster.
+//   - `day` (String). Day of the week (in `DDD` format). Allowed values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`
+//   - `hour` (Number). Hour of the day in UTC (in `HH` format). Allowed value is between 1 and 24.
+//   - `type` (**Required**)(String). Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+//
+// - `restore` [Block]. The cluster will be created from the specified backup.
+//   - `backupId` (**Required**)(String). Backup ID. The cluster will be created from the specified backup. [How to get a list of PostgreSQL backups](https://yandex.cloud/docs/managed-postgresql/operations/cluster-backups).
+//   - `time` (String). Timestamp of the moment to which the PostgreSQL cluster should be restored. (Format: `2006-01-02T15:04:05` - UTC). When not set, current time is used.
+//   - `timeInclusive` (Bool). Flag that indicates whether a database should be restored to the first backup point available just after the timestamp specified in the [time] field instead of just before. Possible values:
+//
+// * `false` (default) — the restore point refers to the first backup moment before [time].
+// * `true` — the restore point refers to the first backup point after [time].
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// - `user` [Block]. > Deprecated! To manage users, please switch to using a separate resource type `MdbPostgresqlUser`.
+//   - `connLimit` (Number). The maximum number of connections per user. (Default 50).
+//   - `grants` (List Of String). List of the user's grants.
+//   - `login` (Bool). User's ability to login.
+//   - `name` (**Required**)(String). The name of the user.
+//   - `password` (**Required**)(String). The password of the user.
+//   - `settings` (Map Of String). Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
+//
+// * `defaultTransactionIsolation` - defines the default isolation level to be set for all new SQL transactions. One of:
+//   - 1: `read uncommitted`
+//   - 2: `read committed`
+//   - 3: `repeatable read`
+//   - 4: `serializable`
+//
+// * `lockTimeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0).
+//
+// * `logMinDurationStatement` - This setting controls logging of the duration of statements. Default -1 disables logging of the duration of statements.
+//
+// * `synchronousCommit` - This setting defines whether DBMS will commit transaction in a synchronous way. One of:
+//   - 1: `on`
+//   - 2: `off`
+//   - 3: `local`
+//   - 4: `remote write`
+//   - 5: `remote apply`
+//
+// * `tempFileLimit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.
+//
+// * `logStatement` - This setting specifies which SQL statements should be logged (on the user level). One of:
+//   - 1: `none`
+//   - 2: `ddl`
+//   - 3: `mod`
+//   - 4: `all`
+//
+// * `poolMode` - Mode that the connection pooler is working in with specified user. One of:
+//   - 1: `session`
+//   - 2: `transaction`
+//   - 3: `statement`
+//
+// * `preparedStatementsPooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.
+//
+// * `catchupTimeout` - The connection pooler setting. It determines the maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this threshold. Default value is 0, which disables this feature. Integer.
+//
+// * `walSenderTimeout` - The maximum time (in milliseconds) to wait for WAL replication. Terminate replication connections that are inactive for longer than this amount of time. Integer.
+//
+// * `idleInTransactionSessionTimeout` - Sets the maximum allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout. Integer.
+//
+// * `statementTimeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer.
+//   - `permission` [Block]. Set of permissions granted to the user.
+//   - `databaseName` (**Required**)(String). The name of the database that the permission grants access to.
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_mdb_postgresql_cluster.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/mdbPostgresqlCluster:MdbPostgresqlCluster my_cluster ...
+// ```
 type MdbPostgresqlCluster struct {
 	pulumi.CustomResourceState
 

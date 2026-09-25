@@ -8,10 +8,56 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud IAM OAuth client secret](https://yandex.cloud/docs/iam/concepts/authorization/oauth-client-secret). The OAuth client secret is used for OAuth 2.0 client authentication.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new OAuth Client Secret.
+//			_, err := yandex.NewIamOauthClientSecret(ctx, "my-oauth-client-secret", &yandex.IamOauthClientSecretArgs{
+//				OauthClientId: pulumi.Any(yandex_iam_oauth_client.MyOauthClient.Id),
+//				Description:   pulumi.String("secret for oauth client"),
+//				PgpKey:        pulumi.String("keybase:keybaseusername"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `encryptedSecretValue` (*Read-Only*) (String). The encrypted secret value, base64 encoded. This is only populated when `pgpKey` is supplied.
+// - `id` (String).
+// - `keyFingerprint` (*Read-Only*) (String). The fingerprint of the PGP key used to encrypt the secret value. This is only populated when `pgpKey` is supplied.
+// - `maskedSecret` (*Read-Only*) (String). The masked value of the OAuth client secret.
+// - `oauthClientId` (**Required**)(String). ID of the OAuth client to create a secret for.
+// - `outputToLockboxVersionId` (*Read-Only*) (String). ID of the Lockbox secret version that contains the value of `secretKey`. This is only populated when `outputToLockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when `outputToLockbox` is removed.
+// - `pgpKey` (String). An optional PGP key to encrypt the resulting secret value. May either be a base64-encoded public key or a keybase username in the form `keybase:keybaseusername`.
+// - `secretValue` (*Read-Only*) (String). The secret value. This is only populated when neither `pgpKey` nor `outputToLockbox` are provided.
+// - `outputToLockbox` [Block]. option to create a Lockbox secret version from sensitive outputs
+//   - `entryForSecretValue` (**Required**)(String). entry that will store the value of secretValue
+//   - `secretId` (**Required**)(String). ID of the Lockbox secret where to store the sensible values.
 type IamOauthClientSecret struct {
 	pulumi.CustomResourceState
 

@@ -7,10 +7,105 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Backup Policy. For more information, see [the official documentation](https://yandex.cloud/docs/backup/concepts/policy).
+//
+// > One of `policyId` or `name` should be specified.
+//
+// > In case you use `name`, an error will occur if two policies with the same name exist. In this case, rename the policy or use the `policyId`.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myPolicy, err := yandex.GetBackupPolicy(ctx, &yandex.LookupBackupPolicyArgs{
+//				Name: pulumi.StringRef("some_policy_name"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("myPolicyName", myPolicy.Name)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `archiveName` (*Read-Only*) (String). The name of generated archives. Default `[Machine Name]-[Plan ID]-[Unique ID]a`.
+// - `cbt` (*Read-Only*) (String). Configuration of Changed Block Tracking. Available values are: `USE_IF_ENABLED`, `ENABLED_AND_USE`, `DO_NOT_USE`. Default `DO_NOT_USE`.
+// - `compression` (*Read-Only*) (String). Archive compression level. Affects CPU. Available values: `NORMAL`, `HIGH`, `MAX`, `OFF`. Default: `NORMAL`.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `enabled` (*Read-Only*) (Bool). If this field is true, it means that the policy is enabled.
+// - `fastBackupEnabled` (*Read-Only*) (Bool). If true, determines whether a file has changed by the file size and timestamp. Otherwise, the entire file contents are compared to those stored in the backup.
+// - `fileFilters` (*Read-Only*) (List Of Object). File filters to specify masks of files to backup or to exclude of backuping.
+//   - `exclusionMasks` .
+//   - `inclusionMasks` .
+//
+// - `folderId` (*Read-Only*) (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `format` (*Read-Only*) (String). Format of the backup. It's strongly recommend to leave this option empty or `AUTO`. Available values: `AUTO`, `VERSION_11`, `VERSION_12`.
+// - `id` (String).
+// - `lvmSnapshottingEnabled` (*Read-Only*) (Bool). LVM will be used to create the volume snapshot. If LVM fails to create a snapshot (for example, because there is not enough free space), the software will create the snapshot itself.
+// - `multiVolumeSnapshottingEnabled` (*Read-Only*) (Bool). If true, snapshots of multiple volumes will be taken simultaneously. Default `true`.
+// - `name` (String). The resource name.
+// - `performanceWindowEnabled` (*Read-Only*) (Bool). Time windows for performance limitations of backup. Default `false`.
+// - `policyId` (String). ID of the policy.
+// - `reattempts` (*Read-Only*) (Set Of Object). Amount of reattempts that should be performed while trying to make backup at the host.
+//   - `enabled` .
+//   - `interval` .
+//   - `maxAttempts` .
+//
+// - `retention` (*Read-Only*) (Set Of Object). Retention policy for backups. Allows to setup backups lifecycle.
+//   - `afterBackup` .
+//   - `rules` .
+//   - `maxAge` .
+//   - `maxCount` .
+//   - `repeatPeriod` .
+//
+// - `scheduling` (*Read-Only*) (Set Of Object). Schedule settings for creating backups on the host.
+//   - `backupSets` .
+//   - `executeByInterval` .
+//   - `executeByTime` .
+//   - `includeLastDayOfMonth` .
+//   - `monthdays` .
+//   - `months` .
+//   - `repeatAt` .
+//   - `repeatEvery` .
+//   - `runLater` .
+//   - `type` .
+//   - `weekdays` .
+//   - `type` .
+//   - `enabled` .
+//   - `maxParallelBackups` .
+//   - `randomMaxDelay` .
+//   - `scheme` .
+//   - `weeklyBackupDay` .
+//
+// - `sectorBySector` (*Read-Only*) (Bool). A sector-by-sector backup of a disk or volume creates a backup copy of all sectors of the disk or volume, including those that do not contain data. Therefore, the size of such a backup copy will be equal to the size of the original disk or volume.
+// - `silentModeEnabled` (*Read-Only*) (Bool). If true, a user interaction will be avoided when possible. Default `true`.
+// - `splittingBytes` (*Read-Only*) (String). Determines the size to split backups. It's better to leave this option unchanged. Default `9223372036854775807`.
+// - `updatedAt` (*Read-Only*) (String). The update timestamp of the resource.
+// - `validationEnabled` (*Read-Only*) (Bool). Validation is a time-consuming process, even with incremental or differential backups of small amounts of data. This is because not only the data physically contained in the backup copy is verified, but all data restored when it is selected. This option requires access to previously created backup copies.
+// - `vmSnapshotReattempts` (*Read-Only*) (Set Of Object). Amount of reattempts that should be performed while trying to make snapshot.
+//   - `enabled` .
+//   - `interval` .
+//   - `maxAttempts` .
+//
+// - `vssProvider` (*Read-Only*) (String). Settings for the volume shadow copy service. Available values are: `NATIVE`, `TARGET_SYSTEM_DEFINED`. Default `NATIVE`.
 func LookupBackupPolicy(ctx *pulumi.Context, args *LookupBackupPolicyArgs, opts ...pulumi.InvokeOption) (*LookupBackupPolicyResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupBackupPolicyResult

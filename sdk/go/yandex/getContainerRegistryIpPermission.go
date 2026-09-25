@@ -7,10 +7,49 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Container Registry IP Permission. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/operations/registry/registry-access).
+//
+// > Either `registryId` or `registryName` must be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetContainerRegistryIpPermission(ctx, &yandex.LookupContainerRegistryIpPermissionArgs{
+//				RegistryId: pulumi.StringRef(yandex_container_registry.My_registry.Id),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `id` (String).
+// - `pull` (*Read-Only*) (Set Of String). List of configured CIDRs, from which `pull` is allowed.
+// - `push` (*Read-Only*) (Set Of String). List of configured CIDRs, from which `push` is allowed.
+// - `registryId` (String). The ID of the registry that ip restrictions applied to.
+// - `registryName` (String). The Name of specific Container Registry.
+// - `timeouts` [Block].
+//   - `default` (String).
 func LookupContainerRegistryIpPermission(ctx *pulumi.Context, args *LookupContainerRegistryIpPermissionArgs, opts ...pulumi.InvokeOption) (*LookupContainerRegistryIpPermissionResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupContainerRegistryIpPermissionResult

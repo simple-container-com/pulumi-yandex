@@ -7,10 +7,79 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Compute disk. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/disk).
+//
+// > One of `diskId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myDisk, err := yandex.GetComputeDisk(ctx, &yandex.LookupComputeDiskArgs{
+//				DiskId: pulumi.StringRef("some_disk_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			// You can use "data.yandex_compute_disk.my_disk.id" identifier
+//			// as reference to the existing resource.
+//			// ...
+//			_, err = yandex.NewComputeInstance(ctx, "default", &yandex.ComputeInstanceArgs{
+//				SecondaryDisks: yandex.ComputeInstanceSecondaryDiskArray{
+//					&yandex.ComputeInstanceSecondaryDiskArgs{
+//						DiskId: pulumi.String(myDisk.Id),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `blockSize` (*Read-Only*) (Number). Block size of the disk, specified in bytes.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `diskId` (String). The ID of a specific disk.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `hardwareGeneration` (*Read-Only*) (List Of Object).
+//   - `generation2Features` .
+//   - `legacyFeatures` .
+//   - `pciTopology` .
+//
+// - `id` (String).
+// - `imageId` (*Read-Only*) (String). The source image to use for disk creation.
+// - `instanceIds` (*Read-Only*) (List Of String).
+// - `kmsKeyId` (*Read-Only*) (String). ID of KMS symmetric key used to encrypt disk.
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `productIds` (*Read-Only*) (List Of String).
+// - `size` (*Read-Only*) (Number). Size of the persistent disk, specified in GB. You can specify this field when creating a persistent disk using the `imageId` or `snapshotId` parameter, or specify it alone to create an empty persistent disk. If you specify this field along with `imageId` or `snapshotId`, the size value must not be less than the size of the source image or the size of the snapshot.
+// - `snapshotId` (*Read-Only*) (String). The source snapshot to use for disk creation.
+// - `status` (*Read-Only*) (String). The status of the disk.
+// - `type` (*Read-Only*) (String). Type of disk to create. Provide this when creating a disk.
+// - `zone` (*Read-Only*) (String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+// - `diskPlacementPolicy` [Block].
+//   - `diskPlacementGroupId` (**Required**)(String).
 func LookupComputeDisk(ctx *pulumi.Context, args *LookupComputeDiskArgs, opts ...pulumi.InvokeOption) (*LookupComputeDiskResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupComputeDiskResult

@@ -8,15 +8,104 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a DNS RecordSet within Yandex Cloud.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resource for DNS Zone
+//			foo, err := yandex.NewVpcNetwork(ctx, "foo", nil)
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new DNS Zone & two DNS Records on it.
+//			zone1, err := yandex.NewDnsZone(ctx, "zone1", &yandex.DnsZoneArgs{
+//				Description: pulumi.String("desc"),
+//				Labels: pulumi.StringMap{
+//					"label1": pulumi.String("label-1-value"),
+//				},
+//				Zone:   pulumi.String("example.com."),
+//				Public: pulumi.Bool(false),
+//				PrivateNetworks: pulumi.StringArray{
+//					foo.ID().ToIDOutput().ToStringOutput(),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewDnsRecordset(ctx, "rs1", &yandex.DnsRecordsetArgs{
+//				ZoneId: zone1.ID().ToIDOutput().ToStringOutput(),
+//				Type:   pulumi.String("A"),
+//				Ttl:    pulumi.Int(200),
+//				Datas: pulumi.StringArray{
+//					pulumi.String("10.1.0.1"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewDnsRecordset(ctx, "rs2", &yandex.DnsRecordsetArgs{
+//				ZoneId: zone1.ID().ToIDOutput().ToStringOutput(),
+//				Type:   pulumi.String("A"),
+//				Ttl:    pulumi.Int(200),
+//				Datas: pulumi.StringArray{
+//					pulumi.String("10.1.0.2"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `data` (**Required**)(Set Of String). The string data for the records in this record set.
+// - `description` (String). The DNS record set description.
+// - `id` (String).
+// - `name` (**Required**)(String). The DNS name this record set will apply to.
+// - `ttl` (**Required**)(Number). The time-to-live of this record set (seconds).
+// - `type` (**Required**)(String). The DNS record set type.
+// - `zoneId` (**Required**)(String). The id of the zone in which this record set will reside.
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_dns_recordset.<resource Name> <{zone_id}/{name}/{type}>
+//
+// ```sh
+// $ pulumi import yandex:index/dnsRecordset:DnsRecordset rs1 dns9m**********tducf/srv.example.com./A
+// ```
 type DnsRecordset struct {
 	pulumi.CustomResourceState
 
 	// The string data for the records in this record set.
 	Datas pulumi.StringArrayOutput `pulumi:"datas"`
+	// The DNS record set description.
+	Description pulumi.StringPtrOutput `pulumi:"description"`
 	// The DNS name this record set will apply to.
 	Name pulumi.StringOutput `pulumi:"name"`
 	// The time-to-live of this record set (seconds).
@@ -71,6 +160,8 @@ func GetDnsRecordset(ctx *pulumi.Context,
 type dnsRecordsetState struct {
 	// The string data for the records in this record set.
 	Datas []string `pulumi:"datas"`
+	// The DNS record set description.
+	Description *string `pulumi:"description"`
 	// The DNS name this record set will apply to.
 	Name *string `pulumi:"name"`
 	// The time-to-live of this record set (seconds).
@@ -84,6 +175,8 @@ type dnsRecordsetState struct {
 type DnsRecordsetState struct {
 	// The string data for the records in this record set.
 	Datas pulumi.StringArrayInput
+	// The DNS record set description.
+	Description pulumi.StringPtrInput
 	// The DNS name this record set will apply to.
 	Name pulumi.StringPtrInput
 	// The time-to-live of this record set (seconds).
@@ -101,6 +194,8 @@ func (DnsRecordsetState) ElementType() reflect.Type {
 type dnsRecordsetArgs struct {
 	// The string data for the records in this record set.
 	Datas []string `pulumi:"datas"`
+	// The DNS record set description.
+	Description *string `pulumi:"description"`
 	// The DNS name this record set will apply to.
 	Name *string `pulumi:"name"`
 	// The time-to-live of this record set (seconds).
@@ -115,6 +210,8 @@ type dnsRecordsetArgs struct {
 type DnsRecordsetArgs struct {
 	// The string data for the records in this record set.
 	Datas pulumi.StringArrayInput
+	// The DNS record set description.
+	Description pulumi.StringPtrInput
 	// The DNS name this record set will apply to.
 	Name pulumi.StringPtrInput
 	// The time-to-live of this record set (seconds).
@@ -215,6 +312,11 @@ func (o DnsRecordsetOutput) ToDnsRecordsetOutputWithContext(ctx context.Context)
 // The string data for the records in this record set.
 func (o DnsRecordsetOutput) Datas() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *DnsRecordset) pulumi.StringArrayOutput { return v.Datas }).(pulumi.StringArrayOutput)
+}
+
+// The DNS record set description.
+func (o DnsRecordsetOutput) Description() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DnsRecordset) pulumi.StringPtrOutput { return v.Description }).(pulumi.StringPtrOutput)
 }
 
 // The DNS name this record set will apply to.

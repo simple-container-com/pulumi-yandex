@@ -8,10 +8,254 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of a Yandex Cloud Serverless Container.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Serverless Container.
+//			_, err := yandex.NewServerlessContainer(ctx, "test-container", &yandex.ServerlessContainerArgs{
+//				Description:      pulumi.String("any description"),
+//				Memory:           pulumi.Int(256),
+//				ExecutionTimeout: pulumi.String("15s"),
+//				Cores:            pulumi.Int(1),
+//				CoreFraction:     pulumi.Int(100),
+//				ServiceAccountId: pulumi.String("are1service2account3id"),
+//				Runtime: &yandex.ServerlessContainerRuntimeArgs{
+//					Type: pulumi.String("task"),
+//				},
+//				Secrets: yandex.ServerlessContainerSecretArray{
+//					&yandex.ServerlessContainerSecretArgs{
+//						Id:                  pulumi.Any(yandex_lockbox_secret.Secret.Id),
+//						VersionId:           pulumi.Any(yandex_lockbox_secret_version.Secret_version.Id),
+//						Key:                 pulumi.String("secret-key"),
+//						EnvironmentVariable: pulumi.String("ENV_VARIABLE"),
+//					},
+//				},
+//				Mounts: yandex.ServerlessContainerMountArray{
+//					&yandex.ServerlessContainerMountArgs{
+//						MountPointPath: pulumi.String("/mount/point"),
+//						EphemeralDisk: &yandex.ServerlessContainerMountEphemeralDiskArgs{
+//							SizeGb: pulumi.Int(5),
+//						},
+//					},
+//				},
+//				Image: &yandex.ServerlessContainerImageArgs{
+//					Url: pulumi.String("cr.yandex/yc/test-image:v1"),
+//				},
+//				LogOptions: &yandex.ServerlessContainerLogOptionsArgs{
+//					LogGroupId: pulumi.String("e2392vo6d1bne2aeq9fr"),
+//					MinLevel:   pulumi.String("ERROR"),
+//				},
+//				ProvisionPolicy: &yandex.ServerlessContainerProvisionPolicyArgs{
+//					MinInstances: pulumi.Int(1),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Serverless Container with Image digest.
+//			_, err := yandex.NewServerlessContainer(ctx, "test-container-with-digest", &yandex.ServerlessContainerArgs{
+//				Image: &yandex.ServerlessContainerImageArgs{
+//					Digest: pulumi.String("sha256:e1d772fa8795adac847a2420c87d0d2e3d38fb02f168cab8c0b5fe2fb95c47f4"),
+//					Url:    pulumi.String("cr.yandex/yc/test-image:v1"),
+//				},
+//				Memory: pulumi.Int(128),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"fmt"
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			folderId := "folder_id"
+//			// Auxiliary resources
+//			sa, err := yandex.NewIamServiceAccount(ctx, "sa", &yandex.IamServiceAccountArgs{
+//				FolderId: pulumi.String(folderId),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			sa_static_key, err := yandex.NewIamServiceAccountStaticAccessKey(ctx, "sa-static-key", &yandex.IamServiceAccountStaticAccessKeyArgs{
+//				ServiceAccountId: sa.IamServiceAccountId,
+//				Description:      pulumi.String("static access key for object storage"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			my_bucket, err := yandex.NewStorageBucket(ctx, "my-bucket", &yandex.StorageBucketArgs{
+//				AccessKey: sa_static_key.AccessKey,
+//				SecretKey: sa_static_key.SecretKey,
+//				Bucket:    pulumi.String("bucket"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewServerlessContainer(ctx, "test-container-object-storage-mount", &yandex.ServerlessContainerArgs{
+//				Memory:           pulumi.Int(128),
+//				ServiceAccountId: sa.IamServiceAccountId,
+//				Image: &yandex.ServerlessContainerImageArgs{
+//					Url: pulumi.String("cr.yandex/yc/test-image:v1"),
+//				},
+//				Mounts: yandex.ServerlessContainerMountArray{
+//					&yandex.ServerlessContainerMountArgs{
+//						MountPointPath: pulumi.String("/mount/point"),
+//						Mode:           pulumi.String("ro"),
+//						ObjectStorage: &yandex.ServerlessContainerMountObjectStorageArgs{
+//							Bucket: my_bucket.Bucket,
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewResourcemanagerFolderIamMember(ctx, "sa-editor", &yandex.ResourcemanagerFolderIamMemberArgs{
+//				FolderId: pulumi.String(folderId),
+//				Role:     pulumi.String("storage.editor"),
+//				Member: sa.IamServiceAccountId.ApplyT(func(iamServiceAccountId string) (string, error) {
+//					return fmt.Sprintf("serviceAccount:%v", iamServiceAccountId), nil
+//				}).(pulumi.StringOutput),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `concurrency` (Number). Concurrency of Yandex Cloud Serverless Container.
+// - `coreFraction` (Number). Core fraction (**0...100**) of the Yandex Cloud Serverless Container.
+// - `cores` (Number). Cores (**1+**) of the Yandex Cloud Serverless Container.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `executionTimeout` (String). Execution timeout in seconds (**duration format**) for Yandex Cloud Serverless Container.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `memory` (**Required**)(Number). Memory in megabytes (**aligned to 128 MB**).
+// - `name` (**Required**)(String). The resource name.
+// - `revisionId` (*Read-Only*) (String). Last revision ID of the Yandex Cloud Serverless Container.
+// - `serviceAccountId` (String). [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+// - `url` (*Read-Only*) (String). Invoke URL for the Yandex Cloud Serverless Container.
+// - `asyncInvocation` [Block]. Config for asynchronous invocations of Yandex Cloud Serverless Container.
+//   - `serviceAccountId` (String). Service account used for async invocation.
+//
+// - `connectivity` [Block]. Network access. If specified the revision will be attached to specified network.
+//   - `networkId` (**Required**)(String). Network the revision will have access to.
+//
+// - `image` [Block]. Revision deployment image for Yandex Cloud Serverless Container.
+//   - `args` (List Of String). List of arguments for Yandex Cloud Serverless Container.
+//   - `command` (List Of String). List of commands for Yandex Cloud Serverless Container.
+//   - `digest` (String). Digest of image that will be deployed as Yandex Cloud Serverless Container. If presented, should be equal to digest that will be resolved at server side by URL. Container will be updated on digest change even if `image.0.url` stays the same. If field not specified then its value will be computed.
+//   - `environment` (Map Of String). A set of key/value environment variable pairs for Yandex Cloud Serverless Container. Each key must begin with a letter (A-Z, a-z).
+//   - `url` (**Required**)(String). URL of image that will be deployed as Yandex Cloud Serverless Container.
+//   - `workDir` (String). Working directory for Yandex Cloud Serverless Container.
+//
+// - `logOptions` [Block]. Options for logging from Yandex Cloud Serverless Container.
+//   - `disabled` (Bool). Is logging from container disabled.
+//   - `folderId` (String). Log entries are written to default log group for specified folder.
+//   - `logGroupId` (String). Log entries are written to specified log group.
+//   - `minLevel` (String). Minimum log entry level.
+//
+// - `metadataOptions` [Block]. Options set the access mode to revision's metadata endpoints.
+//   - `awsV1HttpEndpoint` (Number). Enables access to AWS flavored metadata (IMDSv1). Values: `0` - default, `1` - enabled, `2` - disabled.
+//   - `gceHttpEndpoint` (Number). Enables access to GCE flavored metadata. Values: `0`- default, `1` - enabled, `2` - disabled.
+//
+// - `mounts` [Block]. Mounts for Yandex Cloud Serverless Container.
+//   - `mode` (String). Mount’s accessibility mode. Valid values are `ro` and `rw`.
+//   - `mountPointPath` (**Required**)(String). Path inside the container to access the directory in which the target is mounted.
+//   - `ephemeralDisk` [Block]. One of the available mount types. Disk available during the function execution time.
+//   - `blockSizeKb` (Number). Block size of the ephemeral disk in KB.
+//   - `sizeGb` (**Required**)(Number). Size of the ephemeral disk in GB.
+//   - `objectStorage` [Block]. Available mount types. Object storage as a mount.
+//   - `bucket` (**Required**)(String). Name of the mounting bucket.
+//   - `prefix` (String). Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.
+//
+// - `provisionPolicy` [Block]. Provision policy. If specified the revision will have prepared instances.
+//   - `minInstances` (**Required**)(Number). Minimum number of prepared instances that are always ready to serve requests.
+//
+// - `runtime` [Block]. Runtime for Yandex Cloud Serverless Container.
+//   - `type` (**Required**)(String). Type of the runtime for Yandex Cloud Serverless Container. Valid values are `http` and `task`.
+//
+// - `secrets` [Block]. Secrets for Yandex Cloud Serverless Container.
+//   - `environmentVariable` (**Required**)(String). Container's environment variable in which secret's value will be stored. Must begin with a letter (A-Z, a-z).
+//   - `id` (**Required**)(String). Secret's ID.
+//   - `key` (**Required**)(String). Secret's entries key which value will be stored in environment variable.
+//   - `versionId` (**Required**)(String). Secret's version ID.
+//
+// - `storageMounts` [Block]. (**DEPRECATED**, use `mounts.object_storage` instead) Storage mounts for Yandex Cloud Serverless Container.
+//   - `bucket` (**Required**)(String). Name of the mounting bucket.
+//   - `mountPointPath` (**Required**)(String). Path inside the container to access the directory in which the bucket is mounted.
+//   - `prefix` (String). Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.
+//   - `readOnly` (Bool). Mount the bucket in read-only mode.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_serverless_container.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/serverlessContainer:ServerlessContainer test-container ...
+// ```
 type ServerlessContainer struct {
 	pulumi.CustomResourceState
 

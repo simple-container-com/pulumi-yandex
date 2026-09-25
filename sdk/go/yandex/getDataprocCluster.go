@@ -7,10 +7,87 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			foo, err := yandex.GetDataprocCluster(ctx, &yandex.LookupDataprocClusterArgs{
+//				Name: pulumi.StringRef("test"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("serviceAccountId", foo.ServiceAccountId)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `autoscalingServiceAccountId` (*Read-Only*) (String). Service account to be used for managing hosts in an autoscaled subcluster.
+// - `bucket` (*Read-Only*) (String). Name of the Object Storage bucket to use for Yandex Data Processing jobs. Yandex Data Processing Agent saves output of job driver's process to specified bucket. In order for this to work service account (specified by the `serviceAccountId` argument) should be given permission to create objects within this bucket.
+// - `clusterConfig` (*Read-Only*) (List Of Object). Configuration and resources for hosts that should be created with the cluster.
+//   - `hadoop` .
+//   - `initializationAction` .
+//   - `args` .
+//   - `timeout` .
+//   - `uri` .
+//   - `oslogin` .
+//   - `properties` .
+//   - `services` .
+//   - `sshPublicKeys` .
+//   - `subclusterSpec` .
+//   - `assignPublicIp` .
+//   - `autoscalingConfig` .
+//   - `cpuUtilizationTarget` .
+//   - `decommissionTimeout` .
+//   - `maxHostsCount` .
+//   - `measurementDuration` .
+//   - `preemptible` .
+//   - `stabilizationDuration` .
+//   - `warmupDuration` .
+//   - `hostsCount` .
+//   - `id` .
+//   - `name` .
+//   - `resources` .
+//   - `diskSize` .
+//   - `diskTypeId` .
+//   - `resourcePresetId` .
+//   - `role` .
+//   - `subnetId` .
+//   - `versionId` .
+//
+// - `clusterId` (String). The ID of the Yandex Data Processing cluster.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (*Read-Only*) (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `environment` (*Read-Only*) (String). Deployment environment of the cluster. Can be either `PRESTABLE` or `PRODUCTION`. The default is `PRESTABLE`.
+// - `folderId` (*Read-Only*) (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `hostGroupIds` (*Read-Only*) (Set Of String). A list of host group IDs to place VMs of the cluster on.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `logGroupId` (*Read-Only*) (String). ID of the cloud logging group for cluster logs.
+// - `name` (String). The resource name.
+// - `securityGroupIds` (*Read-Only*) (Set Of String). The list of security groups applied to resource or their components.
+// - `serviceAccountId` (*Read-Only*) (String). Service account to be used by the Yandex Data Processing agent to access resources of Yandex Cloud. Selected service account should have `mdb.dataproc.agent` role on the folder where the Yandex Data Processing cluster will be located.
+// - `uiProxy` (*Read-Only*) (Bool). Whether to enable UI Proxy feature.
+// - `zoneId` (*Read-Only*) (String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
 func LookupDataprocCluster(ctx *pulumi.Context, args *LookupDataprocClusterArgs, opts ...pulumi.InvokeOption) (*LookupDataprocClusterResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupDataprocClusterResult

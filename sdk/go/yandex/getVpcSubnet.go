@@ -7,10 +7,61 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex VPC subnet. For more information, see [Yandex Cloud VPC](https://yandex.cloud/docs/vpc/concepts/index).
+//
+// This data source is used to define [VPC Subnets](https://yandex.cloud/docs/vpc/concepts/network#subnet) that can be used by other resources.
+//
+// > One of `subnetId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetVpcSubnet(ctx, &yandex.LookupVpcSubnetArgs{
+//				SubnetId: pulumi.StringRef("my-subnet-id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `dhcpOptions` (*Read-Only*) (List Of Object).
+//   - `domainName` .
+//   - `domainNameServers` .
+//   - `ntpServers` .
+//
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `networkId` (*Read-Only*) (String). ID of the network this subnet belongs to. Only networks that are in the distributed mode can have subnets.
+// - `routeTableId` (*Read-Only*) (String). The ID of the route table to assign to this subnet. Assigned route table should belong to the same network as this subnet.
+// - `subnetId` (String). Subnet ID.
+// - `v4CidrBlocks` (*Read-Only*) (List Of String). A list of blocks of internal IPv4 addresses that are owned by this subnet. Provide this property when you create the subnet. For example, `10.0.0.0/22` or `192.168.0.0/16`. Blocks of addresses must be unique and non-overlapping within a network. Minimum subnet size is `/28`, and maximum subnet size is `/16`. Only IPv4 is supported.
+// - `v6CidrBlocks` (*Read-Only*) (List Of String). An optional list of blocks of IPv6 addresses that are owned by this subnet.
+// - `zone` (*Read-Only*) (String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
 func LookupVpcSubnet(ctx *pulumi.Context, args *LookupVpcSubnetArgs, opts ...pulumi.InvokeOption) (*LookupVpcSubnetResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupVpcSubnetResult

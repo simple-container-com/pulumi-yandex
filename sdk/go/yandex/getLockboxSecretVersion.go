@@ -7,10 +7,40 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about Yandex Cloud Lockbox secret version. For more information, see [the official documentation](https://yandex.cloud/docs/lockbox/).
+// If you're creating the secret in the same project, then you should indicate `versionId`, since otherwise you may refer to a wrong version of the secret (e.g. the first version, when it is still empty).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			mySecretVersion, err := yandex.GetLockboxSecretVersion(ctx, &yandex.LookupLockboxSecretVersionArgs{
+//				SecretId:  "some-secret-id",
+//				VersionId: pulumi.StringRef("some-version-id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("mySecretEntries", mySecretVersion.Entries)
+//			return nil
+//		})
+//	}
+//
+// ```
 func LookupLockboxSecretVersion(ctx *pulumi.Context, args *LookupLockboxSecretVersionArgs, opts ...pulumi.InvokeOption) (*LookupLockboxSecretVersionResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupLockboxSecretVersionResult

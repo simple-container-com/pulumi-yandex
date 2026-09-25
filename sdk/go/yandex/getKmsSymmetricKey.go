@@ -7,13 +7,48 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
-func GetKmsSymmetricKey(ctx *pulumi.Context, args *GetKmsSymmetricKeyArgs, opts ...pulumi.InvokeOption) (*GetKmsSymmetricKeyResult, error) {
+// Get data from Yandex KMS symmetric key.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `defaultAlgorithm` (String). Encryption algorithm to be used with a new key version, generated with the next rotation. The default value is `AES_128`.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `rotatedAt` (*Read-Only*) (String). Last rotation timestamp of the key.
+// - `rotationPeriod` (String). Interval between automatic rotations. To disable automatic rotation, omit this parameter.
+// - `status` (*Read-Only*) (String). The status of the key.
+// - `symmetricKeyId` (String). The symmetric key ID.
+func LookupKmsSymmetricKey(ctx *pulumi.Context, args *LookupKmsSymmetricKeyArgs, opts ...pulumi.InvokeOption) (*LookupKmsSymmetricKeyResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
-	var rv GetKmsSymmetricKeyResult
+	var rv LookupKmsSymmetricKeyResult
 	err := ctx.Invoke("yandex:index/getKmsSymmetricKey:getKmsSymmetricKey", args, &rv, opts...)
 	if err != nil {
 		return nil, err
@@ -22,7 +57,7 @@ func GetKmsSymmetricKey(ctx *pulumi.Context, args *GetKmsSymmetricKeyArgs, opts 
 }
 
 // A collection of arguments for invoking getKmsSymmetricKey.
-type GetKmsSymmetricKeyArgs struct {
+type LookupKmsSymmetricKeyArgs struct {
 	DefaultAlgorithm   *string           `pulumi:"defaultAlgorithm"`
 	DeletionProtection *bool             `pulumi:"deletionProtection"`
 	Description        *string           `pulumi:"description"`
@@ -34,7 +69,7 @@ type GetKmsSymmetricKeyArgs struct {
 }
 
 // A collection of values returned by getKmsSymmetricKey.
-type GetKmsSymmetricKeyResult struct {
+type LookupKmsSymmetricKeyResult struct {
 	CreatedAt          string  `pulumi:"createdAt"`
 	DefaultAlgorithm   *string `pulumi:"defaultAlgorithm"`
 	DeletionProtection *bool   `pulumi:"deletionProtection"`
@@ -50,17 +85,17 @@ type GetKmsSymmetricKeyResult struct {
 	SymmetricKeyId *string           `pulumi:"symmetricKeyId"`
 }
 
-func GetKmsSymmetricKeyOutput(ctx *pulumi.Context, args GetKmsSymmetricKeyOutputArgs, opts ...pulumi.InvokeOption) GetKmsSymmetricKeyResultOutput {
+func LookupKmsSymmetricKeyOutput(ctx *pulumi.Context, args LookupKmsSymmetricKeyOutputArgs, opts ...pulumi.InvokeOption) LookupKmsSymmetricKeyResultOutput {
 	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetKmsSymmetricKeyResultOutput, error) {
-			args := v.(GetKmsSymmetricKeyArgs)
+		ApplyT(func(v interface{}) (LookupKmsSymmetricKeyResultOutput, error) {
+			args := v.(LookupKmsSymmetricKeyArgs)
 			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("yandex:index/getKmsSymmetricKey:getKmsSymmetricKey", args, GetKmsSymmetricKeyResultOutput{}, options).(GetKmsSymmetricKeyResultOutput), nil
-		}).(GetKmsSymmetricKeyResultOutput)
+			return ctx.InvokeOutput("yandex:index/getKmsSymmetricKey:getKmsSymmetricKey", args, LookupKmsSymmetricKeyResultOutput{}, options).(LookupKmsSymmetricKeyResultOutput), nil
+		}).(LookupKmsSymmetricKeyResultOutput)
 }
 
 // A collection of arguments for invoking getKmsSymmetricKey.
-type GetKmsSymmetricKeyOutputArgs struct {
+type LookupKmsSymmetricKeyOutputArgs struct {
 	DefaultAlgorithm   pulumi.StringPtrInput `pulumi:"defaultAlgorithm"`
 	DeletionProtection pulumi.BoolPtrInput   `pulumi:"deletionProtection"`
 	Description        pulumi.StringPtrInput `pulumi:"description"`
@@ -71,74 +106,74 @@ type GetKmsSymmetricKeyOutputArgs struct {
 	SymmetricKeyId     pulumi.StringPtrInput `pulumi:"symmetricKeyId"`
 }
 
-func (GetKmsSymmetricKeyOutputArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetKmsSymmetricKeyArgs)(nil)).Elem()
+func (LookupKmsSymmetricKeyOutputArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupKmsSymmetricKeyArgs)(nil)).Elem()
 }
 
 // A collection of values returned by getKmsSymmetricKey.
-type GetKmsSymmetricKeyResultOutput struct{ *pulumi.OutputState }
+type LookupKmsSymmetricKeyResultOutput struct{ *pulumi.OutputState }
 
-func (GetKmsSymmetricKeyResultOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetKmsSymmetricKeyResult)(nil)).Elem()
+func (LookupKmsSymmetricKeyResultOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupKmsSymmetricKeyResult)(nil)).Elem()
 }
 
-func (o GetKmsSymmetricKeyResultOutput) ToGetKmsSymmetricKeyResultOutput() GetKmsSymmetricKeyResultOutput {
+func (o LookupKmsSymmetricKeyResultOutput) ToLookupKmsSymmetricKeyResultOutput() LookupKmsSymmetricKeyResultOutput {
 	return o
 }
 
-func (o GetKmsSymmetricKeyResultOutput) ToGetKmsSymmetricKeyResultOutputWithContext(ctx context.Context) GetKmsSymmetricKeyResultOutput {
+func (o LookupKmsSymmetricKeyResultOutput) ToLookupKmsSymmetricKeyResultOutputWithContext(ctx context.Context) LookupKmsSymmetricKeyResultOutput {
 	return o
 }
 
-func (o GetKmsSymmetricKeyResultOutput) CreatedAt() pulumi.StringOutput {
-	return o.ApplyT(func(v GetKmsSymmetricKeyResult) string { return v.CreatedAt }).(pulumi.StringOutput)
+func (o LookupKmsSymmetricKeyResultOutput) CreatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupKmsSymmetricKeyResult) string { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-func (o GetKmsSymmetricKeyResultOutput) DefaultAlgorithm() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v GetKmsSymmetricKeyResult) *string { return v.DefaultAlgorithm }).(pulumi.StringPtrOutput)
+func (o LookupKmsSymmetricKeyResultOutput) DefaultAlgorithm() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v LookupKmsSymmetricKeyResult) *string { return v.DefaultAlgorithm }).(pulumi.StringPtrOutput)
 }
 
-func (o GetKmsSymmetricKeyResultOutput) DeletionProtection() pulumi.BoolPtrOutput {
-	return o.ApplyT(func(v GetKmsSymmetricKeyResult) *bool { return v.DeletionProtection }).(pulumi.BoolPtrOutput)
+func (o LookupKmsSymmetricKeyResultOutput) DeletionProtection() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v LookupKmsSymmetricKeyResult) *bool { return v.DeletionProtection }).(pulumi.BoolPtrOutput)
 }
 
-func (o GetKmsSymmetricKeyResultOutput) Description() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v GetKmsSymmetricKeyResult) *string { return v.Description }).(pulumi.StringPtrOutput)
+func (o LookupKmsSymmetricKeyResultOutput) Description() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v LookupKmsSymmetricKeyResult) *string { return v.Description }).(pulumi.StringPtrOutput)
 }
 
-func (o GetKmsSymmetricKeyResultOutput) FolderId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetKmsSymmetricKeyResult) string { return v.FolderId }).(pulumi.StringOutput)
+func (o LookupKmsSymmetricKeyResultOutput) FolderId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupKmsSymmetricKeyResult) string { return v.FolderId }).(pulumi.StringOutput)
 }
 
 // The provider-assigned unique ID for this managed resource.
-func (o GetKmsSymmetricKeyResultOutput) Id() pulumi.StringOutput {
-	return o.ApplyT(func(v GetKmsSymmetricKeyResult) string { return v.Id }).(pulumi.StringOutput)
+func (o LookupKmsSymmetricKeyResultOutput) Id() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupKmsSymmetricKeyResult) string { return v.Id }).(pulumi.StringOutput)
 }
 
-func (o GetKmsSymmetricKeyResultOutput) Labels() pulumi.StringMapOutput {
-	return o.ApplyT(func(v GetKmsSymmetricKeyResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
+func (o LookupKmsSymmetricKeyResultOutput) Labels() pulumi.StringMapOutput {
+	return o.ApplyT(func(v LookupKmsSymmetricKeyResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
 }
 
-func (o GetKmsSymmetricKeyResultOutput) Name() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v GetKmsSymmetricKeyResult) *string { return v.Name }).(pulumi.StringPtrOutput)
+func (o LookupKmsSymmetricKeyResultOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v LookupKmsSymmetricKeyResult) *string { return v.Name }).(pulumi.StringPtrOutput)
 }
 
-func (o GetKmsSymmetricKeyResultOutput) RotatedAt() pulumi.StringOutput {
-	return o.ApplyT(func(v GetKmsSymmetricKeyResult) string { return v.RotatedAt }).(pulumi.StringOutput)
+func (o LookupKmsSymmetricKeyResultOutput) RotatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupKmsSymmetricKeyResult) string { return v.RotatedAt }).(pulumi.StringOutput)
 }
 
-func (o GetKmsSymmetricKeyResultOutput) RotationPeriod() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v GetKmsSymmetricKeyResult) *string { return v.RotationPeriod }).(pulumi.StringPtrOutput)
+func (o LookupKmsSymmetricKeyResultOutput) RotationPeriod() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v LookupKmsSymmetricKeyResult) *string { return v.RotationPeriod }).(pulumi.StringPtrOutput)
 }
 
-func (o GetKmsSymmetricKeyResultOutput) Status() pulumi.StringOutput {
-	return o.ApplyT(func(v GetKmsSymmetricKeyResult) string { return v.Status }).(pulumi.StringOutput)
+func (o LookupKmsSymmetricKeyResultOutput) Status() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupKmsSymmetricKeyResult) string { return v.Status }).(pulumi.StringOutput)
 }
 
-func (o GetKmsSymmetricKeyResultOutput) SymmetricKeyId() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v GetKmsSymmetricKeyResult) *string { return v.SymmetricKeyId }).(pulumi.StringPtrOutput)
+func (o LookupKmsSymmetricKeyResultOutput) SymmetricKeyId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v LookupKmsSymmetricKeyResult) *string { return v.SymmetricKeyId }).(pulumi.StringPtrOutput)
 }
 
 func init() {
-	pulumi.RegisterOutputType(GetKmsSymmetricKeyResultOutput{})
+	pulumi.RegisterOutputType(LookupKmsSymmetricKeyResultOutput{})
 }

@@ -7,10 +7,145 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Monitoring dashboard.
+//
+// > One of `dashboardId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetMonitoringDashboard(ctx, &yandex.LookupMonitoringDashboardArgs{
+//				DashboardId: pulumi.StringRef("some_instance_dashboard_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `dashboardId` (String). Dashboard ID.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `parametrization` (*Read-Only*) (List Of Object). Dashboard parametrization
+//   - `parameters` .
+//   - `custom` .
+//   - `defaultValues` .
+//   - `multiselectable` .
+//   - `values` .
+//   - `description` .
+//   - `hidden` .
+//   - `id` .
+//   - `labelValues` .
+//   - `defaultValues` .
+//   - `folderId` .
+//   - `labelKey` .
+//   - `multiselectable` .
+//   - `selectors` .
+//   - `text` .
+//   - `defaultValue` .
+//   - `title` .
+//   - `selectors` .
+//
+// - `title` (*Read-Only*) (String). Dashboard title.
+// - `widgets` (*Read-Only*) (List Of Object). Widgets
+//   - `chart` .
+//   - `chartId` .
+//   - `description` .
+//   - `displayLegend` .
+//   - `freeze` .
+//   - `nameHidingSettings` .
+//   - `names` .
+//   - `positive` .
+//   - `queries` .
+//   - `downsampling` .
+//   - `disabled` .
+//   - `gapFilling` .
+//   - `gridAggregation` .
+//   - `gridInterval` .
+//   - `maxPoints` .
+//   - `target` .
+//   - `hidden` .
+//   - `query` .
+//   - `textMode` .
+//   - `seriesOverrides` .
+//   - `name` .
+//   - `settings` .
+//   - `color` .
+//   - `growDown` .
+//   - `name` .
+//   - `stackName` .
+//   - `type` .
+//   - `yaxisPosition` .
+//   - `targetIndex` .
+//   - `title` .
+//   - `visualizationSettings` .
+//   - `aggregation` .
+//   - `colorSchemeSettings` .
+//   - `automatic` .
+//   - `gradient` .
+//   - `greenValue` .
+//   - `redValue` .
+//   - `violetValue` .
+//   - `yellowValue` .
+//   - `standard` .
+//   - `heatmapSettings` .
+//   - `greenValue` .
+//   - `redValue` .
+//   - `violetValue` .
+//   - `yellowValue` .
+//   - `interpolate` .
+//   - `normalize` .
+//   - `showLabels` .
+//   - `title` .
+//   - `type` .
+//   - `yaxisSettings` .
+//   - `left` .
+//   - `max` .
+//   - `min` .
+//   - `precision` .
+//   - `title` .
+//   - `type` .
+//   - `unitFormat` .
+//   - `right` .
+//   - `max` .
+//   - `min` .
+//   - `precision` .
+//   - `title` .
+//   - `type` .
+//   - `unitFormat` .
+//   - `position` .
+//   - `h` .
+//   - `w` .
+//   - `x` .
+//   - `y` .
+//   - `text` .
+//   - `text` .
+//   - `title` .
+//   - `size` .
+//   - `text` .
 func LookupMonitoringDashboard(ctx *pulumi.Context, args *LookupMonitoringDashboardArgs, opts ...pulumi.InvokeOption) (*LookupMonitoringDashboardResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMonitoringDashboardResult

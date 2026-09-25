@@ -7,10 +7,377 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Monitoring dashboard.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Monitoring Dashboard.
+//			_, err := yandex.NewMonitoringDashboard(ctx, "my-dashboard", &yandex.MonitoringDashboardArgs{
+//				Description: pulumi.String("Description"),
+//				Labels: pulumi.StringMap{
+//					"a": pulumi.String("b"),
+//				},
+//				Parametrizations: yandex.MonitoringDashboardParametrizationArray{
+//					&yandex.MonitoringDashboardParametrizationArgs{
+//						Parameters: yandex.MonitoringDashboardParametrizationParameterArray{
+//							&yandex.MonitoringDashboardParametrizationParameterArgs{
+//								Custom: []map[string]interface{}{
+//									map[string]interface{}{
+//										"defaultValues": []string{
+//											"1",
+//											"2",
+//										},
+//										"multiselectable": true,
+//										"values": []string{
+//											"1",
+//											"2",
+//											"3",
+//										},
+//									},
+//								},
+//								Description: pulumi.String("param1 description"),
+//								Hidden:      pulumi.Bool(false),
+//								Id:          pulumi.String("param1"),
+//								Title:       pulumi.String("title"),
+//							},
+//							&yandex.MonitoringDashboardParametrizationParameterArgs{
+//								Hidden: pulumi.Bool(true),
+//								Id:     pulumi.String("param2"),
+//								LabelValues: yandex.MonitoringDashboardParametrizationParameterLabelValueArray{
+//									&yandex.MonitoringDashboardParametrizationParameterLabelValueArgs{
+//										DefaultValues: pulumi.StringArray{
+//											pulumi.String("1"),
+//											pulumi.String("2"),
+//										},
+//										LabelKey:        pulumi.String("key"),
+//										Multiselectable: pulumi.Bool(true),
+//										Selectors:       pulumi.String("a=b"),
+//									},
+//								},
+//							},
+//							&yandex.MonitoringDashboardParametrizationParameterArgs{
+//								Hidden: pulumi.Bool(true),
+//								Id:     pulumi.String("param3"),
+//								Text: []map[string]string{
+//									{
+//										"defaultValue": "abc",
+//									},
+//								},
+//							},
+//						},
+//						Selectors: pulumi.String("a=b"),
+//					},
+//				},
+//				Title: pulumi.String("My title"),
+//				Widgets: yandex.MonitoringDashboardWidgetArray{
+//					&yandex.MonitoringDashboardWidgetArgs{
+//						Positions: yandex.MonitoringDashboardWidgetPositionArray{
+//							&yandex.MonitoringDashboardWidgetPositionArgs{
+//								H: pulumi.Int(1),
+//								W: pulumi.Int(1),
+//								X: pulumi.Int(4),
+//								Y: pulumi.Int(4),
+//							},
+//						},
+//						Texts: yandex.MonitoringDashboardWidgetTextArray{
+//							&yandex.MonitoringDashboardWidgetTextArgs{
+//								Text: pulumi.String("text here"),
+//							},
+//						},
+//					},
+//					&yandex.MonitoringDashboardWidgetArgs{
+//						Charts: yandex.MonitoringDashboardWidgetChartArray{
+//							&yandex.MonitoringDashboardWidgetChartArgs{
+//								ChartId:       pulumi.String("chart1id"),
+//								Description:   pulumi.String("chart description"),
+//								DisplayLegend: pulumi.Bool(true),
+//								Freeze:        pulumi.String("FREEZE_DURATION_HOUR"),
+//								NameHidingSettings: yandex.MonitoringDashboardWidgetChartNameHidingSettingArray{
+//									&yandex.MonitoringDashboardWidgetChartNameHidingSettingArgs{
+//										Names: pulumi.StringArray{
+//											pulumi.String("a"),
+//											pulumi.String("b"),
+//										},
+//										Positive: pulumi.Bool(true),
+//									},
+//								},
+//								Queries: yandex.MonitoringDashboardWidgetChartQueryArray{
+//									&yandex.MonitoringDashboardWidgetChartQueryArgs{
+//										Downsampling: []map[string]interface{}{
+//											map[string]interface{}{
+//												"disabled":        false,
+//												"gapFilling":      "GAP_FILLING_NULL",
+//												"gridAggregation": "GRID_AGGREGATION_COUNT",
+//												"maxPoints":       100,
+//											},
+//										},
+//										Target: []map[string]interface{}{
+//											map[string]interface{}{
+//												"hidden":   true,
+//												"query":    "{service=monitoring}",
+//												"textMode": true,
+//											},
+//										},
+//									},
+//								},
+//								SeriesOverrides: yandex.MonitoringDashboardWidgetChartSeriesOverrideArray{
+//									&yandex.MonitoringDashboardWidgetChartSeriesOverrideArgs{
+//										Name: pulumi.String("name"),
+//										Settings: yandex.MonitoringDashboardWidgetChartSeriesOverrideSettingArray{
+//											&yandex.MonitoringDashboardWidgetChartSeriesOverrideSettingArgs{
+//												Color:         pulumi.String("colorValue"),
+//												GrowDown:      pulumi.Bool(true),
+//												Name:          pulumi.String("series_overrides name"),
+//												StackName:     pulumi.String("stack name"),
+//												Type:          pulumi.String("SERIES_VISUALIZATION_TYPE_LINE"),
+//												YaxisPosition: pulumi.String("YAXIS_POSITION_LEFT"),
+//											},
+//										},
+//									},
+//								},
+//								Title: pulumi.String("title for chart"),
+//								VisualizationSettings: yandex.MonitoringDashboardWidgetChartVisualizationSettingArray{
+//									&yandex.MonitoringDashboardWidgetChartVisualizationSettingArgs{
+//										Aggregation: pulumi.String("SERIES_AGGREGATION_AVG"),
+//										ColorSchemeSettings: yandex.MonitoringDashboardWidgetChartVisualizationSettingColorSchemeSettingArray{
+//											&yandex.MonitoringDashboardWidgetChartVisualizationSettingColorSchemeSettingArgs{
+//												Gradient: []map[string]string{
+//													{
+//														"greenValue":  "11",
+//														"redValue":    "22",
+//														"violetValue": "33",
+//														"yellowValue": "44",
+//													},
+//												},
+//											},
+//										},
+//										HeatmapSettings: yandex.MonitoringDashboardWidgetChartVisualizationSettingHeatmapSettingArray{
+//											&yandex.MonitoringDashboardWidgetChartVisualizationSettingHeatmapSettingArgs{
+//												GreenValue:  pulumi.String("1"),
+//												RedValue:    pulumi.String("2"),
+//												VioletValue: pulumi.String("3"),
+//												YellowValue: pulumi.String("4"),
+//											},
+//										},
+//										Interpolate: pulumi.String("INTERPOLATE_LEFT"),
+//										Normalize:   pulumi.Bool(true),
+//										ShowLabels:  pulumi.Bool(true),
+//										Title:       pulumi.String("visualization_settings title"),
+//										Type:        pulumi.String("VISUALIZATION_TYPE_POINTS"),
+//										YaxisSettings: yandex.MonitoringDashboardWidgetChartVisualizationSettingYaxisSettingArray{
+//											&yandex.MonitoringDashboardWidgetChartVisualizationSettingYaxisSettingArgs{
+//												Left: []map[string]interface{}{
+//													map[string]interface{}{
+//														"max":        "111",
+//														"min":        "11",
+//														"precision":  3,
+//														"title":      "yaxis_settings left title",
+//														"type":       "YAXIS_TYPE_LOGARITHMIC",
+//														"unitFormat": "UNIT_CELSIUS",
+//													},
+//												},
+//												Right: []map[string]interface{}{
+//													map[string]interface{}{
+//														"max":        "22",
+//														"min":        "2",
+//														"precision":  2,
+//														"title":      "yaxis_settings right title",
+//														"type":       "YAXIS_TYPE_LOGARITHMIC",
+//														"unitFormat": "UNIT_NONE",
+//													},
+//												},
+//											},
+//										},
+//									},
+//								},
+//							},
+//						},
+//						Positions: yandex.MonitoringDashboardWidgetPositionArray{
+//							&yandex.MonitoringDashboardWidgetPositionArgs{
+//								H: pulumi.Int(100),
+//								W: pulumi.Int(100),
+//								X: pulumi.Int(6),
+//								Y: pulumi.Int(6),
+//							},
+//						},
+//					},
+//					&yandex.MonitoringDashboardWidgetArgs{
+//						Positions: yandex.MonitoringDashboardWidgetPositionArray{
+//							&yandex.MonitoringDashboardWidgetPositionArgs{
+//								H: pulumi.Int(1),
+//								W: pulumi.Int(1),
+//								X: pulumi.Int(1),
+//								Y: pulumi.Int(1),
+//							},
+//						},
+//						Titles: yandex.MonitoringDashboardWidgetTitleArray{
+//							&yandex.MonitoringDashboardWidgetTitleArgs{
+//								Size: pulumi.String("TITLE_SIZE_XS"),
+//								Text: pulumi.String("title here"),
+//							},
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `dashboardId` (*Read-Only*) (String). Dashboard ID.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (**Required**)(String). The resource name.
+// - `title` (String). Dashboard title.
+// - `parametrization` [Block]. Dashboard parametrization.
+//   - `selectors` (String). Dashboard predefined parameters selector.
+//   - `parameters` [Block]. Dashboard parameters.
+//   - `description` (String). Parameter description.
+//   - `hidden` (Bool). UI-visibility
+//   - `id` (**Required**)(String). Parameter identifier.
+//   - `title` (String). UI-visible title of the parameter.
+//   - `custom` [Block]. Custom values parameter. Oneof: label_values, custom, text.
+//   - `defaultValues` (List Of String). Default value.
+//   - `multiselectable` (Bool). Specifies the multiselectable values of parameter.
+//   - `values` (List Of String). Parameter values.
+//   - `labelValues` [Block]. Label values parameter. Oneof: label_values, custom, text.
+//   - `defaultValues` (List Of String). Default value.
+//   - `folderId` (String). Folder ID.
+//   - `labelKey` (**Required**)(String). Label key to list label values.
+//   - `multiselectable` (Bool). Specifies the multiselectable values of parameter.
+//   - `selectors` (String). Selectors to select metric label values.
+//   - `text` [Block]. Text parameter. Oneof: label_values, custom, text.
+//   - `defaultValue` (String). Default value.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// - `widgets` [Block]. Widgets.
+//   - `chart` [Block]. Chart widget settings.
+//   - `chartId` (String). Chart ID.
+//   - `description` (String). Chart description in dashboard (not enabled in UI).
+//   - `displayLegend` (Bool). Enable legend under chart.
+//   - `freeze` (String). Fixed time interval for chart. Values:
+//
+// - FREEZE_DURATION_HOUR: Last hour.
+// - FREEZE_DURATION_DAY: Last day = last 24 hours.
+// - FREEZE_DURATION_WEEK: Last 7 days.
+// - FREEZE_DURATION_MONTH: Last 31 days.
+//
+//   - `title` (String). Chart widget title.
+//   - `nameHidingSettings` [Block]. Name hiding settings
+//   - `names` (List Of String).
+//   - `positive` (Bool). True if we want to show concrete series names only, false if we want to hide concrete series names
+//   - `queries` [Block]. Queries settings.
+//   - `downsampling` [Block]. Downsampling settings
+//   - `disabled` (Bool). Disable downsampling
+//   - `gapFilling` (String). Parameters for filling gaps in data
+//   - `gridAggregation` (String). Function that is used for downsampling
+//   - `gridInterval` (Number). Time interval (grid) for downsampling in milliseconds. Points in the specified range are aggregated into one time point
+//   - `maxPoints` (Number). Maximum number of points to be returned
+//   - `target` [Block]. Downsampling settings
+//   - `hidden` (Bool). Checks that target is visible or invisible
+//   - `query` (String). Required. Query
+//   - `textMode` (Bool). Text mode
+//   - `seriesOverrides` [Block]. Time series settings.
+//   - `name` (String). Series name
+//   - `targetIndex` (String). Target index
+//   - `settings` [Block]. Override settings
+//   - `color` (String). Series color or empty
+//   - `growDown` (Bool). Stack grow down
+//   - `name` (String). Series name or empty
+//   - `stackName` (String). Stack name or empty
+//   - `type` (String). Type
+//   - `yaxisPosition` (String). Yaxis position
+//   - `visualizationSettings` [Block]. Visualization settings.
+//   - `aggregation` (String). Aggregation
+//   - `interpolate` (String). Interpolate
+//   - `normalize` (Bool). Normalize
+//   - `showLabels` (Bool). Show chart labels
+//   - `title` (String). Inside chart title
+//   - `type` (String). Visualization type
+//   - `colorSchemeSettings` [Block]. Color scheme settings
+//   - `automatic` [Block]. Automatic color scheme
+//   - `gradient` [Block]. Gradient color scheme
+//   - `greenValue` (String). Gradient green value
+//   - `redValue` (String). Gradient red value
+//   - `violetValue` (String). Gradient violetValue
+//   - `yellowValue` (String). Gradient yellow value
+//   - `standard` [Block]. Standard color scheme
+//   - `heatmapSettings` [Block]. Heatmap settings
+//   - `greenValue` (String). Heatmap green value
+//   - `redValue` (String). Heatmap red value
+//   - `violetValue` (String). Heatmap violetValue
+//   - `yellowValue` (String). Heatmap yellow value
+//   - `yaxisSettings` [Block]. Y axis settings
+//   - `left` [Block]. Left Y axis settings
+//   - `max` (String). Max value in extended number format or empty
+//   - `min` (String). Min value in extended number format or empty
+//   - `precision` (Number). Tick value precision (null as default, 0-7 in other cases)
+//   - `title` (String). Title or empty
+//   - `type` (String). Type
+//   - `unitFormat` (String). Unit format
+//   - `right` [Block]. Right Y axis settings
+//   - `max` (String). Max value in extended number format or empty
+//   - `min` (String). Min value in extended number format or empty
+//   - `precision` (Number). Tick value precision (null as default, 0-7 in other cases)
+//   - `title` (String). Title or empty
+//   - `type` (String). Type
+//   - `unitFormat` (String). Unit format
+//   - `position` [Block]. Widget layout position.
+//   - `h` (Number). Height.
+//   - `w` (Number). Weight.
+//   - `x` (Number). X-axis top-left corner coordinate.
+//   - `y` (Number). Y-axis top-left corner coordinate.
+//   - `text` [Block]. Text widget settings.
+//   - `text` (String). Widget text.
+//   - `title` [Block]. Title widget settings.
+//   - `size` (String). Title size.
+//     Title size. Values:
+//
+// - TITLE_SIZE_XS: Extra small size.
+// - TITLE_SIZE_S: Small size.
+// - TITLE_SIZE_M: Middle size.
+// - TITLE_SIZE_L: Large size.
+//
+//   - `text` (**Required**)(String). Title text.
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_monitoring.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/monitoringDashboard:MonitoringDashboard my-dashboard ...
+// ```
 type MonitoringDashboard struct {
 	pulumi.CustomResourceState
 

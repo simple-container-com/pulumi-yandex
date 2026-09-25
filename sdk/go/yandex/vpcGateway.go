@@ -7,10 +7,65 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a gateway within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/gateways).
+//
+// * How-to Guides
+//   - [Cloud Networking](https://yandex.cloud/docs/vpc/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new VPC NAT Gateway.
+//			_, err := yandex.NewVpcGateway(ctx, "myGw", &yandex.VpcGatewayArgs{
+//				SharedEgressGateway: &yandex.VpcGatewaySharedEgressGatewayArgs{},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `sharedEgressGateway` [Block]. Shared egress gateway configuration. Currently empty.
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_vpc_gateway.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/vpcGateway:VpcGateway my_gw ...
+// ```
 type VpcGateway struct {
 	pulumi.CustomResourceState
 

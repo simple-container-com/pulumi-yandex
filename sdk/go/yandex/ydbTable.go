@@ -8,10 +8,175 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Yandex Database table.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new row-oriented YDB Table.
+//			_, err := yandex.NewYdbTable(ctx, "testTable", &yandex.YdbTableArgs{
+//				Path:             pulumi.String("test_dir/test_table_3_col"),
+//				ConnectionString: pulumi.Any(yandex_ydb_database_serverless.Database1.Ydb_full_endpoint),
+//				Columns: yandex.YdbTableColumnArray{
+//					&yandex.YdbTableColumnArgs{
+//						Name:    pulumi.String("a"),
+//						Type:    pulumi.String("Utf8"),
+//						NotNull: pulumi.Bool(true),
+//					},
+//					&yandex.YdbTableColumnArgs{
+//						Name:    pulumi.String("b"),
+//						Type:    pulumi.String("Uint32"),
+//						NotNull: pulumi.Bool(true),
+//					},
+//					&yandex.YdbTableColumnArgs{
+//						Name:    pulumi.String("c"),
+//						Type:    pulumi.String("Int32"),
+//						NotNull: pulumi.Bool(false),
+//					},
+//					&yandex.YdbTableColumnArgs{
+//						Name: pulumi.String("d"),
+//						Type: pulumi.String("Timestamp"),
+//					},
+//				},
+//				PrimaryKeys: pulumi.StringArray{
+//					pulumi.String("a"),
+//					pulumi.String("b"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new column-oriented YDB Table.
+//			_, err := yandex.NewYdbTable(ctx, "testTable", &yandex.YdbTableArgs{
+//				Path:             pulumi.String("test_dir/test_table_3_col"),
+//				ConnectionString: pulumi.Any(yandex_ydb_database_serverless.Database1.Ydb_full_endpoint),
+//				Columns: yandex.YdbTableColumnArray{
+//					&yandex.YdbTableColumnArgs{
+//						Name:    pulumi.String("a"),
+//						Type:    pulumi.String("Utf8"),
+//						NotNull: pulumi.Bool(true),
+//					},
+//					&yandex.YdbTableColumnArgs{
+//						Name:    pulumi.String("b"),
+//						Type:    pulumi.String("Uint32"),
+//						NotNull: pulumi.Bool(true),
+//					},
+//					&yandex.YdbTableColumnArgs{
+//						Name:    pulumi.String("c"),
+//						Type:    pulumi.String("Int32"),
+//						NotNull: pulumi.Bool(false),
+//					},
+//					&yandex.YdbTableColumnArgs{
+//						Name: pulumi.String("d"),
+//						Type: pulumi.String("Timestamp"),
+//					},
+//				},
+//				PrimaryKeys: pulumi.StringArray{
+//					pulumi.String("a"),
+//					pulumi.String("b"),
+//				},
+//				Store: pulumi.String("column"),
+//				PartitioningSettings: &yandex.YdbTablePartitioningSettingsArgs{
+//					PartitionBies: pulumi.StringArray{
+//						pulumi.String("b"),
+//						pulumi.String("a"),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `attributes` (Map Of String). A map of table attributes.
+// - `connectionString` (**Required**)(String). Connection string for database.
+// - `id` (String).
+// - `keyBloomFilter` (Bool). Use the Bloom filter for the primary key.
+// - `path` (**Required**)(String). Table path.
+// - `primaryKey` (**Required**)(List Of String). A list of table columns to be used as primary key.
+// - `readReplicasSettings` (String). Read replication settings.
+// - `store` (String). Table storage type. Set to `column` for column-oriented tables. Omit for row-oriented tables (default).
+// - `column` [Block]. A list of column configuration options.
+//   - `family` (String). Column group.
+//   - `name` (**Required**)(String). Column name.
+//   - `notNull` (Bool). A column cannot have the NULL data type. Default: `false`.
+//   - `type` (**Required**)(String). Column data type. YQL data types are used.
+//
+// - `family` [Block]. A list of column group configuration options. The `family` block may be used to group columns into [families](https://ydb.tech/en/docs/yql/reference/syntax/create_table#column-family) to set shared parameters for them.
+//   - `compression` (**Required**)(String). Data codec (acceptable values: off, lz4).
+//   - `data` (**Required**)(String). Type of storage device for column data in this group (acceptable values: ssd, rot (from HDD spindle rotation)).
+//   - `name` (**Required**)(String). Column family name.
+//
+// - `partitioningSettings` [Block]. Table partitioning settings.
+//   - `autoPartitioningByLoad` (Bool).
+//   - `autoPartitioningBySizeEnabled` (Bool).
+//   - `autoPartitioningMaxPartitionsCount` (Number).
+//   - `autoPartitioningMinPartitionsCount` (Number).
+//   - `autoPartitioningPartitionSizeMb` (Number).
+//   - `partitionBy` (List Of String). Partitioning keys constitute a subset of the table's primary keys. If not set, primary keys will be used.
+//   - `uniformPartitions` (Number).
+//   - `partitionAtKeys` [Block].
+//   - `keys` (**Required**)(List Of String).
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `default` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// - `ttl` [Block]. The `TTL` block supports allow you to create a special column type, [TTL column](https://ydb.tech/en/docs/concepts/ttl), whose values determine the time-to-live for rows.
+//   - `columnName` (**Required**)(String). Column name for TTL.
+//   - `expireInterval` (**Required**)(String). Interval in the ISO 8601 format.
+//   - `unit` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_ydb_table.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/ydbTable:YdbTable test_table ...
+// ```
 type YdbTable struct {
 	pulumi.CustomResourceState
 

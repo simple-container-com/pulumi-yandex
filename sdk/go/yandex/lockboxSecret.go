@@ -7,10 +7,100 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Yandex Cloud Lockbox secret resource. For more information, see [the official documentation](https://yandex.cloud/docs/lockbox/). The created secret will contain a version with the generated password. You can use `LockboxSecretVersion` to create new versions.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new LockBox Secret.
+//			_, err := yandex.NewLockboxSecret(ctx, "mySecret", nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new LockBox Secret with password.
+//			_, err := yandex.NewLockboxSecret(ctx, "mySecret", &yandex.LockboxSecretArgs{
+//				PasswordPayloadSpecification: &yandex.LockboxSecretPasswordPayloadSpecificationArgs{
+//					Length:      pulumi.Int(12),
+//					PasswordKey: pulumi.String("some_password"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `kmsKeyId` (String). The KMS key used to encrypt the Yandex Cloud Lockbox secret.
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `status` (*Read-Only*) (String). The Yandex Cloud Lockbox secret status.
+// - `passwordPayloadSpecification` [Block]. Payload specification for password generation.
+//   - `excludedPunctuation` (String). String of punctuation characters to exclude from the default. Requires `includePunctuation = true`. Default is empty.
+//   - `includeDigits` (Bool). Use digits in the generated password. Default is true.
+//   - `includeLowercase` (Bool). Use lowercase letters in the generated password. Default is true.
+//   - `includePunctuation` (Bool). Use punctuations (`!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~`) in the generated password. Default is true.
+//   - `includeUppercase` (Bool). Use capital letters in the generated password. Default is true.
+//   - `includedPunctuation` (String). String of specific punctuation characters to use. Requires `includePunctuation = true`. Default is empty.
+//   - `length` (Number). Length of generated password. Default is `36`.
+//   - `passwordKey` (**Required**)(String). The key with which the generated password will be placed in the secret version.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_lockbox_secret.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/lockboxSecret:LockboxSecret my_secret ...
+// ```
 type LockboxSecret struct {
 	pulumi.CustomResourceState
 

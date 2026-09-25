@@ -7,10 +7,154 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Compute instance. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/vm).
+//
+// > One of `instanceId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myInstance, err := yandex.GetComputeInstance(ctx, &yandex.LookupComputeInstanceArgs{
+//				InstanceId: pulumi.StringRef("some_instance_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("instanceExternalIp", myInstance.NetworkInterfaces[0].NatIpAddress)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `bootDisk` (*Read-Only*) (List Of Object). The boot disk for the instance. Either `initializeParams` or `diskId` must be specified.
+//   - `autoDelete` .
+//   - `deviceName` .
+//   - `diskId` .
+//   - `initializeParams` .
+//   - `blockSize` .
+//   - `description` .
+//   - `imageId` .
+//   - `kmsKeyId` .
+//   - `name` .
+//   - `size` .
+//   - `snapshotId` .
+//   - `type` .
+//   - `mode` .
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `fqdn` (*Read-Only*) (String). The fully qualified DNS name of this instance.
+// - `gpuClusterId` (String). ID of the GPU cluster to attach this instance to.
+// - `hardwareGeneration` (*Read-Only*) (List Of Object).
+//   - `generation2Features` .
+//   - `legacyFeatures` .
+//   - `pciTopology` .
+//
+// - `id` (String).
+// - `instanceId` (String). The ID of a specific instance.
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `maintenanceGracePeriod` (String). Time between notification via metadata service and maintenance. E.g., `60s`.
+// - `maintenancePolicy` (String). Behavior on maintenance events. Can be: `unspecified`, `migrate`, `restart`. The default is `unspecified`.
+// - `metadata` (*Read-Only*) (Map Of String). Metadata key/value pairs to make available from within the instance.
+// - `name` (String). The resource name.
+// - `networkAccelerationType` (*Read-Only*) (String). Type of network acceleration. Can be `standard` or `softwareAccelerated`. The default is `standard`.
+// - `networkInterface` (*Read-Only*) (List Of Object). Networks to attach to the instance. This can be specified multiple times.
+//   - `dnsRecord` .
+//   - `dnsZoneId` .
+//   - `fqdn` .
+//   - `ptr` .
+//   - `ttl` .
+//   - `index` .
+//   - `ipAddress` .
+//   - `ipv4` .
+//   - `ipv6` .
+//   - `ipv6Address` .
+//   - `ipv6DnsRecord` .
+//   - `dnsZoneId` .
+//   - `fqdn` .
+//   - `ptr` .
+//   - `ttl` .
+//   - `macAddress` .
+//   - `nat` .
+//   - `natDnsRecord` .
+//   - `dnsZoneId` .
+//   - `fqdn` .
+//   - `ptr` .
+//   - `ttl` .
+//   - `natIpAddress` .
+//   - `natIpVersion` .
+//   - `securityGroupIds` .
+//   - `subnetId` .
+//
+// - `platformId` (*Read-Only*) (String). The type of virtual machine to create.
+// - `reservedInstancePoolId` (String). ID of the reserved instance pool to attach this instance to.
+// - `resources` (*Read-Only*) (List Of Object). Compute resources that are allocated for the instance.
+//   - `coreFraction` .
+//   - `cores` .
+//   - `gpus` .
+//   - `memory` .
+//
+// - `schedulingPolicy` (*Read-Only*) (List Of Object). Scheduling policy configuration.
+//   - `preemptible` .
+//
+// - `secondaryDisk` (*Read-Only*) (Set Of Object). A set of disks to attach to the instance. The structure is documented below.
+//
+// > The `allowStoppingForUpdate` property must be set to `true` in order to update this structure.
+//   - `autoDelete` .
+//   - `deviceName` .
+//   - `diskId` .
+//   - `mode` .
+//
+// - `serviceAccountId` (String). [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+// - `status` (*Read-Only*) (String). The status of this instance.
+// - `zone` (*Read-Only*) (String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+// - `filesystem` [Block]. List of filesystems that are attached to the instance.
+//   - `deviceName` (*Read-Only*) (String).
+//   - `filesystemId` (*Read-Only*) (String).
+//   - `mode` (String).
+//
+// - `localDisk` [Block]. List of local disks that are attached to the instance.
+//
+// > Local disks are not available for all users by default.
+//
+//   - `deviceName` (*Read-Only*) (String).
+//   - `kmsKeyId` (String).
+//   - `sizeBytes` (**Required**)(Number).
+//
+// - `metadataOptions` [Block]. Options allow user to configure access to instance's metadata.
+//   - `awsV1HttpEndpoint` (Number).
+//   - `awsV1HttpToken` (Number).
+//   - `awsV2HttpEndpoint` (Number).
+//   - `awsV2HttpToken` (Number).
+//   - `gceHttpEndpoint` (Number).
+//   - `gceHttpToken` (Number).
+//
+// - `placementPolicy` [Block]. The placement policy configuration.
+//   - `hostAffinityRules` (List Of Object).
+//   - `key` .
+//   - `op` .
+//   - `values` .
+//   - `placementGroupId` (String).
+//   - `placementGroupPartition` (Number).
 func LookupComputeInstance(ctx *pulumi.Context, args *LookupComputeInstanceArgs, opts ...pulumi.InvokeOption) (*LookupComputeInstanceResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupComputeInstanceResult
@@ -33,6 +177,7 @@ type LookupComputeInstanceArgs struct {
 	MetadataOptions        *GetComputeInstanceMetadataOptions `pulumi:"metadataOptions"`
 	Name                   *string                            `pulumi:"name"`
 	PlacementPolicy        *GetComputeInstancePlacementPolicy `pulumi:"placementPolicy"`
+	ReservedInstancePoolId *string                            `pulumi:"reservedInstancePoolId"`
 	ServiceAccountId       *string                            `pulumi:"serviceAccountId"`
 }
 
@@ -60,6 +205,7 @@ type LookupComputeInstanceResult struct {
 	NetworkInterfaces       []GetComputeInstanceNetworkInterface `pulumi:"networkInterfaces"`
 	PlacementPolicy         *GetComputeInstancePlacementPolicy   `pulumi:"placementPolicy"`
 	PlatformId              string                               `pulumi:"platformId"`
+	ReservedInstancePoolId  string                               `pulumi:"reservedInstancePoolId"`
 	Resources               []GetComputeInstanceResource         `pulumi:"resources"`
 	SchedulingPolicies      []GetComputeInstanceSchedulingPolicy `pulumi:"schedulingPolicies"`
 	SecondaryDisks          []GetComputeInstanceSecondaryDisk    `pulumi:"secondaryDisks"`
@@ -89,6 +235,7 @@ type LookupComputeInstanceOutputArgs struct {
 	MetadataOptions        GetComputeInstanceMetadataOptionsPtrInput `pulumi:"metadataOptions"`
 	Name                   pulumi.StringPtrInput                     `pulumi:"name"`
 	PlacementPolicy        GetComputeInstancePlacementPolicyPtrInput `pulumi:"placementPolicy"`
+	ReservedInstancePoolId pulumi.StringPtrInput                     `pulumi:"reservedInstancePoolId"`
 	ServiceAccountId       pulumi.StringPtrInput                     `pulumi:"serviceAccountId"`
 }
 
@@ -196,6 +343,10 @@ func (o LookupComputeInstanceResultOutput) PlacementPolicy() GetComputeInstanceP
 
 func (o LookupComputeInstanceResultOutput) PlatformId() pulumi.StringOutput {
 	return o.ApplyT(func(v LookupComputeInstanceResult) string { return v.PlatformId }).(pulumi.StringOutput)
+}
+
+func (o LookupComputeInstanceResultOutput) ReservedInstancePoolId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeInstanceResult) string { return v.ReservedInstancePoolId }).(pulumi.StringOutput)
 }
 
 func (o LookupComputeInstanceResultOutput) Resources() GetComputeInstanceResourceArrayOutput {

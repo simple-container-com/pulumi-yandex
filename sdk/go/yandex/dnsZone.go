@@ -8,10 +8,90 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a DNS Zone.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resource for DNS Zone
+//			foo, err := yandex.NewVpcNetwork(ctx, "foo", nil)
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new DNS Zone.
+//			zone1, err := yandex.NewDnsZone(ctx, "zone1", &yandex.DnsZoneArgs{
+//				Description: pulumi.String("desc"),
+//				Labels: pulumi.StringMap{
+//					"label1": pulumi.String("label-1-value"),
+//				},
+//				Zone:   pulumi.String("example.com."),
+//				Public: pulumi.Bool(false),
+//				PrivateNetworks: pulumi.StringArray{
+//					foo.ID().ToIDOutput().ToStringOutput(),
+//				},
+//				DeletionProtection: pulumi.Bool(true),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewDnsRecordset(ctx, "rs1", &yandex.DnsRecordsetArgs{
+//				ZoneId: zone1.ID().ToIDOutput().ToStringOutput(),
+//				Type:   pulumi.String("A"),
+//				Ttl:    pulumi.Int(200),
+//				Datas: pulumi.StringArray{
+//					pulumi.String("10.1.0.1"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `privateNetworks` (Set Of String). For privately visible zones, the set of Virtual Private Cloud resources that the zone is visible from.
+// - `public` (Bool). The zone's visibility: public zones are exposed to the Internet, while private zones are visible only to Virtual Private Cloud resources.
+// - `zone` (**Required**)(String). The DNS name of this zone, e.g. `example.com.`. Must ends with dot.
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_dns_zone.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/dnsZone:DnsZone zone1 dns9m**********tducf
+// ```
 type DnsZone struct {
 	pulumi.CustomResourceState
 

@@ -7,10 +7,82 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `busId` (*Read-Only*) (String). ID of the bus that the rule belongs to
+// - `cloudId` (*Read-Only*) (String). ID of the cloud that the rule resides in
+// - `container` (*Read-Only*) (List Of Object). ContainerTarget
+//   - `batchSettings` .
+//   - `containerId` .
+//   - `containerRevisionId` .
+//   - `path` .
+//   - `serviceAccountId` .
+//
+// - `createdAt` (*Read-Only*) (String). Creation timestamp
+// - `deletionProtection` (*Read-Only*) (Bool). Deletion protection
+// - `description` (*Read-Only*) (String). Description of the rule
+// - `folderId` (*Read-Only*) (String). ID of the folder that the rule resides in
+// - `function` (*Read-Only*) (List Of Object). FunctionTarget
+//   - `batchSettings` .
+//   - `cutoff` .
+//   - `maxBytes` .
+//   - `maxCount` .
+//   - `functionId` .
+//   - `functionTag` .
+//   - `serviceAccountId` .
+//
+// - `gatewayWebsocketBroadcast` (*Read-Only*) (List Of Object). GatewayWebsocketBroadcastTarget
+//   - `batchSettings` .
+//   - `gatewayId` .
+//   - `path` .
+//   - `serviceAccountId` .
+//
+// - `id` (String).
+// - `jqFilter` (*Read-Only*) (String). JQ filter for matching events
+// - `labels` (*Read-Only*) (Map Of String). Rule labels
+// - `logging` (*Read-Only*) (List Of Object). LoggingTarget. Includes either logGroupId or folderId
+//   - `folderId` .
+//   - `logGroupId` .
+//   - `serviceAccountId` .
+//
+// - `name` (String). Name of the rule
+// - `ruleId` (String). ID of the bus that the rule belongs to
+// - `workflow` (*Read-Only*) (List Of Object). WorkflowTarget
+//   - `batchSettings` .
+//   - `serviceAccountId` .
+//   - `workflowId` .
+//
+// - `yds` (*Read-Only*) (List Of Object). YdsTarget
+//   - `database` .
+//   - `serviceAccountId` .
+//   - `streamName` .
+//
+// - `ymq` (*Read-Only*) (List Of Object). YmqTarget
+//   - `queueArn` .
+//   - `serviceAccountId` .
 func LookupServerlessEventrouterRule(ctx *pulumi.Context, args *LookupServerlessEventrouterRuleArgs, opts ...pulumi.InvokeOption) (*LookupServerlessEventrouterRuleResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupServerlessEventrouterRuleResult

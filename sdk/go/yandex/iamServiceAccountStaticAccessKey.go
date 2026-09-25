@@ -8,10 +8,59 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud IAM service account static access keys](https://yandex.cloud/docs/iam/operations/sa/create-access-key). Generated pair of keys is used to access [Yandex Object Storage](https://yandex.cloud/docs/storage) on behalf of service account.
+//
+// Before using keys do not forget to [assign a proper role](https://yandex.cloud/docs/iam/operations/sa/assign-role-for-sa) to the service account.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new IAM Service Account Static Access SKey.
+//			_, err := yandex.NewIamServiceAccountStaticAccessKey(ctx, "sa-static-key", &yandex.IamServiceAccountStaticAccessKeyArgs{
+//				Description:      pulumi.String("static access key for object storage"),
+//				PgpKey:           pulumi.String("keybase:keybaseusername"),
+//				ServiceAccountId: pulumi.String("aje5a**********qspd3"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `accessKey` (*Read-Only*) (String). ID of the static access key. This is only populated when `outputToLockbox` is not provided.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `encryptedSecretKey` (*Read-Only*) (String). The encrypted secret, base64 encoded. This is only populated when `pgpKey` is supplied.
+// - `id` (String).
+// - `keyFingerprint` (*Read-Only*) (String). The fingerprint of the PGP key used to encrypt the secret key. This is only populated when `pgpKey` is supplied.
+// - `outputToLockboxVersionId` (*Read-Only*) (String). ID of the Lockbox secret version that contains the value of `secretKey`. This is only populated when `outputToLockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when `outputToLockbox` is removed.
+// - `pgpKey` (String). An optional PGP key to encrypt the resulting secret key material. May either be a base64-encoded public key or a keybase username in the form `keybase:keybaseusername`.
+// - `secretKey` (*Read-Only*) (String). Private part of generated static access key. This is only populated when neither `pgpKey` nor `outputToLockbox` are provided.
+// - `serviceAccountId` (**Required**)(String). ID of the service account which is used to get a static key.
+// - `outputToLockbox` [Block]. option to create a Lockbox secret version from sensitive outputs
+//   - `entryForAccessKey` (**Required**)(String). entry that will store the value of accessKey
+//   - `entryForSecretKey` (**Required**)(String). entry that will store the value of secretKey
+//   - `secretId` (**Required**)(String). ID of the Lockbox secret where to store the sensible values.
 type IamServiceAccountStaticAccessKey struct {
 	pulumi.CustomResourceState
 

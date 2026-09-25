@@ -8,10 +8,290 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Creates a Yandex Cloud Managed Kubernetes Cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kubernetes/concepts/#kubernetes-cluster).
+//
+// ~>When access rights for `serviceAccountId` or `nodeServiceAccountId` are provided using terraform resources, it is necessary to add dependency on these access resources to cluster config - see Example #3.
+//
+// Without it, on destroy, terraform will delete cluster and remove access rights for service account(s) simultaneously, that will cause problems for cluster and related node group deletion.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Managed Kubernetes zonal Cluster.
+//			_, err := yandex.NewKubernetesCluster(ctx, "zonalCluster", &yandex.KubernetesClusterArgs{
+//				Description: pulumi.String("description"),
+//				NetworkId:   pulumi.Any(yandex_vpc_network.Network_resource_name.Id),
+//				Master: &yandex.KubernetesClusterMasterArgs{
+//					Version: pulumi.String("1.30"),
+//					Zonal: &yandex.KubernetesClusterMasterZonalArgs{
+//						Zone:     pulumi.Any(yandex_vpc_subnet.Subnet_resource_name.Zone),
+//						SubnetId: pulumi.Any(yandex_vpc_subnet.Subnet_resource_name.Id),
+//					},
+//					PublicIp: pulumi.Bool(true),
+//					SecurityGroupIds: pulumi.StringArray{
+//						yandex_vpc_security_group.Security_group_name.Id,
+//					},
+//					MaintenancePolicy: &yandex.KubernetesClusterMasterMaintenancePolicyArgs{
+//						AutoUpgrade: pulumi.Bool(true),
+//						MaintenanceWindows: yandex.KubernetesClusterMasterMaintenancePolicyMaintenanceWindowArray{
+//							&yandex.KubernetesClusterMasterMaintenancePolicyMaintenanceWindowArgs{
+//								StartTime: pulumi.String("15:00"),
+//								Duration:  pulumi.String("3h"),
+//							},
+//						},
+//					},
+//					MasterLogging: &yandex.KubernetesClusterMasterMasterLoggingArgs{
+//						Enabled:                  pulumi.Bool(true),
+//						LogGroupId:               pulumi.Any(yandex_logging_group.Log_group_resoruce_name.Id),
+//						KubeApiserverEnabled:     pulumi.Bool(true),
+//						ClusterAutoscalerEnabled: pulumi.Bool(true),
+//						EventsEnabled:            pulumi.Bool(true),
+//						AuditEnabled:             pulumi.Bool(true),
+//					},
+//					ScalePolicy: &yandex.KubernetesClusterMasterScalePolicyArgs{
+//						AutoScale: &yandex.KubernetesClusterMasterScalePolicyAutoScaleArgs{
+//							MinResourcePresetId: pulumi.String("s-c4-m16"),
+//						},
+//					},
+//				},
+//				ServiceAccountId:     pulumi.Any(yandex_iam_service_account.Service_account_resource_name.Id),
+//				NodeServiceAccountId: pulumi.Any(yandex_iam_service_account.Node_service_account_resource_name.Id),
+//				Labels: pulumi.StringMap{
+//					"my_key":       pulumi.String("my_value"),
+//					"my_other_key": pulumi.String("my_other_value"),
+//				},
+//				ReleaseChannel:        pulumi.String("RAPID"),
+//				NetworkPolicyProvider: pulumi.String("CALICO"),
+//				KmsProvider: &yandex.KubernetesClusterKmsProviderArgs{
+//					KeyId: pulumi.Any(yandex_kms_symmetric_key.Kms_key_resource_name.Id),
+//				},
+//				WorkloadIdentityFederation: &yandex.KubernetesClusterWorkloadIdentityFederationArgs{
+//					Enabled: pulumi.Bool(true),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Managed Kubernetes regional Cluster.
+//			_, err := yandex.NewKubernetesCluster(ctx, "regionalCluster", &yandex.KubernetesClusterArgs{
+//				Description: pulumi.String("description"),
+//				NetworkId:   pulumi.Any(yandex_vpc_network.Network_resource_name.Id),
+//				Master: &yandex.KubernetesClusterMasterArgs{
+//					Regional: &yandex.KubernetesClusterMasterRegionalArgs{
+//						Region: pulumi.String("ru-central1"),
+//						Locations: yandex.KubernetesClusterMasterRegionalLocationArray{
+//							&yandex.KubernetesClusterMasterRegionalLocationArgs{
+//								Zone:     pulumi.Any(yandex_vpc_subnet.Subnet_a_resource_name.Zone),
+//								SubnetId: pulumi.Any(yandex_vpc_subnet.Subnet_a_resource_name.Id),
+//							},
+//							&yandex.KubernetesClusterMasterRegionalLocationArgs{
+//								Zone:     pulumi.Any(yandex_vpc_subnet.Subnet_b_resource_name.Zone),
+//								SubnetId: pulumi.Any(yandex_vpc_subnet.Subnet_b_resource_name.Id),
+//							},
+//							&yandex.KubernetesClusterMasterRegionalLocationArgs{
+//								Zone:     pulumi.Any(yandex_vpc_subnet.Subnet_d_resource_name.Zone),
+//								SubnetId: pulumi.Any(yandex_vpc_subnet.Subnet_d_resource_name.Id),
+//							},
+//						},
+//					},
+//					Version:  pulumi.String("1.30"),
+//					PublicIp: pulumi.Bool(true),
+//					MaintenancePolicy: &yandex.KubernetesClusterMasterMaintenancePolicyArgs{
+//						AutoUpgrade: pulumi.Bool(true),
+//						MaintenanceWindows: yandex.KubernetesClusterMasterMaintenancePolicyMaintenanceWindowArray{
+//							&yandex.KubernetesClusterMasterMaintenancePolicyMaintenanceWindowArgs{
+//								Day:       pulumi.String("monday"),
+//								StartTime: pulumi.String("15:00"),
+//								Duration:  pulumi.String("3h"),
+//							},
+//							&yandex.KubernetesClusterMasterMaintenancePolicyMaintenanceWindowArgs{
+//								Day:       pulumi.String("friday"),
+//								StartTime: pulumi.String("10:00"),
+//								Duration:  pulumi.String("4h30m"),
+//							},
+//						},
+//					},
+//					MasterLogging: &yandex.KubernetesClusterMasterMasterLoggingArgs{
+//						Enabled:                  pulumi.Bool(true),
+//						FolderId:                 pulumi.Any(data.Yandex_resourcemanager_folder.Folder_resource_name.Id),
+//						KubeApiserverEnabled:     pulumi.Bool(true),
+//						ClusterAutoscalerEnabled: pulumi.Bool(true),
+//						EventsEnabled:            pulumi.Bool(true),
+//						AuditEnabled:             pulumi.Bool(true),
+//					},
+//					ScalePolicy: &yandex.KubernetesClusterMasterScalePolicyArgs{
+//						AutoScale: &yandex.KubernetesClusterMasterScalePolicyAutoScaleArgs{
+//							MinResourcePresetId: pulumi.String("s-c4-m16"),
+//						},
+//					},
+//				},
+//				ServiceAccountId:     pulumi.Any(yandex_iam_service_account.Service_account_resource_name.Id),
+//				NodeServiceAccountId: pulumi.Any(yandex_iam_service_account.Node_service_account_resource_name.Id),
+//				Labels: pulumi.StringMap{
+//					"my_key":       pulumi.String("my_value"),
+//					"my_other_key": pulumi.String("my_other_value"),
+//				},
+//				ReleaseChannel: pulumi.String("STABLE"),
+//				WorkloadIdentityFederation: &yandex.KubernetesClusterWorkloadIdentityFederationArgs{
+//					Enabled: pulumi.Bool(true),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `clusterIpv4Range` (String). CIDR block. IP range for allocating pod addresses. It should not overlap with any subnet in the network the Kubernetes cluster located in. Static routes will be set up for this CIDR blocks in node subnets.
+// - `clusterIpv6Range` (String). Identical to `clusterIpv4Range` but for IPv6 protocol.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `health` (*Read-Only*) (String). Health of the Kubernetes cluster.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `logGroupId` (*Read-Only*) (String). Log group where cluster stores cluster system logs, like audit, events, or control plane logs.
+// - `name` (String). The resource name.
+// - `networkId` (**Required**)(String). The ID of the cluster network.
+// - `networkPolicyProvider` (String). Network policy provider for the cluster. Possible values: `CALICO`.
+// - `nodeIpv4CidrMaskSize` (Number). Size of the masks that are assigned to each node in the cluster. Effectively limits maximum number of pods for each node.
+// - `nodeServiceAccountId` (**Required**)(String). Service account to be used by the worker nodes of the Kubernetes cluster to access Container Registry or to push node logs and metrics.
+// - `releaseChannel` (String). Cluster release channel.
+// - `serviceAccountId` (**Required**)(String). Service account to be used for provisioning Compute Cloud and VPC resources for Kubernetes cluster. Selected service account should have `edit` role on the folder where the Kubernetes cluster will be located and on the folder where selected network resides.
+// - `serviceIpv4Range` (String). CIDR block. IP range Kubernetes service Kubernetes cluster IP addresses will be allocated from. It should not overlap with any subnet in the network the Kubernetes cluster located in.
+// - `serviceIpv6Range` (String). Identical to serviceIpv4Range but for IPv6 protocol.
+// - `status` (*Read-Only*) (String). Status of the Kubernetes cluster.
+// - `kmsProvider` [Block]. Cluster KMS provider parameters.
+//   - `keyId` (String). KMS key ID.
+//
+// - `master` [Block]. Kubernetes master configuration options.
+//   - `clusterCaCertificate` (*Read-Only*) (String). PEM-encoded public certificate that is the root of trust for the Kubernetes cluster.
+//   - `etcdClusterSize` (Number). Number of etcd clusters that will be used for the Kubernetes master.
+//   - `externalV4Address` (*Read-Only*) (String). An IPv4 external network address that is assigned to the master.
+//   - `externalV4Endpoint` (*Read-Only*) (String). External endpoint that can be used to access Kubernetes cluster API from the internet (outside of the cloud).
+//   - `externalV6Address` (String). An IPv6 external network address that is assigned to the master.
+//   - `externalV6Endpoint` (*Read-Only*) (String). External IPv6 endpoint that can be used to access Kubernetes cluster API from the internet (outside of the cloud).
+//   - `internalV4Address` (*Read-Only*) (String). An IPv4 internal network address that is assigned to the master.
+//   - `internalV4Endpoint` (*Read-Only*) (String). Internal endpoint that can be used to connect to the master from cloud networks.
+//   - `publicIp` (Bool). When `true`, Kubernetes master will have visible ipv4 address.
+//   - `securityGroupIds` (Set Of String). The list of security groups applied to resource or their components.
+//   - `version` (String). Version of Kubernetes that will be used for master.
+//   - `versionInfo` (*Read-Only*) (List Of Object). Information about cluster version.
+//   - `currentVersion` .
+//   - `newRevisionAvailable` .
+//   - `newRevisionSummary` .
+//   - `versionDeprecated` .
+//   - `maintenancePolicy` [Block]. Maintenance policy for Kubernetes master. If policy is omitted, automatic revision upgrades of the kubernetes master are enabled and could happen at any time. Revision upgrades are performed only within the same minor version, e.g. 1.29. Minor version upgrades (e.g. 1.29->1.30) should be performed manually.
+//   - `autoUpgrade` (**Required**)(Bool). Boolean flag that specifies if master can be upgraded automatically. When omitted, default value is TRUE.
+//   - `maintenanceWindow` [Block]. This structure specifies maintenance window, when update for master is allowed. When omitted, it defaults to any time. To specify time of day interval, for all days, one element should be provided, with two fields set, `startTime` and `duration`. Please see `zonalClusterResourceName` config example.
+//
+// To allow maintenance only on specific days of week, please provide list of elements, with all fields set. Only one time interval (`duration`) is allowed for each day of week. Please see `regionalClusterResourceName` config example
+//
+//   - `day` (String). The day of the week which you want to update.
+//   - `duration` (**Required**)(String). The duration of the day of week you want to update.
+//   - `startTime` (**Required**)(String). The start time of the day of week you want to update.
+//   - `masterLocation` [Block]. Cluster master's instances locations array (zone and subnet). Cannot be used together with `zonal` or `regional`. Currently, supports either one, for zonal master, or three instances of `masterLocation`. Can be updated in place. When creating regional cluster (three master instances), its `region` will be evaluated automatically by backend.
+//   - `subnetId` (String). ID of the subnet.
+//   - `zone` (String). ID of the availability zone.
+//   - `masterLogging` [Block]. Master Logging options.
+//   - `auditEnabled` (Bool). Boolean flag that specifies if kube-apiserver audit logs should be sent to Yandex Cloud Logging.
+//   - `clusterAutoscalerEnabled` (Bool). Boolean flag that specifies if cluster-autoscaler logs should be sent to Yandex Cloud Logging.
+//   - `enabled` (Bool). Boolean flag that specifies if master components logs should be sent to [Yandex Cloud Logging](https://yandex.cloud/docs/logging/). The exact components that will send their logs must be configured via the options described below.
+//
+// > Only one of `logGroupId` or `folderId` (or none) may be specified. If `logGroupId` is specified, logs will be sent to this specific Log group. If `folderId` is specified, logs will be sent to **default** Log group of this folder. If none of two is specified, logs will be sent to **default** Log group of the **same** folder as Kubernetes cluster.
+//
+//   - `eventsEnabled` (Bool). Boolean flag that specifies if kubernetes cluster events should be sent to Yandex Cloud Logging.
+//   - `folderId` (String). ID of the folder default Log group of which should be used to collect logs.
+//   - `kubeApiserverEnabled` (Bool). Boolean flag that specifies if kube-apiserver logs should be sent to Yandex Cloud Logging.
+//   - `logGroupId` (String). ID of the Yandex Cloud Logging [Log group](https://yandex.cloud/docs/logging/concepts/log-group).
+//   - `regional` [Block]. Initialize parameters for Regional Master (highly available master).
+//   - `region` (**Required**)(String). Name of availability region (e.g. `ru-central1`), where master instances will be allocated.
+//   - `location` [Block]. Array of locations, where master instances will be allocated.
+//   - `subnetId` (String). ID of the subnet.
+//   - `zone` (String). ID of the availability zone.
+//   - `scalePolicy` [Block]. Scale policy of the master.
+//   - `autoScale` [Block]. Autoscaled master instance resources.
+//   - `minResourcePresetId` (**Required**)(String). Minimal resource preset ID.
+//   - `zonal` [Block]. Initialize parameters for Zonal Master (single node master).
+//   - `subnetId` (String). ID of the subnet. If no ID is specified, and there only one subnet in specified zone, an address in this subnet will be allocated.
+//   - `zone` (String). ID of the availability zone.
+//
+// - `networkImplementation` [Block]. Network Implementation options.
+//   - `cilium` [Block]. Cilium network implementation configuration. No options exist.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// - `workloadIdentityFederation` [Block]. Workload Identity Federation configuration.
+//   - `enabled` (**Required**)(Bool). Identifies whether Workload Identity Federation is enabled.
+//   - `issuer` (*Read-Only*) (String). Issuer URI for Kubernetes service account tokens.
+//   - `jwksUri` (*Read-Only*) (String). JSON Web Key Set URI used to verify token signatures.
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_kubernetes_cluster.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/kubernetesCluster:KubernetesCluster regional_cluster ...
+// ```
 type KubernetesCluster struct {
 	pulumi.CustomResourceState
 

@@ -7,10 +7,76 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Compute image. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/image).
+//
+// > Either `imageId`, `family` or `name` must be specified.
+//
+// > If you specify `family` without `folderId` then lookup takes place in the 'standard-images' folder.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myImage, err := yandex.GetComputeImage(ctx, &yandex.LookupComputeImageArgs{
+//				Family: pulumi.StringRef("ubuntu-1804-lts"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			// You can use "data.yandex_compute_image.my_image.id" identifier
+//			// as reference to existing resource.
+//			_, err = yandex.NewComputeInstance(ctx, "default", &yandex.ComputeInstanceArgs{
+//				BootDisk: &yandex.ComputeInstanceBootDiskArgs{
+//					InitializeParams: &yandex.ComputeInstanceBootDiskInitializeParamsArgs{
+//						ImageId: pulumi.String(myImage.Id),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `family` (String). The name of the image family to which this image belongs.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `hardwareGeneration` (*Read-Only*) (List Of Object).
+//   - `generation2Features` .
+//   - `legacyFeatures` .
+//   - `pciTopology` .
+//
+// - `id` (String).
+// - `imageId` (String). The ID of a specific image.
+// - `kmsKeyId` (*Read-Only*) (String). ID of KMS symmetric key used to encrypt image.
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `minDiskSize` (*Read-Only*) (Number). Minimum size in GB of the disk that will be created from this image.
+// - `name` (String). The resource name.
+// - `osType` (*Read-Only*) (String). Operating system type that is contained in the image. Possible values: `LINUX`, `WINDOWS`.
+// - `pooled` (*Read-Only*) (Bool). Optimize the image to create a disk.
+// - `productIds` (*Read-Only*) (Set Of String). License IDs that indicate which licenses are attached to this image.
+// - `size` (*Read-Only*) (Number). The size of the image, specified in GB.
+// - `status` (*Read-Only*) (String). The status of the image.
 func LookupComputeImage(ctx *pulumi.Context, args *LookupComputeImageArgs, opts ...pulumi.InvokeOption) (*LookupComputeImageResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupComputeImageResult

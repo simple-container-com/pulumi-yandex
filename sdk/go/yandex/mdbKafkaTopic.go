@@ -8,10 +8,112 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a topic of a Kafka Topic within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myCluster, err := yandex.NewMdbKafkaCluster(ctx, "myCluster", &yandex.MdbKafkaClusterArgs{
+//				NetworkId: pulumi.String("c64vs98keiqc7f24pvkd"),
+//				Config: &yandex.MdbKafkaClusterConfigArgs{
+//					Version: pulumi.String("2.8"),
+//					Zones: pulumi.StringArray{
+//						pulumi.String("ru-central1-a"),
+//					},
+//					Kafka: &yandex.MdbKafkaClusterConfigKafkaArgs{
+//						Resources: &yandex.MdbKafkaClusterConfigKafkaResourcesArgs{
+//							ResourcePresetId: pulumi.String("s2.micro"),
+//							DiskTypeId:       pulumi.String("network-hdd"),
+//							DiskSize:         pulumi.Int(16),
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB Kafka Topic.
+//			_, err = yandex.NewMdbKafkaTopic(ctx, "events", &yandex.MdbKafkaTopicArgs{
+//				ClusterId:         myCluster.ID().ToIDOutput().ToStringOutput(),
+//				Partitions:        pulumi.Int(4),
+//				ReplicationFactor: pulumi.Int(1),
+//				TopicConfig: &yandex.MdbKafkaTopicTopicConfigArgs{
+//					CleanupPolicy:      pulumi.String("CLEANUP_POLICY_COMPACT"),
+//					CompressionType:    pulumi.String("COMPRESSION_TYPE_LZ4"),
+//					DeleteRetentionMs:  pulumi.String("86400000"),
+//					FileDeleteDelayMs:  pulumi.String("60000"),
+//					FlushMessages:      pulumi.String("128"),
+//					FlushMs:            pulumi.String("1000"),
+//					MinCompactionLagMs: pulumi.String("0"),
+//					RetentionBytes:     pulumi.String("10737418240"),
+//					RetentionMs:        pulumi.String("604800000"),
+//					MaxMessageBytes:    pulumi.String("1048588"),
+//					MinInsyncReplicas:  pulumi.String("1"),
+//					SegmentBytes:       pulumi.String("268435456"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `clusterId` (**Required**)(String). The ID of the Kafka cluster.
+// - `id` (String).
+// - `name` (**Required**)(String). The resource name.
+// - `partitions` (**Required**)(Number). The number of the topic's partitions.
+// - `replicationFactor` (**Required**)(Number). Amount of data copies (replicas) for the topic in the cluster.
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// - `topicConfig` [Block]. User-defined settings for the topic. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/settings-list#topic-settings) and [the Kafka documentation](https://kafka.apache.org/documentation/#topicconfigs).
+//   - `cleanupPolicy` (String). Retention policy to use on log segments.
+//   - `compressionType` (String). Compression type of kafka topic.
+//   - `deleteRetentionMs` (String). The amount of time to retain delete tombstone markers for log compacted topics.
+//   - `fileDeleteDelayMs` (String). The time to wait before deleting a file from the filesystem.
+//   - `flushMessages` (String). This setting allows specifying an interval at which we will force an fsync of data written to the log.
+//   - `flushMs` (String). This setting allows specifying a time interval at which we will force an fsync of data written to the log.
+//   - `maxMessageBytes` (String). The largest record batch size allowed by Kafka (after compression if compression is enabled).
+//   - `messageTimestampType` (String). Defines whether the timestamp in a message is the message creation time or the log append time. Possible values are `MESSAGE_TIMESTAMP_TYPE_CREATE_TIME` and `MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME`.
+//   - `minCompactionLagMs` (String). The minimum time a message will remain uncompacted in the log. Only applicable for logs that are being compacted.
+//   - `minInsyncReplicas` (String). When a producer sets acks to "all" (or "-1"), this configuration specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful.
+//   - `preallocate` (Bool). True if we should preallocate the file on disk when creating a new log segment.
+//   - `retentionBytes` (String). This configuration controls the maximum size a partition (which consists of log segments) can grow to before we will discard old log segments to free up space if we are using the "delete" retention policy.
+//   - `retentionMs` (String). This configuration controls the maximum time we will retain a log before we will discard old log segments to free up space if we are using the "delete" retention policy.
+//   - `segmentBytes` (String). This configuration controls the segment file size for the log.
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_mdb_kafka_topic.<resource_name> <cluster_id>:<topic_name>
+//
+// ```sh
+// $ pulumi import yandex:index/mdbKafkaTopic:MdbKafkaTopic events <cluster_id>:events
+// ```
 type MdbKafkaTopic struct {
 	pulumi.CustomResourceState
 

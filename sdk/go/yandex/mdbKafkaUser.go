@@ -8,10 +8,110 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a user of a Kafka User within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new MDB Kafka User.
+//			_, err := yandex.NewMdbKafkaUser(ctx, "userEvents", &yandex.MdbKafkaUserArgs{
+//				ClusterId: pulumi.Any(yandex_mdb_kafka_cluster.Foo.Id),
+//				Password:  pulumi.String("pass1231232332"),
+//				Permissions: yandex.MdbKafkaUserPermissionArray{
+//					&yandex.MdbKafkaUserPermissionArgs{
+//						TopicName: pulumi.String("events"),
+//						Role:      pulumi.String("ACCESS_ROLE_CONSUMER"),
+//						AllowHosts: pulumi.StringArray{
+//							pulumi.String("host1.db.yandex.net"),
+//							pulumi.String("host2.db.yandex.net"),
+//						},
+//					},
+//					&yandex.MdbKafkaUserPermissionArgs{
+//						TopicName: pulumi.String("events"),
+//						Role:      pulumi.String("ACCESS_ROLE_PRODUCER"),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			myCluster, err := yandex.NewMdbKafkaCluster(ctx, "myCluster", &yandex.MdbKafkaClusterArgs{
+//				NetworkId: pulumi.String("c64vs98keiqc7f24pvkd"),
+//				Config: &yandex.MdbKafkaClusterConfigArgs{
+//					Version: pulumi.String("2.8"),
+//					Zones: pulumi.StringArray{
+//						pulumi.String("ru-central1-a"),
+//					},
+//					Kafka: &yandex.MdbKafkaClusterConfigKafkaArgs{
+//						Resources: &yandex.MdbKafkaClusterConfigKafkaResourcesArgs{
+//							ResourcePresetId: pulumi.String("s2.micro"),
+//							DiskTypeId:       pulumi.String("network-hdd"),
+//							DiskSize:         pulumi.Int(16),
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Auxiliary resources
+//			_, err = yandex.NewMdbKafkaTopic(ctx, "events", &yandex.MdbKafkaTopicArgs{
+//				ClusterId:         myCluster.ID().ToIDOutput().ToStringOutput(),
+//				Partitions:        pulumi.Int(4),
+//				ReplicationFactor: pulumi.Int(1),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `clusterId` (**Required**)(String). The ID of the Kafka cluster.
+// - `id` (String).
+// - `name` (**Required**)(String). The resource name.
+// - `password` (String). The password of the user.
+// - `passwordWo` (String). The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+// - `passwordWoVersion` (Number). A version number for the write-only password. Increment this to trigger a password update.
+// - `permission` [Block]. Set of permissions granted to the user.
+//   - `allowHosts` (Set Of String). Set of hosts, to which this permission grants access to. Only ip-addresses allowed as value of single host.
+//   - `role` (**Required**)(String). The role type to grant to the topic.
+//   - `topicName` (**Required**)(String). The name of the topic that the permission grants access to.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_mdb_kafka_user.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/mdbKafkaUser:MdbKafkaUser user_events ...
+// ```
 type MdbKafkaUser struct {
 	pulumi.CustomResourceState
 
@@ -20,7 +120,12 @@ type MdbKafkaUser struct {
 	// The resource name.
 	Name pulumi.StringOutput `pulumi:"name"`
 	// The password of the user.
-	Password pulumi.StringOutput `pulumi:"password"`
+	Password pulumi.StringPtrOutput `pulumi:"password"`
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+	PasswordWo pulumi.StringPtrOutput `pulumi:"passwordWo"`
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion pulumi.IntPtrOutput `pulumi:"passwordWoVersion"`
 	// Set of permissions granted to the user.
 	Permissions MdbKafkaUserPermissionArrayOutput `pulumi:"permissions"`
 }
@@ -35,14 +140,15 @@ func NewMdbKafkaUser(ctx *pulumi.Context,
 	if args.ClusterId == nil {
 		return nil, errors.New("invalid value for required argument 'ClusterId'")
 	}
-	if args.Password == nil {
-		return nil, errors.New("invalid value for required argument 'Password'")
-	}
 	if args.Password != nil {
-		args.Password = pulumi.ToSecret(args.Password).(pulumi.StringInput)
+		args.Password = pulumi.ToSecret(args.Password).(pulumi.StringPtrInput)
+	}
+	if args.PasswordWo != nil {
+		args.PasswordWo = pulumi.ToSecret(args.PasswordWo).(pulumi.StringPtrInput)
 	}
 	secrets := pulumi.AdditionalSecretOutputs([]string{
 		"password",
+		"passwordWo",
 	})
 	opts = append(opts, secrets)
 	opts = internal.PkgResourceDefaultOpts(opts)
@@ -74,6 +180,11 @@ type mdbKafkaUserState struct {
 	Name *string `pulumi:"name"`
 	// The password of the user.
 	Password *string `pulumi:"password"`
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+	PasswordWo *string `pulumi:"passwordWo"`
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion *int `pulumi:"passwordWoVersion"`
 	// Set of permissions granted to the user.
 	Permissions []MdbKafkaUserPermission `pulumi:"permissions"`
 }
@@ -85,6 +196,11 @@ type MdbKafkaUserState struct {
 	Name pulumi.StringPtrInput
 	// The password of the user.
 	Password pulumi.StringPtrInput
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+	PasswordWo pulumi.StringPtrInput
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion pulumi.IntPtrInput
 	// Set of permissions granted to the user.
 	Permissions MdbKafkaUserPermissionArrayInput
 }
@@ -99,7 +215,12 @@ type mdbKafkaUserArgs struct {
 	// The resource name.
 	Name *string `pulumi:"name"`
 	// The password of the user.
-	Password string `pulumi:"password"`
+	Password *string `pulumi:"password"`
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+	PasswordWo *string `pulumi:"passwordWo"`
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion *int `pulumi:"passwordWoVersion"`
 	// Set of permissions granted to the user.
 	Permissions []MdbKafkaUserPermission `pulumi:"permissions"`
 }
@@ -111,7 +232,12 @@ type MdbKafkaUserArgs struct {
 	// The resource name.
 	Name pulumi.StringPtrInput
 	// The password of the user.
-	Password pulumi.StringInput
+	Password pulumi.StringPtrInput
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+	PasswordWo pulumi.StringPtrInput
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion pulumi.IntPtrInput
 	// Set of permissions granted to the user.
 	Permissions MdbKafkaUserPermissionArrayInput
 }
@@ -214,8 +340,19 @@ func (o MdbKafkaUserOutput) Name() pulumi.StringOutput {
 }
 
 // The password of the user.
-func (o MdbKafkaUserOutput) Password() pulumi.StringOutput {
-	return o.ApplyT(func(v *MdbKafkaUser) pulumi.StringOutput { return v.Password }).(pulumi.StringOutput)
+func (o MdbKafkaUserOutput) Password() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *MdbKafkaUser) pulumi.StringPtrOutput { return v.Password }).(pulumi.StringPtrOutput)
+}
+
+// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+func (o MdbKafkaUserOutput) PasswordWo() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *MdbKafkaUser) pulumi.StringPtrOutput { return v.PasswordWo }).(pulumi.StringPtrOutput)
+}
+
+// A version number for the write-only password. Increment this to trigger a password update.
+func (o MdbKafkaUserOutput) PasswordWoVersion() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *MdbKafkaUser) pulumi.IntPtrOutput { return v.PasswordWoVersion }).(pulumi.IntPtrOutput)
 }
 
 // Set of permissions granted to the user.

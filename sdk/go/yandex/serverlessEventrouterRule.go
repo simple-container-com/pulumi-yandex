@@ -8,10 +8,106 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `busId` (**Required**)(String). ID of the bus that the rule belongs to
+// - `cloudId` (*Read-Only*) (String). ID of the cloud that the rule resides in
+// - `createdAt` (*Read-Only*) (String). Creation timestamp
+// - `deletionProtection` (*Read-Only*) (Bool). Deletion protection
+// - `description` (String). Description of the rule
+// - `folderId` (*Read-Only*) (String). ID of the folder that the rule resides in
+// - `id` (String).
+// - `jqFilter` (String). JQ filter for matching events
+// - `labels` (Map Of String). Rule labels
+// - `name` (**Required**)(String). Name of the rule
+// - `container` [Block]. ContainerTarget
+//   - `containerId` (**Required**)(String). Container ID
+//   - `containerRevisionId` (String). Container revision ID
+//   - `path` (String). Endpoint HTTP path to invoke
+//   - `serviceAccountId` (String). Service account which should be used to call a container
+//   - `batchSettings` [Block]. Batch settings
+//   - `cutoff` (**Required**)(String). Maximum batch size: rule will send a batch if its lifetime exceeds this value
+//   - `maxBytes` (Number). Maximum batch size: rule will send a batch if total size of events exceeds this value
+//   - `maxCount` (Number). Maximum batch size: rule will send a batch if number of events exceeds this value
+//
+// - `function` [Block]. FunctionTarget
+//   - `functionId` (**Required**)(String). Function ID
+//   - `functionTag` (String). Function tag
+//   - `serviceAccountId` (String). Service account which has call permission on the function
+//   - `batchSettings` [Block]. Batch settings
+//   - `cutoff` (**Required**)(String). Maximum batch size: rule will send a batch if its lifetime exceeds this value
+//   - `maxBytes` (Number). Maximum batch size: rule will send a batch if total size of events exceeds this value
+//   - `maxCount` (Number). Maximum batch size: rule will send a batch if number of events exceeds this value
+//
+// - `gatewayWebsocketBroadcast` [Block]. GatewayWebsocketBroadcastTarget
+//   - `gatewayId` (**Required**)(String). Gateway ID
+//   - `path` (**Required**)(String). Path
+//   - `serviceAccountId` (**Required**)(String). Service account which has permission for writing to websockets
+//   - `batchSettings` [Block]. Batch settings
+//   - `cutoff` (**Required**)(String). Maximum batch size: rule will send a batch if its lifetime exceeds this value
+//   - `maxBytes` (Number). Maximum batch size: rule will send a batch if total size of events exceeds this value
+//   - `maxCount` (Number). Maximum batch size: rule will send a batch if number of events exceeds this value
+//
+// - `logging` [Block]. LoggingTarget. Includes either logGroupId or folderId
+//   - `folderId` (String). Folder ID
+//   - `logGroupId` (String). Log group ID
+//   - `serviceAccountId` (**Required**)(String). Service account which has permission for writing logs
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// - `workflow` [Block]. WorkflowTarget
+//   - `serviceAccountId` (**Required**)(String). Service account which should be used to start workflow
+//   - `workflowId` (**Required**)(String). Workflow ID
+//   - `batchSettings` [Block]. Batch settings
+//   - `cutoff` (**Required**)(String). Maximum batch size: rule will send a batch if its lifetime exceeds this value
+//   - `maxBytes` (Number). Maximum batch size: rule will send a batch if total size of events exceeds this value
+//   - `maxCount` (Number). Maximum batch size: rule will send a batch if number of events exceeds this value
+//
+// - `yds` [Block]. YdsTarget
+//   - `database` (**Required**)(String). Stream database
+//   - `serviceAccountId` (**Required**)(String). Service account, which has write permission on the stream
+//   - `streamName` (**Required**)(String). Full stream name, like /ru-central1/aoegtvhtp8ob********/cc8004q4lbo6********/test
+//
+// - `ymq` [Block]. YmqTarget
+//   - `queueArn` (**Required**)(String). Queue ARN. Example: yrn:yc:ymq:ru-central1:aoe***:test
+//   - `serviceAccountId` (**Required**)(String). Service account which has write access to the queue
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_serverless_eventrouter_rule.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/serverlessEventrouterRule:ServerlessEventrouterRule evr_rule ...
+// ```
 type ServerlessEventrouterRule struct {
 	pulumi.CustomResourceState
 

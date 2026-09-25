@@ -7,10 +7,123 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Managed PostgreSQL user. For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myUser, err := yandex.GetMdbPostgresqlUser(ctx, &yandex.LookupMdbPostgresqlUserArgs{
+//				ClusterId: "some_cluster_id",
+//				Name:      "test",
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("permission", myUser.Permissions)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `authMethod` (*Read-Only*) (String). Authentication method for the user. Possible values are `AUTH_METHOD_PASSWORD`, `AUTH_METHOD_IAM`. Default is `AUTH_METHOD_PASSWORD`.
+// - `clusterId` (**Required**)(String). The ID of the PostgreSQL cluster.
+// - `connLimit` (*Read-Only*) (Number). The maximum number of connections per user. (Default 50).
+// - `connectionManager` (*Read-Only*) (Map Of String). Connection Manager connection configuration. Populated from `userConnectionManager`.
+// - `deletionProtection` (*Read-Only*) (String). The `true` value means that resource is protected from accidental deletion.
+// - `grants` (*Read-Only*) (List Of String). List of the user's grants.
+// - `id` (String).
+// - `login` (*Read-Only*) (Bool). User's ability to login.
+// - `name` (**Required**)(String). The name of the PostgreSQL user.
+// - `password` (*Read-Only*) (String). The password of the user.
+// - `permission` (*Read-Only*) (Set Of Object). Set of permissions granted to the user.
+//   - `databaseName` .
+//
+// - `settings` (*Read-Only*) (Map Of String). Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
+//
+//   - `defaultTransactionIsolation` - defines the default isolation level to be set for all new SQL transactions. One of:
+//
+//   - `read uncommitted`
+//
+//   - `read committed`
+//
+//   - `repeatable read`
+//
+//   - `serializable`
+//
+//   - `lockTimeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0)
+//
+//   - `logMinDurationStatement` - This setting controls logging of the duration of statements. (default -1 disables logging of the duration of statements.)
+//
+//   - `synchronousCommit` - This setting defines whether DBMS will commit transaction in a synchronous way. One of:
+//
+//   - `on`
+//
+//   - `off`
+//
+//   - `local`
+//
+//   - `remote write`
+//
+//   - `remote apply`
+//
+//   - `tempFileLimit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.
+//
+//   - `logStatement` - This setting specifies which SQL statements should be logged (on the user level). One of:
+//
+//   - `none`
+//
+//   - `ddl`
+//
+//   - `mod`
+//
+//   - `all`
+//
+//   - `poolMode` - Mode that the connection pooler is working in with specified user. One of:
+//
+//   - `session`
+//
+//   - `transaction`
+//
+//   - `statement`
+//
+//   - `preparedStatementsPooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.
+//
+//   - `catchupTimeout` - The connection pooler setting. It determines the maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this threshold. Default value is 0, which disables this feature. Integer.
+//
+//   - `walSenderTimeout` - The maximum time (in milliseconds) to wait for WAL replication (can be set only for PostgreSQL 12+). Terminate replication connections that are inactive for longer than this amount of time. Integer.
+//
+//   - `idleInTransactionSessionTimeout` - Sets the maximum allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout. Integer.
+//
+//   - `statementTimeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer.
+//
+//   - `pgaudit` - Settings of the PostgreSQL Audit Extension (pgaudit). [Full description](https://yandex.cloud/ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.PGAuditSettings). String (json with with escaped quotes). Example `"{\"log\": [\"READ\", \"WRITE\"]}"`
+//
+// - `userConnectionManager` (*Read-Only*) (List Of Object). Connection Manager settings for the user.
+//   - `connectionFolderId` .
+//   - `connectionId` .
+//   - `secretFolderId` .
+//
+// - `userPasswordEncryption` (*Read-Only*) (String). Password-based authentication method for user.
+// Possible values are `USER_PASSWORD_ENCRYPTION_MD5` or `USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256`.
+// The default is passwordEncryption setting for cluster.
 func LookupMdbPostgresqlUser(ctx *pulumi.Context, args *LookupMdbPostgresqlUserArgs, opts ...pulumi.InvokeOption) (*LookupMdbPostgresqlUserResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMdbPostgresqlUserResult
@@ -29,20 +142,22 @@ type LookupMdbPostgresqlUserArgs struct {
 
 // A collection of values returned by getMdbPostgresqlUser.
 type LookupMdbPostgresqlUserResult struct {
-	AuthMethod         string            `pulumi:"authMethod"`
-	ClusterId          string            `pulumi:"clusterId"`
-	ConnLimit          int               `pulumi:"connLimit"`
+	AuthMethod string `pulumi:"authMethod"`
+	ClusterId  string `pulumi:"clusterId"`
+	ConnLimit  int    `pulumi:"connLimit"`
+	// Deprecated: The 'connection_manager' field has been deprecated. Please use 'user_connection_manager' instead.
 	ConnectionManager  map[string]string `pulumi:"connectionManager"`
 	DeletionProtection string            `pulumi:"deletionProtection"`
 	Grants             []string          `pulumi:"grants"`
 	// The provider-assigned unique ID for this managed resource.
-	Id                     string                           `pulumi:"id"`
-	Login                  bool                             `pulumi:"login"`
-	Name                   string                           `pulumi:"name"`
-	Password               string                           `pulumi:"password"`
-	Permissions            []GetMdbPostgresqlUserPermission `pulumi:"permissions"`
-	Settings               map[string]string                `pulumi:"settings"`
-	UserPasswordEncryption string                           `pulumi:"userPasswordEncryption"`
+	Id                     string                                      `pulumi:"id"`
+	Login                  bool                                        `pulumi:"login"`
+	Name                   string                                      `pulumi:"name"`
+	Password               string                                      `pulumi:"password"`
+	Permissions            []GetMdbPostgresqlUserPermission            `pulumi:"permissions"`
+	Settings               map[string]string                           `pulumi:"settings"`
+	UserConnectionManagers []GetMdbPostgresqlUserUserConnectionManager `pulumi:"userConnectionManagers"`
+	UserPasswordEncryption string                                      `pulumi:"userPasswordEncryption"`
 }
 
 func LookupMdbPostgresqlUserOutput(ctx *pulumi.Context, args LookupMdbPostgresqlUserOutputArgs, opts ...pulumi.InvokeOption) LookupMdbPostgresqlUserResultOutput {
@@ -91,6 +206,7 @@ func (o LookupMdbPostgresqlUserResultOutput) ConnLimit() pulumi.IntOutput {
 	return o.ApplyT(func(v LookupMdbPostgresqlUserResult) int { return v.ConnLimit }).(pulumi.IntOutput)
 }
 
+// Deprecated: The 'connection_manager' field has been deprecated. Please use 'user_connection_manager' instead.
 func (o LookupMdbPostgresqlUserResultOutput) ConnectionManager() pulumi.StringMapOutput {
 	return o.ApplyT(func(v LookupMdbPostgresqlUserResult) map[string]string { return v.ConnectionManager }).(pulumi.StringMapOutput)
 }
@@ -126,6 +242,12 @@ func (o LookupMdbPostgresqlUserResultOutput) Permissions() GetMdbPostgresqlUserP
 
 func (o LookupMdbPostgresqlUserResultOutput) Settings() pulumi.StringMapOutput {
 	return o.ApplyT(func(v LookupMdbPostgresqlUserResult) map[string]string { return v.Settings }).(pulumi.StringMapOutput)
+}
+
+func (o LookupMdbPostgresqlUserResultOutput) UserConnectionManagers() GetMdbPostgresqlUserUserConnectionManagerArrayOutput {
+	return o.ApplyT(func(v LookupMdbPostgresqlUserResult) []GetMdbPostgresqlUserUserConnectionManager {
+		return v.UserConnectionManagers
+	}).(GetMdbPostgresqlUserUserConnectionManagerArrayOutput)
 }
 
 func (o LookupMdbPostgresqlUserResultOutput) UserPasswordEncryption() pulumi.StringOutput {

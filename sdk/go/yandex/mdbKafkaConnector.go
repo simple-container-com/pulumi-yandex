@@ -8,15 +8,257 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a connector of a Kafka cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myCluster, err := yandex.NewMdbKafkaCluster(ctx, "myCluster", &yandex.MdbKafkaClusterArgs{
+//				NetworkId: pulumi.String("c64vs98keiqc7f24pvkd"),
+//				Config: &yandex.MdbKafkaClusterConfigArgs{
+//					Version: pulumi.String("2.8"),
+//					Zones: pulumi.StringArray{
+//						pulumi.String("ru-central1-a"),
+//					},
+//					Kafka: &yandex.MdbKafkaClusterConfigKafkaArgs{
+//						Resources: &yandex.MdbKafkaClusterConfigKafkaResourcesArgs{
+//							ResourcePresetId: pulumi.String("s2.micro"),
+//							DiskTypeId:       pulumi.String("network-hdd"),
+//							DiskSize:         pulumi.Int(16),
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB Kafka Connector.
+//			_, err = yandex.NewMdbKafkaConnector(ctx, "myConn", &yandex.MdbKafkaConnectorArgs{
+//				ClusterId: myCluster.ID().ToIDOutput().ToStringOutput(),
+//				TasksMax:  pulumi.Int(3),
+//				Properties: pulumi.StringMap{
+//					refresh.Topics.Enabled: "true",
+//				},
+//				ConnectorConfigMirrormakers: yandex.MdbKafkaConnectorConnectorConfigMirrormakerArray{
+//					&yandex.MdbKafkaConnectorConnectorConfigMirrormakerArgs{
+//						Topics:            pulumi.String("data.*"),
+//						ReplicationFactor: pulumi.Int(1),
+//						SourceCluster: &yandex.MdbKafkaConnectorConnectorConfigMirrormakerSourceClusterArgs{
+//							Alias: pulumi.String("source"),
+//							ExternalClusters: yandex.MdbKafkaConnectorConnectorConfigMirrormakerSourceClusterExternalClusterArray{
+//								&yandex.MdbKafkaConnectorConnectorConfigMirrormakerSourceClusterExternalClusterArgs{
+//									BootstrapServers: pulumi.String("somebroker1:9091,somebroker2:9091"),
+//									SaslUsername:     pulumi.String("someuser"),
+//									SaslPassword:     pulumi.String("somepassword"),
+//									SaslMechanism:    pulumi.String("SCRAM-SHA-512"),
+//									SecurityProtocol: pulumi.String("SASL_SSL"),
+//								},
+//							},
+//						},
+//						TargetCluster: &yandex.MdbKafkaConnectorConnectorConfigMirrormakerTargetClusterArgs{
+//							Alias: pulumi.String("target"),
+//							ThisClusters: yandex.MdbKafkaConnectorConnectorConfigMirrormakerTargetClusterThisClusterArray{
+//								&yandex.MdbKafkaConnectorConnectorConfigMirrormakerTargetClusterThisClusterArgs{},
+//							},
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewMdbKafkaConnector(ctx, "connector", &yandex.MdbKafkaConnectorArgs{
+//				ClusterId: myCluster.ID().ToIDOutput().ToStringOutput(),
+//				TasksMax:  pulumi.Int(3),
+//				Properties: pulumi.StringMap{
+//					"key.converter":                  pulumi.String("org.apache.kafka.connect.storage.StringConverter"),
+//					"value.converter":                pulumi.String("org.apache.kafka.connect.json.JsonConverter"),
+//					"value.converter.schemas.enable": pulumi.String("false"),
+//					"format.output.type":             pulumi.String("jsonl"),
+//					"file.name.template":             pulumi.String("dir1/dir2/{{topic}}-{{partition:padding=true}}-{{start_offset:padding=true}}.gz"),
+//					"timestamp.timezone":             pulumi.String("Europe/Moscow"),
+//				},
+//				ConnectorConfigS3Sinks: yandex.MdbKafkaConnectorConnectorConfigS3SinkArray{
+//					&yandex.MdbKafkaConnectorConnectorConfigS3SinkArgs{
+//						Topics:              pulumi.String("data.*"),
+//						FileCompressionType: pulumi.String("gzip"),
+//						FileMaxRecords:      pulumi.Int(100),
+//						S3Connection: &yandex.MdbKafkaConnectorConnectorConfigS3SinkS3ConnectionArgs{
+//							BucketName: pulumi.String("somebucket"),
+//							ExternalS3s: yandex.MdbKafkaConnectorConnectorConfigS3SinkS3ConnectionExternalS3Array{
+//								&yandex.MdbKafkaConnectorConnectorConfigS3SinkS3ConnectionExternalS3Args{
+//									Endpoint:        pulumi.String("storage.yandexcloud.net"),
+//									AccessKeyId:     pulumi.String("some_access_key_id"),
+//									SecretAccessKey: pulumi.String("some_secret_access_key"),
+//								},
+//							},
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewMdbKafkaConnector(ctx, "icebergStatic", &yandex.MdbKafkaConnectorArgs{
+//				ClusterId: myCluster.ID().ToIDOutput().ToStringOutput(),
+//				TasksMax:  pulumi.Int(2),
+//				Properties: pulumi.StringMap{
+//					"key.converter":   pulumi.String("org.apache.kafka.connect.storage.StringConverter"),
+//					"value.converter": pulumi.String("org.apache.kafka.connect.json.JsonConverter"),
+//				},
+//				ConnectorConfigIcebergSinks: yandex.MdbKafkaConnectorConnectorConfigIcebergSinkArray{
+//					&yandex.MdbKafkaConnectorConnectorConfigIcebergSinkArgs{
+//						Topics:       pulumi.String("topic1,topic2,topic3"),
+//						ControlTopic: pulumi.String("iceberg-control"),
+//						MetastoreConnection: &yandex.MdbKafkaConnectorConnectorConfigIcebergSinkMetastoreConnectionArgs{
+//							CatalogUri: pulumi.String("thrift://metastore.example.com:9083"),
+//							Warehouse:  pulumi.String("s3a://my-bucket/warehouse"),
+//						},
+//						S3Connection: &yandex.MdbKafkaConnectorConnectorConfigIcebergSinkS3ConnectionArgs{
+//							ExternalS3: &yandex.MdbKafkaConnectorConnectorConfigIcebergSinkS3ConnectionExternalS3Args{
+//								Endpoint:        pulumi.String("https://storage.yandexcloud.net"),
+//								AccessKeyId:     pulumi.String("some_access_key_id"),
+//								SecretAccessKey: pulumi.String("some_secret_access_key"),
+//								Region:          pulumi.String("ru-central1"),
+//							},
+//						},
+//						StaticTables: &yandex.MdbKafkaConnectorConnectorConfigIcebergSinkStaticTablesArgs{
+//							Tables: pulumi.String("db.table1,db.table2,db.table3"),
+//						},
+//						TablesConfig: &yandex.MdbKafkaConnectorConnectorConfigIcebergSinkTablesConfigArgs{
+//							DefaultCommitBranch:   pulumi.String("main"),
+//							DefaultIdColumns:      pulumi.String("id"),
+//							DefaultPartitionBy:    pulumi.String("year(timestamp),month(timestamp)"),
+//							EvolveSchemaEnabled:   pulumi.Bool(true),
+//							SchemaForceOptional:   pulumi.Bool(false),
+//							SchemaCaseInsensitive: pulumi.Bool(true),
+//						},
+//						ControlConfig: &yandex.MdbKafkaConnectorConnectorConfigIcebergSinkControlConfigArgs{
+//							GroupIdPrefix:       pulumi.String("cg-iceberg"),
+//							CommitIntervalMs:    pulumi.Int(300000),
+//							CommitTimeoutMs:     pulumi.Int(30000),
+//							CommitThreads:       pulumi.Int(4),
+//							TransactionalPrefix: pulumi.String("txn-"),
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `clusterId` (**Required**)(String). The ID of the Kafka cluster.
+// - `id` (String).
+// - `name` (**Required**)(String). The resource name.
+// - `properties` (Map Of String). Additional properties for connector.
+// - `tasksMax` (Number). The number of the connector's parallel working tasks. Default is the number of brokers.
+// - `connectorConfigIcebergSink` [Block]. Settings for Iceberg Sink connector.
+//   - `controlTopic` (String). Control topic name for Iceberg connector.
+//   - `topics` (String). The pattern for topic names to be written to Iceberg tables.
+//   - `topicsRegex` (String). Regex pattern for topic names to be written to Iceberg tables.
+//   - `controlConfig` [Block]. Optional control settings.
+//   - `commitIntervalMs` (Number). Interval between commits in milliseconds. Default: 300000 (5 minutes)
+//   - `commitThreads` (Number). Number of threads for commit operations. Default: cores * 2
+//   - `commitTimeoutMs` (Number). Commit operation timeout in milliseconds. Default: 30000 (30 seconds)
+//   - `groupIdPrefix` (String). Consumer group ID prefix for control topic. Default: 'cg-control'
+//   - `transactionalPrefix` (String). Prefix for transactional operations. Default: ”
+//   - `dynamicTables` [Block]. Dynamic table routing configuration. Cannot be changed after creation.
+//   - `routeField` (**Required**)(String). Field in the message to define the target table.
+//   - `metastoreConnection` [Block]. Settings for connection to Hive Metastore.
+//   - `catalogUri` (**Required**)(String). Thrift URI of Hive Metastore. Format: 'thrift://host:9083'
+//   - `warehouse` (**Required**)(String). Warehouse root directory in S3. Format: 's3a://bucket-name/path/to/warehouse'
+//   - `s3Connection` [Block]. Settings for connection to s3-compatible storage.
+//   - `externalS3` [Block]. Connection params for external s3-compatible storage.
+//   - `accessKeyId` (String). ID of aws-compatible static key.
+//   - `endpoint` (**Required**)(String). URL of s3-compatible storage.
+//   - `region` (String). Region of s3-compatible storage.
+//   - `secretAccessKey` (String). Secret key of aws-compatible static key.
+//   - `staticTables` [Block]. Static table routing configuration. Cannot be changed after creation.
+//   - `tables` (**Required**)(String). List of tables, separated by ','.
+//   - `tablesConfig` [Block]. Optional table settings.
+//   - `defaultCommitBranch` (String). Default Git-like branch name for Iceberg commits. Default: 'main'
+//   - `defaultIdColumns` (String). List of columns used as identifiers for upsert operations, separated by ','.
+//   - `defaultPartitionBy` (String). Comma-separated list of columns or transform expressions for table partitioning.
+//   - `evolveSchemaEnabled` (Bool). Enable automatic schema evolution. Default: false
+//   - `schemaCaseInsensitive` (Bool). Enable case-insensitive field name matching. Default: false
+//   - `schemaForceOptional` (Bool). Force all columns to be nullable. Default: false
+//
+// - `connectorConfigMirrormaker` [Block]. Settings for MirrorMaker2 connector.
+//   - `replicationFactor` (**Required**)(Number). Replication factor for topics created in target cluster.
+//   - `topics` (**Required**)(String). The pattern for topic names to be replicated.
+//   - `sourceCluster` [Block]. Settings for source cluster.
+//   - `alias` (String). Name of the cluster. Used also as a topic prefix.
+//   - `externalCluster` [Block]. Connection settings for external cluster.
+//   - `bootstrapServers` (**Required**)(String). List of bootstrap servers to connect to cluster.
+//   - `saslMechanism` (String). Type of SASL authentification mechanism to use.
+//   - `saslPassword` (String). Password to use in SASL authentification mechanism
+//   - `saslPasswordWo` (String). Password to use in SASL authentification mechanism. This attribute is write-only and is not stored in state. Requires `saslPasswordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+//   - `saslPasswordWoVersion` (Number). A version number for the write-only SASL password. Increment this to trigger a password update.
+//   - `saslUsername` (String). Username to use in SASL authentification mechanism.
+//   - `securityProtocol` (String). Security protocol to use.
+//   - `thisCluster` [Block]. Using this section in the cluster definition (source or target) means it's this cluster.
+//   - `targetCluster` [Block]. Settings for target cluster.
+//   - `alias` (String). Name of the cluster. Used also as a topic prefix.
+//   - `externalCluster` [Block]. Connection settings for external cluster.
+//   - `bootstrapServers` (**Required**)(String). List of bootstrap servers to connect to cluster.
+//   - `saslMechanism` (String). Type of SASL authentification mechanism to use.
+//   - `saslPassword` (String). Password to use in SASL authentification mechanism
+//   - `saslPasswordWo` (String). Password to use in SASL authentification mechanism. This attribute is write-only and is not stored in state. Requires `saslPasswordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+//   - `saslPasswordWoVersion` (Number). A version number for the write-only SASL password. Increment this to trigger a password update.
+//   - `saslUsername` (String). Username to use in SASL authentification mechanism.
+//   - `securityProtocol` (String). Security protocol to use.
+//   - `thisCluster` [Block]. Using this section in the cluster definition (source or target) means it's this cluster.
+//
+// - `connectorConfigS3Sink` [Block]. Settings for S3 Sink connector.
+//   - `fileCompressionType` (**Required**)(String). Compression type for messages. Cannot be changed.
+//   - `fileMaxRecords` (Number). Max records per file.
+//   - `topics` (**Required**)(String). The pattern for topic names to be copied to s3 bucket.
+//   - `s3Connection` [Block]. Settings for connection to s3-compatible storage.
+//   - `bucketName` (**Required**)(String). Name of the bucket in s3-compatible storage.
+//   - `externalS3` [Block]. Connection params for external s3-compatible storage.
+//   - `accessKeyId` (String). ID of aws-compatible static key.
+//   - `endpoint` (**Required**)(String). URL of s3-compatible storage.
+//   - `region` (String). Region of s3-compatible storage. [Available region list](https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/regions/Regions.html).
+//   - `secretAccessKey` (String). Secret key of aws-compatible static key.
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_mdb_kafka_connector.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/mdbKafkaConnector:MdbKafkaConnector my_conn ...
+// ```
 type MdbKafkaConnector struct {
 	pulumi.CustomResourceState
 
 	// The ID of the Kafka cluster.
 	ClusterId pulumi.StringOutput `pulumi:"clusterId"`
+	// Settings for Iceberg Sink connector.
+	ConnectorConfigIcebergSinks MdbKafkaConnectorConnectorConfigIcebergSinkArrayOutput `pulumi:"connectorConfigIcebergSinks"`
 	// Settings for MirrorMaker2 connector.
 	ConnectorConfigMirrormakers MdbKafkaConnectorConnectorConfigMirrormakerArrayOutput `pulumi:"connectorConfigMirrormakers"`
 	// Settings for S3 Sink connector.
@@ -64,6 +306,8 @@ func GetMdbKafkaConnector(ctx *pulumi.Context,
 type mdbKafkaConnectorState struct {
 	// The ID of the Kafka cluster.
 	ClusterId *string `pulumi:"clusterId"`
+	// Settings for Iceberg Sink connector.
+	ConnectorConfigIcebergSinks []MdbKafkaConnectorConnectorConfigIcebergSink `pulumi:"connectorConfigIcebergSinks"`
 	// Settings for MirrorMaker2 connector.
 	ConnectorConfigMirrormakers []MdbKafkaConnectorConnectorConfigMirrormaker `pulumi:"connectorConfigMirrormakers"`
 	// Settings for S3 Sink connector.
@@ -79,6 +323,8 @@ type mdbKafkaConnectorState struct {
 type MdbKafkaConnectorState struct {
 	// The ID of the Kafka cluster.
 	ClusterId pulumi.StringPtrInput
+	// Settings for Iceberg Sink connector.
+	ConnectorConfigIcebergSinks MdbKafkaConnectorConnectorConfigIcebergSinkArrayInput
 	// Settings for MirrorMaker2 connector.
 	ConnectorConfigMirrormakers MdbKafkaConnectorConnectorConfigMirrormakerArrayInput
 	// Settings for S3 Sink connector.
@@ -98,6 +344,8 @@ func (MdbKafkaConnectorState) ElementType() reflect.Type {
 type mdbKafkaConnectorArgs struct {
 	// The ID of the Kafka cluster.
 	ClusterId string `pulumi:"clusterId"`
+	// Settings for Iceberg Sink connector.
+	ConnectorConfigIcebergSinks []MdbKafkaConnectorConnectorConfigIcebergSink `pulumi:"connectorConfigIcebergSinks"`
 	// Settings for MirrorMaker2 connector.
 	ConnectorConfigMirrormakers []MdbKafkaConnectorConnectorConfigMirrormaker `pulumi:"connectorConfigMirrormakers"`
 	// Settings for S3 Sink connector.
@@ -114,6 +362,8 @@ type mdbKafkaConnectorArgs struct {
 type MdbKafkaConnectorArgs struct {
 	// The ID of the Kafka cluster.
 	ClusterId pulumi.StringInput
+	// Settings for Iceberg Sink connector.
+	ConnectorConfigIcebergSinks MdbKafkaConnectorConnectorConfigIcebergSinkArrayInput
 	// Settings for MirrorMaker2 connector.
 	ConnectorConfigMirrormakers MdbKafkaConnectorConnectorConfigMirrormakerArrayInput
 	// Settings for S3 Sink connector.
@@ -216,6 +466,13 @@ func (o MdbKafkaConnectorOutput) ToMdbKafkaConnectorOutputWithContext(ctx contex
 // The ID of the Kafka cluster.
 func (o MdbKafkaConnectorOutput) ClusterId() pulumi.StringOutput {
 	return o.ApplyT(func(v *MdbKafkaConnector) pulumi.StringOutput { return v.ClusterId }).(pulumi.StringOutput)
+}
+
+// Settings for Iceberg Sink connector.
+func (o MdbKafkaConnectorOutput) ConnectorConfigIcebergSinks() MdbKafkaConnectorConnectorConfigIcebergSinkArrayOutput {
+	return o.ApplyT(func(v *MdbKafkaConnector) MdbKafkaConnectorConnectorConfigIcebergSinkArrayOutput {
+		return v.ConnectorConfigIcebergSinks
+	}).(MdbKafkaConnectorConnectorConfigIcebergSinkArrayOutput)
 }
 
 // Settings for MirrorMaker2 connector.

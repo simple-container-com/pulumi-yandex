@@ -8,10 +8,270 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Creates a Yandex Managed Kubernetes Cluster Node Group. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kubernetes/concepts/#node-group).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Managed Kubernetes Node Group.
+//			_, err := yandex.NewKubernetesNodeGroup(ctx, "myNodeGroup", &yandex.KubernetesNodeGroupArgs{
+//				ClusterId:   pulumi.Any(yandex_kubernetes_cluster.My_cluster.Id),
+//				Description: pulumi.String("description"),
+//				Version:     pulumi.String("1.30"),
+//				Labels: pulumi.StringMap{
+//					"key": pulumi.String("value"),
+//				},
+//				InstanceTemplate: &yandex.KubernetesNodeGroupInstanceTemplateArgs{
+//					PlatformId: pulumi.String("standard-v2"),
+//					NetworkInterfaces: yandex.KubernetesNodeGroupInstanceTemplateNetworkInterfaceArray{
+//						&yandex.KubernetesNodeGroupInstanceTemplateNetworkInterfaceArgs{
+//							Nat: pulumi.Bool(true),
+//							SubnetIds: pulumi.StringArray{
+//								yandex_vpc_subnet.My_subnet.Id,
+//							},
+//						},
+//					},
+//					Resources: &yandex.KubernetesNodeGroupInstanceTemplateResourcesArgs{
+//						Memory: pulumi.Float64(2),
+//						Cores:  pulumi.Int(2),
+//					},
+//					BootDisk: &yandex.KubernetesNodeGroupInstanceTemplateBootDiskArgs{
+//						Type: pulumi.String("network-hdd"),
+//						Size: pulumi.Int(64),
+//					},
+//					SchedulingPolicy: &yandex.KubernetesNodeGroupInstanceTemplateSchedulingPolicyArgs{
+//						Preemptible: pulumi.Bool(false),
+//					},
+//					ContainerRuntime: &yandex.KubernetesNodeGroupInstanceTemplateContainerRuntimeArgs{
+//						Type: pulumi.String("containerd"),
+//					},
+//				},
+//				ScalePolicy: &yandex.KubernetesNodeGroupScalePolicyArgs{
+//					FixedScale: &yandex.KubernetesNodeGroupScalePolicyFixedScaleArgs{
+//						Size: pulumi.Int(1),
+//					},
+//				},
+//				AllocationPolicy: &yandex.KubernetesNodeGroupAllocationPolicyArgs{
+//					Locations: yandex.KubernetesNodeGroupAllocationPolicyLocationArray{
+//						&yandex.KubernetesNodeGroupAllocationPolicyLocationArgs{
+//							Zone: pulumi.String("ru-central1-a"),
+//						},
+//					},
+//				},
+//				MaintenancePolicy: &yandex.KubernetesNodeGroupMaintenancePolicyArgs{
+//					AutoUpgrade: pulumi.Bool(true),
+//					AutoRepair:  pulumi.Bool(true),
+//					MaintenanceWindows: yandex.KubernetesNodeGroupMaintenancePolicyMaintenanceWindowArray{
+//						&yandex.KubernetesNodeGroupMaintenancePolicyMaintenanceWindowArgs{
+//							Day:       pulumi.String("monday"),
+//							StartTime: pulumi.String("15:00"),
+//							Duration:  pulumi.String("3h"),
+//						},
+//						&yandex.KubernetesNodeGroupMaintenancePolicyMaintenanceWindowArgs{
+//							Day:       pulumi.String("friday"),
+//							StartTime: pulumi.String("10:00"),
+//							Duration:  pulumi.String("4h30m"),
+//						},
+//					},
+//				},
+//				WorkloadIdentityFederation: &yandex.KubernetesNodeGroupWorkloadIdentityFederationArgs{
+//					Enabled: pulumi.Bool(true),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `allowedUnsafeSysctls` (List Of String). A list of allowed unsafe `sysctl` parameters for this node group. For more details see [documentation](https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster).
+// - `clusterId` (**Required**)(String). The ID of the Kubernetes cluster that this node group belongs to.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `id` (String).
+// - `instanceGroupId` (*Read-Only*) (String). ID of instance group that is used to manage this Kubernetes node group.
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `nodeLabels` (Map Of String). A set of key/value label pairs, that are assigned to all the nodes of this Kubernetes node group.
+// - `nodeTaints` (List Of String). A list of Kubernetes taints, that are applied to all the nodes of this Kubernetes node group.
+// - `status` (*Read-Only*) (String). Status of the Kubernetes node group.
+// - `variables` (Map Of String). Variables for templating as key/value pairs.
+// - `version` (String). Version of Kubernetes that will be used for Kubernetes node group.
+// - `versionInfo` (*Read-Only*) (List Of Object). Information about Kubernetes node group version.
+//   - `currentVersion` .
+//   - `newRevisionAvailable` .
+//   - `newRevisionSummary` .
+//   - `versionDeprecated` .
+//
+// - `allocationPolicy` [Block]. This argument specify subnets (zones), that will be used by node group compute instances.
+//   - `location` [Block]. Repeated field, that specify subnets (zones), that will be used by node group compute instances. Subnet specified by `subnetId` should be allocated in zone specified by 'zone' argument.
+//   - `subnetId` (String). ID of the subnet, that will be used by one compute instance in node group.
+//   - `zone` (String). ID of the availability zone where for one compute instance in node group.
+//
+// - `deployPolicy` [Block]. Deploy policy of the node group.
+//   - `maxExpansion` (**Required**)(Number). The maximum number of instances that can be temporarily allocated above the group's target size during the update.
+//   - `maxUnavailable` (**Required**)(Number). The maximum number of running instances that can be taken offline during update.
+//
+// - `instanceTemplate` [Block]. Template used to create compute instances in this Kubernetes node group.
+//
+//   - `labels` (Map Of String). Labels that will be assigned to compute nodes (instances), created by the Node Group.
+//
+//   - `metadata` (Map Of String). The set of metadata `key:value` pairs assigned to this instance template. This includes custom metadata and predefined keys. **Note**: key `user-data` won't be provided into instances. It reserved for internal activity in `kubernetesNodeGroup` resource.
+//
+//   - `name` (String). Name template of the instance. In order to be unique it must contain at least one of instance unique placeholders:
+//
+//   - `{instance.short_id}`
+//
+//   - `{instance.index}`
+//
+//   - combination of `{instance.zone_id}` and `{instance.index_in_zone}`
+//
+//     Example: `my-instance-{instance.index}`.
+//
+//     If not set, default is used: `{instance_group.id}-{instance.short_id}`. It may also contain another placeholders, see [Compute Instance group metadata doc](https://yandex.cloud/docs/compute/instancegroup/api-ref/grpc/InstanceGroup) for full list.
+//
+//   - `nat` (Bool). Enables NAT for node group compute instances.
+//
+//   - `networkAccelerationType` (String). Type of network acceleration. Values: `standard`, `softwareAccelerated`.
+//
+//   - `platformId` (String). The ID of the hardware platform configuration for the node group compute instances.
+//
+//   - `reservedInstancePoolId` (String). ID of the reserved instance pool.
+//
+//   - `bootDisk` [Block]. The specifications for boot disks that will be attached to the instance.
+//
+//   - `size` (Number). The size of the disk in GB. Allowed minimal size: 64 GB.
+//
+//   - `type` (String). The disk type.
+//
+//   - `containerNetwork` [Block]. Container network configuration.
+//
+//   - `podMtu` (Number). MTU for pods.
+//
+//   - `containerRuntime` [Block]. Container runtime configuration.
+//
+//   - `type` (**Required**)(String). Type of container runtime. Values: `docker`, `containerd`.
+//
+//   - `gpuSettings` [Block]. GPU settings.
+//
+//   - `gpuClusterId` (String). GPU cluster id.
+//
+//   - `gpuEnvironment` (String). GPU environment. Values: `runc`, `runcDriversCuda`.
+//
+//   - `networkInterface` [Block]. An array with the network interfaces that will be attached to the instance.
+//
+//   - `ipv4` (Bool). Allocate an IPv4 address for the interface. The default value is `true`.
+//
+//   - `ipv6` (Bool). If true, allocate an IPv6 address for the interface. The address will be automatically assigned from the specified subnet.
+//
+//   - `nat` (Bool). A public address that can be used to access the internet over NAT.
+//
+//   - `securityGroupIds` (Set Of String). Security group IDs for network interface.
+//
+//   - `subnetIds` (**Required**)(Set Of String). The IDs of the subnets.
+//
+//   - `ipv4DnsRecords` [Block]. List of configurations for creating ipv4 DNS records.
+//
+//   - `dnsZoneId` (String). DNS zone ID (if not set, private zone is used).
+//
+//   - `fqdn` (**Required**)(String). DNS record FQDN.
+//
+//   - `ptr` (Bool). When set to `true`, also create a PTR DNS record.
+//
+//   - `ttl` (Number). DNS record TTL (in seconds).
+//
+//   - `ipv6DnsRecords` [Block]. List of configurations for creating ipv6 DNS records.
+//
+//   - `dnsZoneId` (String). DNS zone ID (if not set, private zone is used).
+//
+//   - `fqdn` (**Required**)(String). DNS record FQDN.
+//
+//   - `ptr` (Bool). When set to `true`, also create a PTR DNS record.
+//
+//   - `ttl` (Number). DNS record TTL (in seconds).
+//
+//   - `placementPolicy` [Block]. The placement policy configuration.
+//
+//   - `placementGroupId` (**Required**)(String). Specifies the id of the Placement Group to assign to the instances.
+//
+//   - `resources` [Block]. Instance resource configuration.
+//
+//   - `coreFraction` (Number). Baseline core performance as a percent.
+//
+//   - `cores` (Number). Number of CPU cores allocated to the instance.
+//
+//   - `gpus` (Number). Number of GPU cores allocated to the instance.
+//
+//   - `memory` (Number). The memory size allocated to the instance.
+//
+//   - `schedulingPolicy` [Block]. The scheduling policy for the instances in node group.
+//
+//   - `preemptible` (Bool). Specifies if the instance is preemptible. Defaults to `false`.
+//
+// - `maintenancePolicy` [Block]. Maintenance policy for this Kubernetes node group. If policy is omitted, automatic revision upgrades are enabled and could happen at any time. Revision upgrades are performed only within the same minor version, e.g. `1.29`. Minor version upgrades (e.g. `1.29`->`1.30`) should be performed manually.
+//
+//   - `autoRepair` (**Required**)(Bool). Flag that specifies if node group can be repaired automatically. When omitted, default value is `true`.
+//
+//   - `autoUpgrade` (**Required**)(Bool). Flag specifies if node group can be upgraded automatically. When omitted, default value is `true`.
+//
+//   - `maintenanceWindow` [Block]. Set of day intervals, when maintenance is allowed for this node group. When omitted, it defaults to any time.
+//
+//     To specify time of day interval, for all days, one element should be provided, with two fields set, `startTime` and `duration`.
+//
+//     To allow maintenance only on specific days of week, please provide list of elements, with all fields set. Only one time interval is allowed for each day of week. Please see `myNodeGroup` config example.
+//
+//   - `day` (String). Day of week, on which maintenance is allowed.
+//
+//   - `duration` (**Required**)(String). Duration of maintenance from start_time.
+//
+//   - `startTime` (**Required**)(String). Start time of maintenance in day.
+//
+// - `scalePolicy` [Block]. Scale policy of the node group.
+//   - `autoScale` [Block]. Scale policy for an autoscaled node group.
+//   - `initial` (**Required**)(Number). Initial number of instances in the node group.
+//   - `max` (**Required**)(Number). Maximum number of instances in the node group.
+//   - `min` (**Required**)(Number). Minimum number of instances in the node group.
+//   - `fixedScale` [Block]. Scale policy for a fixed scale node group.
+//   - `size` (Number). The number of instances in the node group.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// - `workloadIdentityFederation` [Block]. Workload Identity Federation configuration.
+//   - `enabled` (**Required**)(Bool). Identifies whether Workload Identity Federation is enabled.
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_kubernetes_node_group.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/kubernetesNodeGroup:KubernetesNodeGroup my_node_group ...
+// ```
 type KubernetesNodeGroup struct {
 	pulumi.CustomResourceState
 
@@ -45,10 +305,14 @@ type KubernetesNodeGroup struct {
 	ScalePolicy KubernetesNodeGroupScalePolicyOutput `pulumi:"scalePolicy"`
 	// Status of the Kubernetes node group.
 	Status pulumi.StringOutput `pulumi:"status"`
+	// Variables for templating as key/value pairs.
+	Variables pulumi.StringMapOutput `pulumi:"variables"`
 	// Version of Kubernetes that will be used for Kubernetes node group.
 	Version pulumi.StringOutput `pulumi:"version"`
 	// Information about Kubernetes node group version.
 	VersionInfos KubernetesNodeGroupVersionInfoArrayOutput `pulumi:"versionInfos"`
+	// Workload Identity Federation configuration.
+	WorkloadIdentityFederation KubernetesNodeGroupWorkloadIdentityFederationPtrOutput `pulumi:"workloadIdentityFederation"`
 }
 
 // NewKubernetesNodeGroup registers a new resource with the given unique name, arguments, and options.
@@ -120,10 +384,14 @@ type kubernetesNodeGroupState struct {
 	ScalePolicy *KubernetesNodeGroupScalePolicy `pulumi:"scalePolicy"`
 	// Status of the Kubernetes node group.
 	Status *string `pulumi:"status"`
+	// Variables for templating as key/value pairs.
+	Variables map[string]string `pulumi:"variables"`
 	// Version of Kubernetes that will be used for Kubernetes node group.
 	Version *string `pulumi:"version"`
 	// Information about Kubernetes node group version.
 	VersionInfos []KubernetesNodeGroupVersionInfo `pulumi:"versionInfos"`
+	// Workload Identity Federation configuration.
+	WorkloadIdentityFederation *KubernetesNodeGroupWorkloadIdentityFederation `pulumi:"workloadIdentityFederation"`
 }
 
 type KubernetesNodeGroupState struct {
@@ -157,10 +425,14 @@ type KubernetesNodeGroupState struct {
 	ScalePolicy KubernetesNodeGroupScalePolicyPtrInput
 	// Status of the Kubernetes node group.
 	Status pulumi.StringPtrInput
+	// Variables for templating as key/value pairs.
+	Variables pulumi.StringMapInput
 	// Version of Kubernetes that will be used for Kubernetes node group.
 	Version pulumi.StringPtrInput
 	// Information about Kubernetes node group version.
 	VersionInfos KubernetesNodeGroupVersionInfoArrayInput
+	// Workload Identity Federation configuration.
+	WorkloadIdentityFederation KubernetesNodeGroupWorkloadIdentityFederationPtrInput
 }
 
 func (KubernetesNodeGroupState) ElementType() reflect.Type {
@@ -192,8 +464,12 @@ type kubernetesNodeGroupArgs struct {
 	NodeTaints []string `pulumi:"nodeTaints"`
 	// Scale policy of the node group.
 	ScalePolicy KubernetesNodeGroupScalePolicy `pulumi:"scalePolicy"`
+	// Variables for templating as key/value pairs.
+	Variables map[string]string `pulumi:"variables"`
 	// Version of Kubernetes that will be used for Kubernetes node group.
 	Version *string `pulumi:"version"`
+	// Workload Identity Federation configuration.
+	WorkloadIdentityFederation *KubernetesNodeGroupWorkloadIdentityFederation `pulumi:"workloadIdentityFederation"`
 }
 
 // The set of arguments for constructing a KubernetesNodeGroup resource.
@@ -222,8 +498,12 @@ type KubernetesNodeGroupArgs struct {
 	NodeTaints pulumi.StringArrayInput
 	// Scale policy of the node group.
 	ScalePolicy KubernetesNodeGroupScalePolicyInput
+	// Variables for templating as key/value pairs.
+	Variables pulumi.StringMapInput
 	// Version of Kubernetes that will be used for Kubernetes node group.
 	Version pulumi.StringPtrInput
+	// Workload Identity Federation configuration.
+	WorkloadIdentityFederation KubernetesNodeGroupWorkloadIdentityFederationPtrInput
 }
 
 func (KubernetesNodeGroupArgs) ElementType() reflect.Type {
@@ -388,6 +668,11 @@ func (o KubernetesNodeGroupOutput) Status() pulumi.StringOutput {
 	return o.ApplyT(func(v *KubernetesNodeGroup) pulumi.StringOutput { return v.Status }).(pulumi.StringOutput)
 }
 
+// Variables for templating as key/value pairs.
+func (o KubernetesNodeGroupOutput) Variables() pulumi.StringMapOutput {
+	return o.ApplyT(func(v *KubernetesNodeGroup) pulumi.StringMapOutput { return v.Variables }).(pulumi.StringMapOutput)
+}
+
 // Version of Kubernetes that will be used for Kubernetes node group.
 func (o KubernetesNodeGroupOutput) Version() pulumi.StringOutput {
 	return o.ApplyT(func(v *KubernetesNodeGroup) pulumi.StringOutput { return v.Version }).(pulumi.StringOutput)
@@ -396,6 +681,13 @@ func (o KubernetesNodeGroupOutput) Version() pulumi.StringOutput {
 // Information about Kubernetes node group version.
 func (o KubernetesNodeGroupOutput) VersionInfos() KubernetesNodeGroupVersionInfoArrayOutput {
 	return o.ApplyT(func(v *KubernetesNodeGroup) KubernetesNodeGroupVersionInfoArrayOutput { return v.VersionInfos }).(KubernetesNodeGroupVersionInfoArrayOutput)
+}
+
+// Workload Identity Federation configuration.
+func (o KubernetesNodeGroupOutput) WorkloadIdentityFederation() KubernetesNodeGroupWorkloadIdentityFederationPtrOutput {
+	return o.ApplyT(func(v *KubernetesNodeGroup) KubernetesNodeGroupWorkloadIdentityFederationPtrOutput {
+		return v.WorkloadIdentityFederation
+	}).(KubernetesNodeGroupWorkloadIdentityFederationPtrOutput)
 }
 
 type KubernetesNodeGroupArrayOutput struct{ *pulumi.OutputState }

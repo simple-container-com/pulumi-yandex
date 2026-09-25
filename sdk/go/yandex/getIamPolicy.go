@@ -7,10 +7,72 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Generates an [IAM](https://yandex.cloud/docs/iam/) policy document that may be referenced by and applied to other Yandex Cloud Platform resources, such as the `ResourcemanagerFolder` resource.
+//
+// This data source is used to define [IAM](https://yandex.cloud/docs/iam/) policies to apply to other resources. Currently, defining a policy through a data source and referencing that policy from another resource is the only way to apply an IAM policy to a resource.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetIamPolicy(ctx, &yandex.GetIamPolicyArgs{
+//				Bindings: []yandex.GetIamPolicyBinding{
+//					{
+//						Members: []string{
+//							"userAccount:user_id_1",
+//						},
+//						Role: "admin",
+//					},
+//					{
+//						Members: []string{
+//							"userAccount:user_id_2",
+//						},
+//						Role: "viewer",
+//					},
+//				},
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `id` (String).
+// - `policyData` (*Read-Only*) (String). The above bindings serialized in a format suitable for referencing from a resource that supports IAM.
+// - `binding` [Block]. Defines a binding to be included in the policy document. Multiple `binding` arguments are supported.
+//   - `members` (**Required**)(Set Of String). An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following values:
+//
+// * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
+// * **serviceAccount:{service_account_id}**: A unique service account ID.
+// * **federatedUser:{federated_user_id}:**: A unique saml federation user account ID.
+// * **group:{group_id}**: A unique group ID.
+// * **system:group:federation:{federation_id}:users**: All users in federation.
+// * **system:group:organization:{organization_id}:users**: All users in organization.
+// * **system:allAuthenticatedUsers**: All authenticated users.
+// * **system:allUsers**: All users, including unauthenticated ones.
+//
+// > For more information about system groups, see the [documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+//
+//   - `role` (**Required**)(String). The role/permission that will be granted to the members. See the [IAM Roles](https://yandex.cloud/docs/iam/concepts/access-control/roles) documentation for a complete list of roles.
 func GetIamPolicy(ctx *pulumi.Context, args *GetIamPolicyArgs, opts ...pulumi.InvokeOption) (*GetIamPolicyResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv GetIamPolicyResult

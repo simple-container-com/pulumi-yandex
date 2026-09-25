@@ -8,10 +8,67 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud IoT Device](https://yandex.cloud/docs/iot-core/quickstart).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new IoT Core Device.
+//			_, err := yandex.NewIotCoreDevice(ctx, "myDevice", &yandex.IotCoreDeviceArgs{
+//				Aliases: pulumi.StringMap{
+//					"some_alias1/subtopic": pulumi.String("$devices/{id}/events/somesubtopic"),
+//					"some_alias2/subtopic": pulumi.String("$devices/{id}/events/aaa/bbb"),
+//				},
+//				Certificates: pulumi.StringArray{
+//					pulumi.String("public part of certificate1"),
+//					pulumi.String("public part of certificate2"),
+//				},
+//				Description: pulumi.String("any description"),
+//				Passwords: pulumi.StringArray{
+//					pulumi.String("my-password1"),
+//					pulumi.String("my-password2"),
+//				},
+//				RegistryId: pulumi.String("are1sampleregistryid11"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `aliases` (Map Of String). A set of key/value aliases pairs to assign to the IoT Core Device.
+// - `certificates` (Set Of String). A set of certificate's fingerprints for the IoT Core Device.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (**Required**)(String). The resource name.
+// - `passwords` (Set Of String). A set of passwords's id for the IoT Core Device.
+// - `registryId` (**Required**)(String). IoT Core Registry ID for the IoT Core Device.
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
 type IotCoreDevice struct {
 	pulumi.CustomResourceState
 

@@ -8,10 +8,83 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Creates a new container repository lifecycle policy. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/lifecycle-policy).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create new Container Repository and Container Repository Lifecycle Policy for it.
+//			_, err := yandex.NewContainerRegistry(ctx, "myRegistry", nil)
+//			if err != nil {
+//				return err
+//			}
+//			myRepository, err := yandex.NewContainerRepository(ctx, "myRepository", nil)
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewContainerRepositoryLifecyclePolicy(ctx, "myLifecyclePolicy", &yandex.ContainerRepositoryLifecyclePolicyArgs{
+//				Status:       pulumi.String("active"),
+//				RepositoryId: myRepository.ContainerRepositoryId,
+//				Rules: yandex.ContainerRepositoryLifecyclePolicyRuleArray{
+//					&yandex.ContainerRepositoryLifecyclePolicyRuleArgs{
+//						Description: pulumi.String("my description"),
+//						Untagged:    pulumi.Bool(true),
+//						TagRegexp:   pulumi.String(".*"),
+//						RetainedTop: pulumi.Int(1),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `id` (String).
+// - `name` (String). The resource name.
+// - `repositoryId` (**Required**)(String). The ID of the repository that the resource belongs to.
+// - `status` (**Required**)(String). The status of lifecycle policy. Must be `active` or `disabled`.
+// - `rule` [Block]. Repository rules.
+//   - `description` (String). Description of the lifecycle policy.
+//   - `expirePeriod` (String). The period of time that must pass after creating a image for it to suit the automatic deletion criteria. It must be a multiple of 24 hours.
+//   - `retainedTop` (Number). The number of images to be retained even if the `expirePeriod` already expired.
+//   - `tagRegexp` (String). Tag to specify a filter as a regular expression. For example `.*` - all images with tags.
+//   - `untagged` (Bool). If enabled, rules apply to untagged Docker images.
+//
+// - `timeouts` [Block].
+//   - `default` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_container_repository_lifecycle_policy.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/containerRepositoryLifecyclePolicy:ContainerRepositoryLifecyclePolicy my_lifecycle_policy ...
+// ```
 type ContainerRepositoryLifecyclePolicy struct {
 	pulumi.CustomResourceState
 

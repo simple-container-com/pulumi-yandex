@@ -7,13 +7,43 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
-func GetServerlessEventrouterBus(ctx *pulumi.Context, args *GetServerlessEventrouterBusArgs, opts ...pulumi.InvokeOption) (*GetServerlessEventrouterBusResult, error) {
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `busId` (String). ID of the bus
+// - `cloudId` (*Read-Only*) (String). ID of the cloud that the bus resides in
+// - `createdAt` (*Read-Only*) (String). Creation timestamp
+// - `deletionProtection` (*Read-Only*) (Bool). Deletion protection
+// - `description` (*Read-Only*) (String). Description of the bus
+// - `folderId` (*Read-Only*) (String). ID of the folder that the bus belongs to
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). Bus labels
+// - `name` (String). Name of the bus
+func LookupServerlessEventrouterBus(ctx *pulumi.Context, args *LookupServerlessEventrouterBusArgs, opts ...pulumi.InvokeOption) (*LookupServerlessEventrouterBusResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
-	var rv GetServerlessEventrouterBusResult
+	var rv LookupServerlessEventrouterBusResult
 	err := ctx.Invoke("yandex:index/getServerlessEventrouterBus:getServerlessEventrouterBus", args, &rv, opts...)
 	if err != nil {
 		return nil, err
@@ -22,13 +52,13 @@ func GetServerlessEventrouterBus(ctx *pulumi.Context, args *GetServerlessEventro
 }
 
 // A collection of arguments for invoking getServerlessEventrouterBus.
-type GetServerlessEventrouterBusArgs struct {
+type LookupServerlessEventrouterBusArgs struct {
 	BusId *string `pulumi:"busId"`
 	Name  *string `pulumi:"name"`
 }
 
 // A collection of values returned by getServerlessEventrouterBus.
-type GetServerlessEventrouterBusResult struct {
+type LookupServerlessEventrouterBusResult struct {
 	BusId              *string `pulumi:"busId"`
 	CloudId            string  `pulumi:"cloudId"`
 	CreatedAt          string  `pulumi:"createdAt"`
@@ -41,77 +71,77 @@ type GetServerlessEventrouterBusResult struct {
 	Name   *string           `pulumi:"name"`
 }
 
-func GetServerlessEventrouterBusOutput(ctx *pulumi.Context, args GetServerlessEventrouterBusOutputArgs, opts ...pulumi.InvokeOption) GetServerlessEventrouterBusResultOutput {
+func LookupServerlessEventrouterBusOutput(ctx *pulumi.Context, args LookupServerlessEventrouterBusOutputArgs, opts ...pulumi.InvokeOption) LookupServerlessEventrouterBusResultOutput {
 	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetServerlessEventrouterBusResultOutput, error) {
-			args := v.(GetServerlessEventrouterBusArgs)
+		ApplyT(func(v interface{}) (LookupServerlessEventrouterBusResultOutput, error) {
+			args := v.(LookupServerlessEventrouterBusArgs)
 			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("yandex:index/getServerlessEventrouterBus:getServerlessEventrouterBus", args, GetServerlessEventrouterBusResultOutput{}, options).(GetServerlessEventrouterBusResultOutput), nil
-		}).(GetServerlessEventrouterBusResultOutput)
+			return ctx.InvokeOutput("yandex:index/getServerlessEventrouterBus:getServerlessEventrouterBus", args, LookupServerlessEventrouterBusResultOutput{}, options).(LookupServerlessEventrouterBusResultOutput), nil
+		}).(LookupServerlessEventrouterBusResultOutput)
 }
 
 // A collection of arguments for invoking getServerlessEventrouterBus.
-type GetServerlessEventrouterBusOutputArgs struct {
+type LookupServerlessEventrouterBusOutputArgs struct {
 	BusId pulumi.StringPtrInput `pulumi:"busId"`
 	Name  pulumi.StringPtrInput `pulumi:"name"`
 }
 
-func (GetServerlessEventrouterBusOutputArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetServerlessEventrouterBusArgs)(nil)).Elem()
+func (LookupServerlessEventrouterBusOutputArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupServerlessEventrouterBusArgs)(nil)).Elem()
 }
 
 // A collection of values returned by getServerlessEventrouterBus.
-type GetServerlessEventrouterBusResultOutput struct{ *pulumi.OutputState }
+type LookupServerlessEventrouterBusResultOutput struct{ *pulumi.OutputState }
 
-func (GetServerlessEventrouterBusResultOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetServerlessEventrouterBusResult)(nil)).Elem()
+func (LookupServerlessEventrouterBusResultOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupServerlessEventrouterBusResult)(nil)).Elem()
 }
 
-func (o GetServerlessEventrouterBusResultOutput) ToGetServerlessEventrouterBusResultOutput() GetServerlessEventrouterBusResultOutput {
+func (o LookupServerlessEventrouterBusResultOutput) ToLookupServerlessEventrouterBusResultOutput() LookupServerlessEventrouterBusResultOutput {
 	return o
 }
 
-func (o GetServerlessEventrouterBusResultOutput) ToGetServerlessEventrouterBusResultOutputWithContext(ctx context.Context) GetServerlessEventrouterBusResultOutput {
+func (o LookupServerlessEventrouterBusResultOutput) ToLookupServerlessEventrouterBusResultOutputWithContext(ctx context.Context) LookupServerlessEventrouterBusResultOutput {
 	return o
 }
 
-func (o GetServerlessEventrouterBusResultOutput) BusId() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v GetServerlessEventrouterBusResult) *string { return v.BusId }).(pulumi.StringPtrOutput)
+func (o LookupServerlessEventrouterBusResultOutput) BusId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v LookupServerlessEventrouterBusResult) *string { return v.BusId }).(pulumi.StringPtrOutput)
 }
 
-func (o GetServerlessEventrouterBusResultOutput) CloudId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetServerlessEventrouterBusResult) string { return v.CloudId }).(pulumi.StringOutput)
+func (o LookupServerlessEventrouterBusResultOutput) CloudId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupServerlessEventrouterBusResult) string { return v.CloudId }).(pulumi.StringOutput)
 }
 
-func (o GetServerlessEventrouterBusResultOutput) CreatedAt() pulumi.StringOutput {
-	return o.ApplyT(func(v GetServerlessEventrouterBusResult) string { return v.CreatedAt }).(pulumi.StringOutput)
+func (o LookupServerlessEventrouterBusResultOutput) CreatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupServerlessEventrouterBusResult) string { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-func (o GetServerlessEventrouterBusResultOutput) DeletionProtection() pulumi.BoolOutput {
-	return o.ApplyT(func(v GetServerlessEventrouterBusResult) bool { return v.DeletionProtection }).(pulumi.BoolOutput)
+func (o LookupServerlessEventrouterBusResultOutput) DeletionProtection() pulumi.BoolOutput {
+	return o.ApplyT(func(v LookupServerlessEventrouterBusResult) bool { return v.DeletionProtection }).(pulumi.BoolOutput)
 }
 
-func (o GetServerlessEventrouterBusResultOutput) Description() pulumi.StringOutput {
-	return o.ApplyT(func(v GetServerlessEventrouterBusResult) string { return v.Description }).(pulumi.StringOutput)
+func (o LookupServerlessEventrouterBusResultOutput) Description() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupServerlessEventrouterBusResult) string { return v.Description }).(pulumi.StringOutput)
 }
 
-func (o GetServerlessEventrouterBusResultOutput) FolderId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetServerlessEventrouterBusResult) string { return v.FolderId }).(pulumi.StringOutput)
+func (o LookupServerlessEventrouterBusResultOutput) FolderId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupServerlessEventrouterBusResult) string { return v.FolderId }).(pulumi.StringOutput)
 }
 
 // The provider-assigned unique ID for this managed resource.
-func (o GetServerlessEventrouterBusResultOutput) Id() pulumi.StringOutput {
-	return o.ApplyT(func(v GetServerlessEventrouterBusResult) string { return v.Id }).(pulumi.StringOutput)
+func (o LookupServerlessEventrouterBusResultOutput) Id() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupServerlessEventrouterBusResult) string { return v.Id }).(pulumi.StringOutput)
 }
 
-func (o GetServerlessEventrouterBusResultOutput) Labels() pulumi.StringMapOutput {
-	return o.ApplyT(func(v GetServerlessEventrouterBusResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
+func (o LookupServerlessEventrouterBusResultOutput) Labels() pulumi.StringMapOutput {
+	return o.ApplyT(func(v LookupServerlessEventrouterBusResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
 }
 
-func (o GetServerlessEventrouterBusResultOutput) Name() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v GetServerlessEventrouterBusResult) *string { return v.Name }).(pulumi.StringPtrOutput)
+func (o LookupServerlessEventrouterBusResultOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v LookupServerlessEventrouterBusResult) *string { return v.Name }).(pulumi.StringPtrOutput)
 }
 
 func init() {
-	pulumi.RegisterOutputType(GetServerlessEventrouterBusResultOutput{})
+	pulumi.RegisterOutputType(LookupServerlessEventrouterBusResultOutput{})
 }

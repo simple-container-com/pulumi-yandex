@@ -7,13 +7,57 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
-func GetIamServiceAccount(ctx *pulumi.Context, args *GetIamServiceAccountArgs, opts ...pulumi.InvokeOption) (*GetIamServiceAccountResult, error) {
+// Get information about a Yandex IAM service account. For more information about accounts, see [Yandex Cloud IAM accounts](https://yandex.cloud/docs/iam/concepts/#accounts).
+//
+// > One of `serviceAccountId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetIamServiceAccount(ctx, &yandex.LookupIamServiceAccountArgs{
+//				ServiceAccountId: pulumi.StringRef("aje5a**********qspd3"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.GetIamServiceAccount(ctx, &yandex.LookupIamServiceAccountArgs{
+//				Name: pulumi.StringRef("sa_name"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `name` (String). The resource name.
+// - `serviceAccountId` (String). ID of a specific service account.
+func LookupIamServiceAccount(ctx *pulumi.Context, args *LookupIamServiceAccountArgs, opts ...pulumi.InvokeOption) (*LookupIamServiceAccountResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
-	var rv GetIamServiceAccountResult
+	var rv LookupIamServiceAccountResult
 	err := ctx.Invoke("yandex:index/getIamServiceAccount:getIamServiceAccount", args, &rv, opts...)
 	if err != nil {
 		return nil, err
@@ -22,14 +66,14 @@ func GetIamServiceAccount(ctx *pulumi.Context, args *GetIamServiceAccountArgs, o
 }
 
 // A collection of arguments for invoking getIamServiceAccount.
-type GetIamServiceAccountArgs struct {
+type LookupIamServiceAccountArgs struct {
 	FolderId         *string `pulumi:"folderId"`
 	Name             *string `pulumi:"name"`
 	ServiceAccountId *string `pulumi:"serviceAccountId"`
 }
 
 // A collection of values returned by getIamServiceAccount.
-type GetIamServiceAccountResult struct {
+type LookupIamServiceAccountResult struct {
 	CreatedAt   string `pulumi:"createdAt"`
 	Description string `pulumi:"description"`
 	FolderId    string `pulumi:"folderId"`
@@ -39,66 +83,66 @@ type GetIamServiceAccountResult struct {
 	ServiceAccountId string `pulumi:"serviceAccountId"`
 }
 
-func GetIamServiceAccountOutput(ctx *pulumi.Context, args GetIamServiceAccountOutputArgs, opts ...pulumi.InvokeOption) GetIamServiceAccountResultOutput {
+func LookupIamServiceAccountOutput(ctx *pulumi.Context, args LookupIamServiceAccountOutputArgs, opts ...pulumi.InvokeOption) LookupIamServiceAccountResultOutput {
 	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetIamServiceAccountResultOutput, error) {
-			args := v.(GetIamServiceAccountArgs)
+		ApplyT(func(v interface{}) (LookupIamServiceAccountResultOutput, error) {
+			args := v.(LookupIamServiceAccountArgs)
 			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("yandex:index/getIamServiceAccount:getIamServiceAccount", args, GetIamServiceAccountResultOutput{}, options).(GetIamServiceAccountResultOutput), nil
-		}).(GetIamServiceAccountResultOutput)
+			return ctx.InvokeOutput("yandex:index/getIamServiceAccount:getIamServiceAccount", args, LookupIamServiceAccountResultOutput{}, options).(LookupIamServiceAccountResultOutput), nil
+		}).(LookupIamServiceAccountResultOutput)
 }
 
 // A collection of arguments for invoking getIamServiceAccount.
-type GetIamServiceAccountOutputArgs struct {
+type LookupIamServiceAccountOutputArgs struct {
 	FolderId         pulumi.StringPtrInput `pulumi:"folderId"`
 	Name             pulumi.StringPtrInput `pulumi:"name"`
 	ServiceAccountId pulumi.StringPtrInput `pulumi:"serviceAccountId"`
 }
 
-func (GetIamServiceAccountOutputArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetIamServiceAccountArgs)(nil)).Elem()
+func (LookupIamServiceAccountOutputArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupIamServiceAccountArgs)(nil)).Elem()
 }
 
 // A collection of values returned by getIamServiceAccount.
-type GetIamServiceAccountResultOutput struct{ *pulumi.OutputState }
+type LookupIamServiceAccountResultOutput struct{ *pulumi.OutputState }
 
-func (GetIamServiceAccountResultOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetIamServiceAccountResult)(nil)).Elem()
+func (LookupIamServiceAccountResultOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupIamServiceAccountResult)(nil)).Elem()
 }
 
-func (o GetIamServiceAccountResultOutput) ToGetIamServiceAccountResultOutput() GetIamServiceAccountResultOutput {
+func (o LookupIamServiceAccountResultOutput) ToLookupIamServiceAccountResultOutput() LookupIamServiceAccountResultOutput {
 	return o
 }
 
-func (o GetIamServiceAccountResultOutput) ToGetIamServiceAccountResultOutputWithContext(ctx context.Context) GetIamServiceAccountResultOutput {
+func (o LookupIamServiceAccountResultOutput) ToLookupIamServiceAccountResultOutputWithContext(ctx context.Context) LookupIamServiceAccountResultOutput {
 	return o
 }
 
-func (o GetIamServiceAccountResultOutput) CreatedAt() pulumi.StringOutput {
-	return o.ApplyT(func(v GetIamServiceAccountResult) string { return v.CreatedAt }).(pulumi.StringOutput)
+func (o LookupIamServiceAccountResultOutput) CreatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupIamServiceAccountResult) string { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-func (o GetIamServiceAccountResultOutput) Description() pulumi.StringOutput {
-	return o.ApplyT(func(v GetIamServiceAccountResult) string { return v.Description }).(pulumi.StringOutput)
+func (o LookupIamServiceAccountResultOutput) Description() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupIamServiceAccountResult) string { return v.Description }).(pulumi.StringOutput)
 }
 
-func (o GetIamServiceAccountResultOutput) FolderId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetIamServiceAccountResult) string { return v.FolderId }).(pulumi.StringOutput)
+func (o LookupIamServiceAccountResultOutput) FolderId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupIamServiceAccountResult) string { return v.FolderId }).(pulumi.StringOutput)
 }
 
 // The provider-assigned unique ID for this managed resource.
-func (o GetIamServiceAccountResultOutput) Id() pulumi.StringOutput {
-	return o.ApplyT(func(v GetIamServiceAccountResult) string { return v.Id }).(pulumi.StringOutput)
+func (o LookupIamServiceAccountResultOutput) Id() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupIamServiceAccountResult) string { return v.Id }).(pulumi.StringOutput)
 }
 
-func (o GetIamServiceAccountResultOutput) Name() pulumi.StringOutput {
-	return o.ApplyT(func(v GetIamServiceAccountResult) string { return v.Name }).(pulumi.StringOutput)
+func (o LookupIamServiceAccountResultOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupIamServiceAccountResult) string { return v.Name }).(pulumi.StringOutput)
 }
 
-func (o GetIamServiceAccountResultOutput) ServiceAccountId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetIamServiceAccountResult) string { return v.ServiceAccountId }).(pulumi.StringOutput)
+func (o LookupIamServiceAccountResultOutput) ServiceAccountId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupIamServiceAccountResult) string { return v.ServiceAccountId }).(pulumi.StringOutput)
 }
 
 func init() {
-	pulumi.RegisterOutputType(GetIamServiceAccountResultOutput{})
+	pulumi.RegisterOutputType(LookupIamServiceAccountResultOutput{})
 }

@@ -7,10 +7,74 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud IoT Registry](https://yandex.cloud/docs/iot-core/quickstart).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new IoT Core Registry.
+//			_, err := yandex.NewIotCoreRegistry(ctx, "myRegistry", &yandex.IotCoreRegistryArgs{
+//				Certificates: pulumi.StringArray{
+//					pulumi.String("public part of certificate1"),
+//					pulumi.String("public part of certificate2"),
+//				},
+//				Description: pulumi.String("any description"),
+//				Labels: pulumi.StringMap{
+//					"my-label": pulumi.String("my-label-value"),
+//				},
+//				LogOptions: &yandex.IotCoreRegistryLogOptionsArgs{
+//					LogGroupId: pulumi.String("log-group-id"),
+//					MinLevel:   pulumi.String("ERROR"),
+//				},
+//				Passwords: pulumi.StringArray{
+//					pulumi.String("my-password1"),
+//					pulumi.String("my-password2"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `certificates` (Set Of String). A set of certificate's fingerprints for the IoT Core Registry.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (**Required**)(String). The resource name.
+// - `passwords` (Set Of String). A set of passwords's id for the IoT Core Registry.
+// - `logOptions` [Block]. Options for logging for IoT Core Registry.
+//   - `disabled` (Bool). Is logging for registry disabled.
+//   - `folderId` (String). Log entries are written to default log group for specified folder.
+//   - `logGroupId` (String). Log entries are written to specified log group.
+//   - `minLevel` (String). Minimum log entry level.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
 type IotCoreRegistry struct {
 	pulumi.CustomResourceState
 

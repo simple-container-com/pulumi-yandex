@@ -7,10 +7,157 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud Functions Trigger](https://yandex.cloud/docs/functions/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Cloud Function Trigger.
+//			_, err := yandex.NewFunctionTrigger(ctx, "myTrigger", &yandex.FunctionTriggerArgs{
+//				Description: pulumi.String("any description"),
+//				Function: &yandex.FunctionTriggerFunctionArgs{
+//					Id: pulumi.String("tf-test"),
+//				},
+//				Timer: &yandex.FunctionTriggerTimerArgs{
+//					CronExpression: pulumi.String("* * * * ? *"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (**Required**)(String). The resource name.
+// - `container` [Block]. [Yandex Cloud Serverless Container](https://yandex.cloud/docs/serverless-containers/concepts/container) settings definition for Yandex Cloud Functions Trigger.
+//   - `id` (**Required**)(String). Yandex Cloud Serverless Container ID for Yandex Cloud Functions Trigger.
+//   - `path` (String). Path for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger.
+//   - `retryAttempts` (String). Retry attempts for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger.
+//   - `retryInterval` (String). Retry interval in seconds for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger.
+//   - `serviceAccountId` (String). Service account ID for Yandex Cloud Serverless Container for Yandex Cloud Functions Trigger.
+//
+// - `containerRegistry` [Block]. [Container Registry](https://yandex.cloud/docs/functions/concepts/trigger/cr-trigger) settings definition for Yandex Cloud Functions Trigger, if present.
+//   - `batchCutoff` (**Required**)(String). Batch Duration in seconds for Yandex Cloud Functions Trigger.
+//   - `batchSize` (String). Batch Size for Yandex Cloud Functions Trigger.
+//   - `createImage` (Bool). Boolean flag for setting `create image` event for Yandex Cloud Functions Trigger.
+//   - `createImageTag` (Bool). Boolean flag for setting `create image tag` event for Yandex Cloud Functions Trigger.
+//   - `deleteImage` (Bool). Boolean flag for setting `delete image` event for Yandex Cloud Functions Trigger.
+//   - `deleteImageTag` (Bool). Boolean flag for setting `delete image tag` event for Yandex Cloud Functions Trigger.
+//   - `imageName` (String). Image name filter setting for Yandex Cloud Functions Trigger.
+//   - `registryId` (**Required**)(String). Container Registry ID for Yandex Cloud Functions Trigger.
+//   - `tag` (String). Image tag filter setting for Yandex Cloud Functions Trigger.
+//
+// - `dataStreams` [Block]. [Data Streams](https://yandex.cloud/docs/functions/concepts/trigger/data-streams-trigger) settings definition for Yandex Cloud Functions Trigger, if present.
+//   - `batchCutoff` (**Required**)(String). Batch Duration in seconds for Yandex Cloud Functions Trigger.
+//   - `batchSize` (String). Batch Size for Yandex Cloud Functions Trigger.
+//   - `database` (**Required**)(String). Stream database for Yandex Cloud Functions Trigger.
+//   - `serviceAccountId` (**Required**)(String). Service account ID to access data stream for Yandex Cloud Functions Trigger.
+//   - `streamName` (**Required**)(String). Stream name for Yandex Cloud Functions Trigger.
+//
+// - `dlq` [Block]. Dead Letter Queue (DLQ) settings definition for Yandex Cloud Functions Trigger.
+//   - `queueId` (**Required**)(String). ID of Dead Letter Queue for Trigger (Queue ARN).
+//   - `serviceAccountId` (**Required**)(String). Service Account ID for Dead Letter Queue for Yandex Cloud Functions Trigger.
+//
+// - `function` [Block]. [Yandex Cloud Function](https://yandex.cloud/docs/functions/concepts/function) settings definition for Yandex Cloud Functions Trigger.
+//   - `id` (**Required**)(String). Yandex Cloud Function ID.
+//   - `retryAttempts` (String). Retry attempts for Yandex Cloud Function for Yandex Cloud Functions Trigger.
+//   - `retryInterval` (String). Retry interval in seconds for Yandex Cloud Function for Yandex Cloud Functions Trigger.
+//   - `serviceAccountId` (String). Service account ID for Yandex Cloud Function.
+//   - `tag` (String). Tag for Yandex Cloud Function for Yandex Cloud Functions Trigger.
+//
+// - `iot` [Block]. [IoT](https://yandex.cloud/docs/functions/concepts/trigger/iot-core-trigger) settings definition for Yandex Cloud Functions Trigger, if present. Only one section `iot` or `messageQueue`.
+//   - `batchCutoff` (**Required**)(String). Batch Duration in seconds for Yandex Cloud Functions Trigger.
+//   - `batchSize` (String). Batch Size for Yandex Cloud Functions Trigger.
+//   - `deviceId` (String). IoT Device ID for Yandex Cloud Functions Trigger.
+//   - `registryId` (**Required**)(String). IoT Registry ID for Yandex Cloud Functions Trigger.
+//   - `topic` (String). IoT Topic for Yandex Cloud Functions Trigger.
+//
+// - `logGroup` [Block]. Deprecated Logging settings definition for Yandex Cloud Functions Trigger. Please, use logging instead.
+//   - `batchCutoff` (**Required**)(String). Batch Duration in seconds for Yandex Cloud Functions Trigger.
+//   - `batchSize` (String). Batch Size for Yandex Cloud Functions Trigger.
+//   - `logGroupIds` (**Required**)(Set Of String). Log group IDs for Yandex Cloud Functions Trigger.
+//
+// - `logging` [Block]. [Logging](https://yandex.cloud/docs/functions/concepts/trigger/cloud-logging-trigger) settings definition for Yandex Cloud Functions Trigger, if present.
+//   - `batchCutoff` (**Required**)(String). Batch Duration in seconds for Yandex Cloud Functions Trigger.
+//   - `batchSize` (String). Batch Size for Yandex Cloud Functions Trigger.
+//   - `groupId` (**Required**)(String). Logging group ID for Yandex Cloud Functions Trigger.
+//   - `levels` (Set Of String). Logging level filter setting for Yandex Cloud Functions Trigger.
+//   - `resourceIds` (Set Of String). Resource ID filter setting for Yandex Cloud Functions Trigger.
+//   - `resourceTypes` (Set Of String). Resource type filter setting for Yandex Cloud Functions Trigger.
+//   - `streamNames` (Set Of String). Logging stream name filter setting for Yandex Cloud Functions Trigger.
+//
+// - `mail` [Block]. [Mail](https://yandex.cloud/docs/functions/concepts/trigger/mail-trigger) settings definition for Yandex Cloud Functions Trigger, if present.
+//   - `attachmentsBucketId` (String). Object Storage Bucket ID for Yandex Cloud Functions Trigger.
+//   - `batchCutoff` (**Required**)(String). Batch Duration in seconds for Yandex Cloud Functions Trigger.
+//   - `batchSize` (String). Batch Size for Yandex Cloud Functions Trigger.
+//   - `serviceAccountId` (String). Service account ID to access object storage for Yandex Cloud Functions Trigger.
+//
+// - `messageQueue` [Block]. [Message Queue](https://yandex.cloud/docs/functions/concepts/trigger/ymq-trigger) settings definition for Yandex Cloud Functions Trigger, if present.
+//   - `batchCutoff` (**Required**)(String). Batch Duration in seconds for Yandex Cloud Functions Trigger.
+//   - `batchSize` (String). Batch Size for Yandex Cloud Functions Trigger.
+//   - `queueId` (**Required**)(String). Message Queue ID for Yandex Cloud Functions Trigger.
+//   - `serviceAccountId` (**Required**)(String). Message Queue Service Account ID for Yandex Cloud Functions Trigger.
+//   - `visibilityTimeout` (String). Visibility timeout for Yandex Cloud Functions Trigger.
+//
+// - `objectStorage` [Block]. [Object Storage](https://yandex.cloud/docs/functions/concepts/trigger/os-trigger) settings definition for Yandex Cloud Functions Trigger, if present.
+//   - `batchCutoff` (**Required**)(String). Batch Duration in seconds for Yandex Cloud Functions Trigger.
+//   - `batchSize` (String). Batch Size for Yandex Cloud Functions Trigger.
+//   - `bucketId` (**Required**)(String). Object Storage Bucket ID for Yandex Cloud Functions Trigger.
+//   - `create` (Bool). Boolean flag for setting `create` event for Yandex Cloud Functions Trigger.
+//   - `delete` (Bool). Boolean flag for setting `delete` event for Yandex Cloud Functions Trigger.
+//   - `prefix` (String). Prefix for Object Storage for Yandex Cloud Functions Trigger.
+//   - `suffix` (String). Suffix for Object Storage for Yandex Cloud Functions Trigger.
+//   - `update` (Bool). Boolean flag for setting `update` event for Yandex Cloud Functions Trigger.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// - `timer` [Block]. [Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present.
+//   - `cronExpression` (**Required**)(String). Cron expression for timer for Yandex Cloud Functions Trigger.
+//   - `payload` (String). Payload to be passed to function.
+//
+// - `workflow` [Block]. Workflows settings definition for Yandex Cloud Functions Trigger.
+//   - `id` (**Required**)(String). Workflow ID.
+//   - `retryAttempts` (String). Retry attempts for Workflows.
+//   - `retryInterval` (String). Retry interval in seconds for Workflows.
+//   - `serviceAccountId` (**Required**)(String). Service account ID for Workflows.
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_function_trigger.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/functionTrigger:FunctionTrigger my_trigger a1scn**********3ur32
+// ```
 type FunctionTrigger struct {
 	pulumi.CustomResourceState
 
@@ -48,6 +195,8 @@ type FunctionTrigger struct {
 	ObjectStorage FunctionTriggerObjectStoragePtrOutput `pulumi:"objectStorage"`
 	// [Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present.
 	Timer FunctionTriggerTimerPtrOutput `pulumi:"timer"`
+	// Workflows settings definition for Yandex Cloud Functions Trigger.
+	Workflow FunctionTriggerWorkflowPtrOutput `pulumi:"workflow"`
 }
 
 // NewFunctionTrigger registers a new resource with the given unique name, arguments, and options.
@@ -114,6 +263,8 @@ type functionTriggerState struct {
 	ObjectStorage *FunctionTriggerObjectStorage `pulumi:"objectStorage"`
 	// [Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present.
 	Timer *FunctionTriggerTimer `pulumi:"timer"`
+	// Workflows settings definition for Yandex Cloud Functions Trigger.
+	Workflow *FunctionTriggerWorkflow `pulumi:"workflow"`
 }
 
 type FunctionTriggerState struct {
@@ -151,6 +302,8 @@ type FunctionTriggerState struct {
 	ObjectStorage FunctionTriggerObjectStoragePtrInput
 	// [Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present.
 	Timer FunctionTriggerTimerPtrInput
+	// Workflows settings definition for Yandex Cloud Functions Trigger.
+	Workflow FunctionTriggerWorkflowPtrInput
 }
 
 func (FunctionTriggerState) ElementType() reflect.Type {
@@ -190,6 +343,8 @@ type functionTriggerArgs struct {
 	ObjectStorage *FunctionTriggerObjectStorage `pulumi:"objectStorage"`
 	// [Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present.
 	Timer *FunctionTriggerTimer `pulumi:"timer"`
+	// Workflows settings definition for Yandex Cloud Functions Trigger.
+	Workflow *FunctionTriggerWorkflow `pulumi:"workflow"`
 }
 
 // The set of arguments for constructing a FunctionTrigger resource.
@@ -226,6 +381,8 @@ type FunctionTriggerArgs struct {
 	ObjectStorage FunctionTriggerObjectStoragePtrInput
 	// [Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present.
 	Timer FunctionTriggerTimerPtrInput
+	// Workflows settings definition for Yandex Cloud Functions Trigger.
+	Workflow FunctionTriggerWorkflowPtrInput
 }
 
 func (FunctionTriggerArgs) ElementType() reflect.Type {
@@ -398,6 +555,11 @@ func (o FunctionTriggerOutput) ObjectStorage() FunctionTriggerObjectStoragePtrOu
 // [Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present.
 func (o FunctionTriggerOutput) Timer() FunctionTriggerTimerPtrOutput {
 	return o.ApplyT(func(v *FunctionTrigger) FunctionTriggerTimerPtrOutput { return v.Timer }).(FunctionTriggerTimerPtrOutput)
+}
+
+// Workflows settings definition for Yandex Cloud Functions Trigger.
+func (o FunctionTriggerOutput) Workflow() FunctionTriggerWorkflowPtrOutput {
+	return o.ApplyT(func(v *FunctionTrigger) FunctionTriggerWorkflowPtrOutput { return v.Workflow }).(FunctionTriggerWorkflowPtrOutput)
 }
 
 type FunctionTriggerArrayOutput struct{ *pulumi.OutputState }

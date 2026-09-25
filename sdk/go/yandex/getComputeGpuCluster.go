@@ -7,13 +7,64 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
-func GetComputeGpuCluster(ctx *pulumi.Context, args *GetComputeGpuClusterArgs, opts ...pulumi.InvokeOption) (*GetComputeGpuClusterResult, error) {
+// Get information about a Yandex Compute GPU cluster. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/gpu-cluster).
+//
+// > One of `gpuClusterId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myGpuCluster, err := yandex.GetComputeGpuCluster(ctx, &yandex.LookupComputeGpuClusterArgs{
+//				GpuClusterId: pulumi.StringRef("some_gpu_cluster_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			// You can use "data.yandex_compute_gpu_cluster.my_gpu_cluster.id" identifier
+//			// as reference to the existing resource.
+//			// ...
+//			_, err = yandex.NewComputeInstance(ctx, "default", &yandex.ComputeInstanceArgs{
+//				GpuClusterId: pulumi.String(myGpuCluster.Id),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `gpuClusterId` (String). ID of the GPU cluster.
+// - `id` (String).
+// - `interconnectType` (*Read-Only*) (String). Type of interconnect between nodes to use in GPU cluster. Type `INFINIBAND` is set by default, and it is the only one available at the moment.
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `status` (*Read-Only*) (String). The status of the GPU cluster.
+// - `zone` (*Read-Only*) (String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+func LookupComputeGpuCluster(ctx *pulumi.Context, args *LookupComputeGpuClusterArgs, opts ...pulumi.InvokeOption) (*LookupComputeGpuClusterResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
-	var rv GetComputeGpuClusterResult
+	var rv LookupComputeGpuClusterResult
 	err := ctx.Invoke("yandex:index/getComputeGpuCluster:getComputeGpuCluster", args, &rv, opts...)
 	if err != nil {
 		return nil, err
@@ -22,14 +73,14 @@ func GetComputeGpuCluster(ctx *pulumi.Context, args *GetComputeGpuClusterArgs, o
 }
 
 // A collection of arguments for invoking getComputeGpuCluster.
-type GetComputeGpuClusterArgs struct {
+type LookupComputeGpuClusterArgs struct {
 	FolderId     *string `pulumi:"folderId"`
 	GpuClusterId *string `pulumi:"gpuClusterId"`
 	Name         *string `pulumi:"name"`
 }
 
 // A collection of values returned by getComputeGpuCluster.
-type GetComputeGpuClusterResult struct {
+type LookupComputeGpuClusterResult struct {
 	CreatedAt    string `pulumi:"createdAt"`
 	Description  string `pulumi:"description"`
 	FolderId     string `pulumi:"folderId"`
@@ -43,82 +94,82 @@ type GetComputeGpuClusterResult struct {
 	Zone             string            `pulumi:"zone"`
 }
 
-func GetComputeGpuClusterOutput(ctx *pulumi.Context, args GetComputeGpuClusterOutputArgs, opts ...pulumi.InvokeOption) GetComputeGpuClusterResultOutput {
+func LookupComputeGpuClusterOutput(ctx *pulumi.Context, args LookupComputeGpuClusterOutputArgs, opts ...pulumi.InvokeOption) LookupComputeGpuClusterResultOutput {
 	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetComputeGpuClusterResultOutput, error) {
-			args := v.(GetComputeGpuClusterArgs)
+		ApplyT(func(v interface{}) (LookupComputeGpuClusterResultOutput, error) {
+			args := v.(LookupComputeGpuClusterArgs)
 			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("yandex:index/getComputeGpuCluster:getComputeGpuCluster", args, GetComputeGpuClusterResultOutput{}, options).(GetComputeGpuClusterResultOutput), nil
-		}).(GetComputeGpuClusterResultOutput)
+			return ctx.InvokeOutput("yandex:index/getComputeGpuCluster:getComputeGpuCluster", args, LookupComputeGpuClusterResultOutput{}, options).(LookupComputeGpuClusterResultOutput), nil
+		}).(LookupComputeGpuClusterResultOutput)
 }
 
 // A collection of arguments for invoking getComputeGpuCluster.
-type GetComputeGpuClusterOutputArgs struct {
+type LookupComputeGpuClusterOutputArgs struct {
 	FolderId     pulumi.StringPtrInput `pulumi:"folderId"`
 	GpuClusterId pulumi.StringPtrInput `pulumi:"gpuClusterId"`
 	Name         pulumi.StringPtrInput `pulumi:"name"`
 }
 
-func (GetComputeGpuClusterOutputArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetComputeGpuClusterArgs)(nil)).Elem()
+func (LookupComputeGpuClusterOutputArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupComputeGpuClusterArgs)(nil)).Elem()
 }
 
 // A collection of values returned by getComputeGpuCluster.
-type GetComputeGpuClusterResultOutput struct{ *pulumi.OutputState }
+type LookupComputeGpuClusterResultOutput struct{ *pulumi.OutputState }
 
-func (GetComputeGpuClusterResultOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetComputeGpuClusterResult)(nil)).Elem()
+func (LookupComputeGpuClusterResultOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupComputeGpuClusterResult)(nil)).Elem()
 }
 
-func (o GetComputeGpuClusterResultOutput) ToGetComputeGpuClusterResultOutput() GetComputeGpuClusterResultOutput {
+func (o LookupComputeGpuClusterResultOutput) ToLookupComputeGpuClusterResultOutput() LookupComputeGpuClusterResultOutput {
 	return o
 }
 
-func (o GetComputeGpuClusterResultOutput) ToGetComputeGpuClusterResultOutputWithContext(ctx context.Context) GetComputeGpuClusterResultOutput {
+func (o LookupComputeGpuClusterResultOutput) ToLookupComputeGpuClusterResultOutputWithContext(ctx context.Context) LookupComputeGpuClusterResultOutput {
 	return o
 }
 
-func (o GetComputeGpuClusterResultOutput) CreatedAt() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeGpuClusterResult) string { return v.CreatedAt }).(pulumi.StringOutput)
+func (o LookupComputeGpuClusterResultOutput) CreatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeGpuClusterResult) string { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-func (o GetComputeGpuClusterResultOutput) Description() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeGpuClusterResult) string { return v.Description }).(pulumi.StringOutput)
+func (o LookupComputeGpuClusterResultOutput) Description() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeGpuClusterResult) string { return v.Description }).(pulumi.StringOutput)
 }
 
-func (o GetComputeGpuClusterResultOutput) FolderId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeGpuClusterResult) string { return v.FolderId }).(pulumi.StringOutput)
+func (o LookupComputeGpuClusterResultOutput) FolderId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeGpuClusterResult) string { return v.FolderId }).(pulumi.StringOutput)
 }
 
-func (o GetComputeGpuClusterResultOutput) GpuClusterId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeGpuClusterResult) string { return v.GpuClusterId }).(pulumi.StringOutput)
+func (o LookupComputeGpuClusterResultOutput) GpuClusterId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeGpuClusterResult) string { return v.GpuClusterId }).(pulumi.StringOutput)
 }
 
 // The provider-assigned unique ID for this managed resource.
-func (o GetComputeGpuClusterResultOutput) Id() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeGpuClusterResult) string { return v.Id }).(pulumi.StringOutput)
+func (o LookupComputeGpuClusterResultOutput) Id() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeGpuClusterResult) string { return v.Id }).(pulumi.StringOutput)
 }
 
-func (o GetComputeGpuClusterResultOutput) InterconnectType() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeGpuClusterResult) string { return v.InterconnectType }).(pulumi.StringOutput)
+func (o LookupComputeGpuClusterResultOutput) InterconnectType() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeGpuClusterResult) string { return v.InterconnectType }).(pulumi.StringOutput)
 }
 
-func (o GetComputeGpuClusterResultOutput) Labels() pulumi.StringMapOutput {
-	return o.ApplyT(func(v GetComputeGpuClusterResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
+func (o LookupComputeGpuClusterResultOutput) Labels() pulumi.StringMapOutput {
+	return o.ApplyT(func(v LookupComputeGpuClusterResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
 }
 
-func (o GetComputeGpuClusterResultOutput) Name() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeGpuClusterResult) string { return v.Name }).(pulumi.StringOutput)
+func (o LookupComputeGpuClusterResultOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeGpuClusterResult) string { return v.Name }).(pulumi.StringOutput)
 }
 
-func (o GetComputeGpuClusterResultOutput) Status() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeGpuClusterResult) string { return v.Status }).(pulumi.StringOutput)
+func (o LookupComputeGpuClusterResultOutput) Status() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeGpuClusterResult) string { return v.Status }).(pulumi.StringOutput)
 }
 
-func (o GetComputeGpuClusterResultOutput) Zone() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeGpuClusterResult) string { return v.Zone }).(pulumi.StringOutput)
+func (o LookupComputeGpuClusterResultOutput) Zone() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeGpuClusterResult) string { return v.Zone }).(pulumi.StringOutput)
 }
 
 func init() {
-	pulumi.RegisterOutputType(GetComputeGpuClusterResultOutput{})
+	pulumi.RegisterOutputType(LookupComputeGpuClusterResultOutput{})
 }

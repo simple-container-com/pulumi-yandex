@@ -7,10 +7,21 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Generates an [IAM](https://yandex.cloud/docs/iam/) role document that may be referenced by and applied to other Yandex Cloud Platform resources, such as the `ResourcemanagerFolder` resource. For more information, see [the official documentation](https://yandex.cloud/docs/iam/concepts/access-control/roles).
+//
+// This data source is used to define [IAM](https://yandex.cloud/docs/iam/) roles in order to apply them to other resources. Currently, defining a role through a data source and referencing that role from another resource is the only way to apply an IAM role to a resource.
+//
+// ## Example Usage
+//
+// ## Arguments & Attributes Reference
+//
+// - `description` (String).
+// - `id` (String).
+// - `roleId` (String).
 func GetIamRole(ctx *pulumi.Context, args *GetIamRoleArgs, opts ...pulumi.InvokeOption) (*GetIamRoleResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv GetIamRoleResult

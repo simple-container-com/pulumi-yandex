@@ -8,10 +8,60 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud Organization Manager Group Mapping](https://yandex.cloud/docs/organization/concepts/add-federation#group-mapping). It supports the creation, updating(enabling/disabling), and deletion of group mapping.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new OrganizationManager Group Mapping.
+//			_, err := yandex.NewOrganizationmanagerGroupMapping(ctx, "myGroupMap", &yandex.OrganizationmanagerGroupMappingArgs{
+//				Enabled:      pulumi.Bool(true),
+//				FederationId: pulumi.String("my-federation-id"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `enabled` (Bool). Set "true" to enable organization manager group mapping.
+// - `federationId` (**Required**)(String). ID of the SAML Federation.
+// - `id` (String).
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_organizationmanager_group_mapping.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/organizationmanagerGroupMapping:OrganizationmanagerGroupMapping my_group_map ...
+// ```
 type OrganizationmanagerGroupMapping struct {
 	pulumi.CustomResourceState
 

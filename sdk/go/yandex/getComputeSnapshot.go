@@ -7,10 +7,73 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Compute snapshot. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/snapshot).
+//
+// > One of `snapshotId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			mySnapshot, err := yandex.GetComputeSnapshot(ctx, &yandex.LookupComputeSnapshotArgs{
+//				SnapshotId: pulumi.StringRef("some_snapshot_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			// You can use "data.yandex_compute_snapshot.my_snapshot.id" identifier
+//			// as reference to existing resource.
+//			// ...
+//			_, err = yandex.NewComputeInstance(ctx, "default", &yandex.ComputeInstanceArgs{
+//				BootDisk: &yandex.ComputeInstanceBootDiskArgs{
+//					InitializeParams: &yandex.ComputeInstanceBootDiskInitializeParamsArgs{
+//						SnapshotId: pulumi.String(mySnapshot.Id),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `diskSize` (*Read-Only*) (Number). Size of the disk when the snapshot was created, specified in GB.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `hardwareGeneration` (*Read-Only*) (List Of Object).
+//   - `generation2Features` .
+//   - `legacyFeatures` .
+//   - `pciTopology` .
+//
+// - `id` (String).
+// - `kmsKeyId` (*Read-Only*) (String). ID of KMS symmetric key used to encrypt snapshot.
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `productIds` (*Read-Only*) (List Of String). License IDs that indicate which licenses are attached to this snapshot.
+// - `snapshotId` (String). The ID of a specific snapshot.
+// - `sourceDiskId` (*Read-Only*) (String). ID of the disk to create a snapshot from.
+// - `status` (*Read-Only*) (String). The status of the snapshot.
+// - `storageSize` (*Read-Only*) (Number). Size of the snapshot, specified in GB.
 func LookupComputeSnapshot(ctx *pulumi.Context, args *LookupComputeSnapshotArgs, opts ...pulumi.InvokeOption) (*LookupComputeSnapshotResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupComputeSnapshotResult

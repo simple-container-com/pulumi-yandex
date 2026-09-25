@@ -8,10 +8,245 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud Function](https://yandex.cloud/docs/functions)
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Yandex Cloud Function
+//			_, err := yandex.NewFunction(ctx, "test-function", &yandex.FunctionArgs{
+//				Description:      pulumi.String("any description"),
+//				UserHash:         pulumi.String("any_user_defined_string"),
+//				Runtime:          pulumi.String("python37"),
+//				Entrypoint:       pulumi.String("main"),
+//				Memory:           pulumi.Int(128),
+//				ExecutionTimeout: pulumi.String("10"),
+//				ServiceAccountId: pulumi.String("ajeih**********838kk"),
+//				Tags: pulumi.StringArray{
+//					pulumi.String("my_tag"),
+//				},
+//				Secrets: yandex.FunctionSecretArray{
+//					&yandex.FunctionSecretArgs{
+//						Id:                  pulumi.Any(yandex_lockbox_secret.Secret.Id),
+//						VersionId:           pulumi.Any(yandex_lockbox_secret_version.Secret_version.Id),
+//						Key:                 pulumi.String("secret-key"),
+//						EnvironmentVariable: pulumi.String("ENV_VARIABLE"),
+//					},
+//				},
+//				Content: &yandex.FunctionContentArgs{
+//					ZipFilename: pulumi.String("function.zip"),
+//				},
+//				Mounts: yandex.FunctionMountArray{
+//					&yandex.FunctionMountArgs{
+//						Name: pulumi.String("mnt"),
+//						EphemeralDisk: &yandex.FunctionMountEphemeralDiskArgs{
+//							SizeGb: pulumi.Int(32),
+//						},
+//					},
+//				},
+//				AsyncInvocation: &yandex.FunctionAsyncInvocationArgs{
+//					RetriesCount:     pulumi.Int(3),
+//					ServiceAccountId: pulumi.String("ajeih**********838kk"),
+//					YmqFailureTarget: &yandex.FunctionAsyncInvocationYmqFailureTargetArgs{
+//						ServiceAccountId: pulumi.String("ajeqr**********qb76m"),
+//						Arn:              pulumi.String("yrn:yc:ymq:ru-central1:b1glr**********9hsfp:fail"),
+//					},
+//					YmqSuccessTarget: &yandex.FunctionAsyncInvocationYmqSuccessTargetArgs{
+//						ServiceAccountId: pulumi.String("ajeqr**********qb76m"),
+//						Arn:              pulumi.String("yrn:yc:ymq:ru-central1:b1glr**********9hsfp:success"),
+//					},
+//				},
+//				LogOptions: &yandex.FunctionLogOptionsArgs{
+//					LogGroupId: pulumi.String("e2392**********eq9fr"),
+//					MinLevel:   pulumi.String("ERROR"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"fmt"
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			folderId := "folder_id"
+//			sa, err := yandex.NewIamServiceAccount(ctx, "sa", &yandex.IamServiceAccountArgs{
+//				FolderId: pulumi.String(folderId),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			sa_static_key, err := yandex.NewIamServiceAccountStaticAccessKey(ctx, "sa-static-key", &yandex.IamServiceAccountStaticAccessKeyArgs{
+//				ServiceAccountId: sa.IamServiceAccountId,
+//				Description:      pulumi.String("static access key for object storage"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			my_bucket, err := yandex.NewStorageBucket(ctx, "my-bucket", &yandex.StorageBucketArgs{
+//				AccessKey: sa_static_key.AccessKey,
+//				SecretKey: sa_static_key.SecretKey,
+//				Bucket:    pulumi.String("bucket"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new Yandex Cloud Function with mounted Object Storage Bucket.
+//			_, err = yandex.NewFunction(ctx, "test-function", &yandex.FunctionArgs{
+//				UserHash:         pulumi.String("v1"),
+//				Runtime:          pulumi.String("python37"),
+//				Entrypoint:       pulumi.String("index.handler"),
+//				Memory:           pulumi.Int(128),
+//				ExecutionTimeout: pulumi.String("10"),
+//				ServiceAccountId: sa.IamServiceAccountId,
+//				Content: &yandex.FunctionContentArgs{
+//					ZipFilename: pulumi.String("function.zip"),
+//				},
+//				Mounts: yandex.FunctionMountArray{
+//					&yandex.FunctionMountArgs{
+//						Name: pulumi.String("mnt"),
+//						Mode: pulumi.String("ro"),
+//						ObjectStorage: &yandex.FunctionMountObjectStorageArgs{
+//							Bucket: my_bucket.Bucket,
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewResourcemanagerFolderIamMember(ctx, "sa-editor", &yandex.ResourcemanagerFolderIamMemberArgs{
+//				FolderId: pulumi.String(folderId),
+//				Role:     pulumi.String("storage.editor"),
+//				Member: sa.IamServiceAccountId.ApplyT(func(iamServiceAccountId string) (string, error) {
+//					return fmt.Sprintf("serviceAccount:%v", iamServiceAccountId), nil
+//				}).(pulumi.StringOutput),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `concurrency` (Number). The maximum number of requests processed by a function instance at the same time.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `entrypoint` (**Required**)(String). Entrypoint for Yandex Cloud Function.
+// - `environment` (Map Of String). A set of key/value environment variables for Yandex Cloud Function. Each key must begin with a letter (A-Z, a-z).
+// - `executionTimeout` (String). Execution timeout in seconds for Yandex Cloud Function.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `imageSize` (*Read-Only*) (Number). Image size for Yandex Cloud Function.
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `memory` (**Required**)(Number). Memory in megabytes (**aligned to 128MB**) for Yandex Cloud Function.
+// - `name` (**Required**)(String). The resource name.
+// - `runtime` (**Required**)(String). Runtime for Yandex Cloud Function.
+// - `serviceAccountId` (String). [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+// - `tags` (Set Of String). Tags for Yandex Cloud Function. Tag `$latest` isn't returned.
+// - `tmpfsSize` (Number). Tmpfs size for Yandex Cloud Function.
+// - `userHash` (**Required**)(String). User-defined string for current function version. User must change this string any times when function changed. Function will be updated when hash is changed.
+// - `version` (*Read-Only*) (String). Version of Yandex Cloud Function.
+// - `asyncInvocation` [Block]. Config for asynchronous invocations of Yandex Cloud Function.
+//   - `retriesCount` (Number). Maximum number of retries for async invocation.
+//   - `serviceAccountId` (String). Service account used for async invocation.
+//   - `ymqFailureTarget` [Block]. Target for unsuccessful async invocation.
+//   - `arn` (**Required**)(String). YMQ ARN.
+//   - `serviceAccountId` (**Required**)(String). Service account used for writing result to queue.
+//   - `ymqSuccessTarget` [Block]. Target for successful async invocation.
+//   - `arn` (**Required**)(String). YMQ ARN.
+//   - `serviceAccountId` (**Required**)(String). Service account used for writing result to queue.
+//
+// - `connectivity` [Block]. Function version connectivity. If specified the version will be attached to specified network.
+//   - `networkId` (**Required**)(String). Network the version will have access to. It's essential to specify network with subnets in all availability zones.
+//
+// - `content` [Block]. Version deployment content for Yandex Cloud Function code. Can be only one `package` or `content` section. Either `package` or `content` section must be specified.
+//   - `zipFilename` (**Required**)(String). Filename to zip archive for the version.
+//
+// - `logOptions` [Block]. Options for logging from Yandex Cloud Function.
+//   - `disabled` (Bool). Is logging from function disabled.
+//   - `folderId` (String). Log entries are written to default log group for specified folder.
+//   - `logGroupId` (String). Log entries are written to specified log group.
+//   - `minLevel` (String). Minimum log entry level.
+//
+// - `metadataOptions` [Block]. Options set the access mode to function's metadata endpoints.
+//   - `awsV1HttpEndpoint` (Number). Enables access to AWS flavored metadata (IMDSv1). Values: `0` - default, `1` - enabled, `2` - disabled.
+//   - `gceHttpEndpoint` (Number). Enables access to GCE flavored metadata. Values: `0`- default, `1` - enabled, `2` - disabled.
+//
+// - `mounts` [Block]. Mounts for Yandex Cloud Function.
+//   - `mode` (String). Mount’s accessibility mode. Valid values are `ro` and `rw`.
+//   - `name` (**Required**)(String). Name of the mount point. The directory where the target is mounted will be accessible at the `/function/storage/<mounts.0.name>` path.
+//   - `ephemeralDisk` [Block]. One of the available mount types. Disk available during the function execution time.
+//   - `blockSizeKb` (Number). Optional block size of the ephemeral disk in KB.
+//   - `sizeGb` (**Required**)(Number). Size of the ephemeral disk in GB.
+//   - `objectStorage` [Block]. One of the available mount types. Object storage as a mount.
+//   - `bucket` (**Required**)(String). Name of the mounting bucket.
+//   - `prefix` (String). Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.
+//
+// - `package` [Block]. Version deployment package for Yandex Cloud Function code. Can be only one `package` or `content` section. Either `package` or `content` section must be specified.
+//   - `bucketName` (**Required**)(String). Name of the bucket that stores the code for the version.
+//   - `objectName` (**Required**)(String). Name of the object in the bucket that stores the code for the version.
+//   - `sha256` (String). SHA256 hash of the version deployment package.
+//
+// - `secrets` [Block]. Secrets for Yandex Cloud Function.
+//   - `environmentVariable` (**Required**)(String). Function's environment variable in which secret's value will be stored. Must begin with a letter (A-Z, a-z).
+//   - `id` (**Required**)(String). Secret's ID.
+//   - `key` (**Required**)(String). Secret's entries key which value will be stored in environment variable.
+//   - `versionId` (**Required**)(String). Secret's version ID.
+//
+// - `storageMounts` [Block]. (**DEPRECATED**, use `mounts > objectStorage` instead). Storage mounts for Yandex Cloud Function.
+//   - `bucket` (**Required**)(String). Name of the mounting bucket.
+//   - `mountPointName` (**Required**)(String). Name of the mount point. The directory where the bucket is mounted will be accessible at the `/function/storage/<mount_point>` path.
+//   - `prefix` (String). Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.
+//   - `readOnly` (Bool). Mount the bucket in read-only mode.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_function.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/function:Function test-function d4e45**********pqvd3
+// ```
 type Function struct {
 	pulumi.CustomResourceState
 
@@ -22,8 +257,9 @@ type Function struct {
 	// Function version connectivity. If specified the version will be attached to specified network.
 	Connectivity FunctionConnectivityPtrOutput `pulumi:"connectivity"`
 	// Version deployment content for Yandex Cloud Function code. Can be only one `package` or `content` section. Either `package` or `content` section must be specified.
-	Content   FunctionContentPtrOutput `pulumi:"content"`
-	CreatedAt pulumi.StringOutput      `pulumi:"createdAt"`
+	Content FunctionContentPtrOutput `pulumi:"content"`
+	// The creation timestamp of the resource.
+	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
 	// The resource description.
 	Description pulumi.StringPtrOutput `pulumi:"description"`
 	// Entrypoint for Yandex Cloud Function.
@@ -119,8 +355,9 @@ type functionState struct {
 	// Function version connectivity. If specified the version will be attached to specified network.
 	Connectivity *FunctionConnectivity `pulumi:"connectivity"`
 	// Version deployment content for Yandex Cloud Function code. Can be only one `package` or `content` section. Either `package` or `content` section must be specified.
-	Content   *FunctionContent `pulumi:"content"`
-	CreatedAt *string          `pulumi:"createdAt"`
+	Content *FunctionContent `pulumi:"content"`
+	// The creation timestamp of the resource.
+	CreatedAt *string `pulumi:"createdAt"`
 	// The resource description.
 	Description *string `pulumi:"description"`
 	// Entrypoint for Yandex Cloud Function.
@@ -175,7 +412,8 @@ type FunctionState struct {
 	// Function version connectivity. If specified the version will be attached to specified network.
 	Connectivity FunctionConnectivityPtrInput
 	// Version deployment content for Yandex Cloud Function code. Can be only one `package` or `content` section. Either `package` or `content` section must be specified.
-	Content   FunctionContentPtrInput
+	Content FunctionContentPtrInput
+	// The creation timestamp of the resource.
 	CreatedAt pulumi.StringPtrInput
 	// The resource description.
 	Description pulumi.StringPtrInput
@@ -437,6 +675,7 @@ func (o FunctionOutput) Content() FunctionContentPtrOutput {
 	return o.ApplyT(func(v *Function) FunctionContentPtrOutput { return v.Content }).(FunctionContentPtrOutput)
 }
 
+// The creation timestamp of the resource.
 func (o FunctionOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *Function) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }

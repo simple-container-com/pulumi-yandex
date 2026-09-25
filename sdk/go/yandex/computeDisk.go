@@ -7,10 +7,129 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Persistent disks are used for data storage and function similarly to physical hard and solid state drives.
+//
+// A disk can be attached or detached from the virtual machine and can be located locally. A disk can be moved between virtual machines within the same availability zone. Each disk can be attached to only one virtual machine at a time.
+//
+// For more information about disks in Yandex Cloud, see:
+// * [Documentation](https://yandex.cloud/docs/compute/concepts/disk)
+// * How-to Guides:
+//   - [Attach and detach a disk](https://yandex.cloud/docs/compute/concepts/disk#attach-detach)
+//   - [Backup operation](https://yandex.cloud/docs/compute/concepts/disk#backup)
+//
+// > Only one of `imageId` or `snapshotId` can be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Compute Disk.
+//			_, err := yandex.NewComputeDisk(ctx, "myDisk", &yandex.ComputeDiskArgs{
+//				ImageId: pulumi.String("ubuntu-16.04-v20180727"),
+//				Labels: pulumi.StringMap{
+//					"environment": pulumi.String("test"),
+//				},
+//				Type: pulumi.String("network-ssd"),
+//				Zone: pulumi.String("ru-central1-a"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myPg, err := yandex.NewComputeDiskPlacementGroup(ctx, "myPg", &yandex.ComputeDiskPlacementGroupArgs{
+//				Zone: pulumi.String("ru-central1-b"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new Compute Disk and put it to the specific Placement Group.
+//			_, err = yandex.NewComputeDisk(ctx, "myVm", &yandex.ComputeDiskArgs{
+//				Size: pulumi.Int(93),
+//				Type: pulumi.String("network-ssd-nonreplicated"),
+//				Zone: pulumi.String("ru-central1-b"),
+//				DiskPlacementPolicy: &yandex.ComputeDiskDiskPlacementPolicyArgs{
+//					DiskPlacementGroupId: myPg.ComputeDiskPlacementGroupId,
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `allowRecreate` (Bool).
+// - `blockSize` (Number). Block size of the disk, specified in bytes.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `imageId` (String). The source image to use for disk creation.
+// - `kmsKeyId` (String). ID of KMS symmetric key used to encrypt disk.
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `productIds` (*Read-Only*) (List Of String).
+// - `size` (Number). Size of the persistent disk, specified in GB. You can specify this field when creating a persistent disk using the `imageId` or `snapshotId` parameter, or specify it alone to create an empty persistent disk. If you specify this field along with `imageId` or `snapshotId`, the size value must not be less than the size of the source image or the size of the snapshot.
+// - `snapshotId` (String). The source snapshot to use for disk creation.
+// - `status` (*Read-Only*) (String). The status of the disk.
+// - `type` (String). Type of disk to create. Provide this when creating a disk.
+// - `zone` (String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+// - `diskPlacementPolicy` [Block]. Disk placement policy configuration.
+//   - `diskPlacementGroupId` (**Required**)(String). Specifies Disk Placement Group id.
+//
+// - `hardwareGeneration` [Block]. Hardware generation and its features, which will be applied to the instance when this disk is used as a boot disk. Provide this property if you wish to override this value, which otherwise is inherited from the source.
+//   - `generation2Features` [Block]. A newer hardware generation, which always uses `PCI_TOPOLOGY_V2` and UEFI boot.
+//   - `legacyFeatures` [Block]. Defines the first known hardware generation and its features.
+//   - `pciTopology` (String). A variant of PCI topology, one of `PCI_TOPOLOGY_V1` or `PCI_TOPOLOGY_V2`.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_compute_disk.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/computeDisk:ComputeDisk my_disk fhmrm**********90r5f
+// ```
 type ComputeDisk struct {
 	pulumi.CustomResourceState
 

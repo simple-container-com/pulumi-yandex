@@ -7,10 +7,47 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Message Queue. For more information about Yandex Message Queue, see [Yandex Cloud Message Queue](https://yandex.cloud/docs/message-queue).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetMessageQueue(ctx, &yandex.LookupMessageQueueArgs{
+//				Name: "ymq_terraform_example",
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `accessKey` (String). The [access key](https://yandex.cloud/docs/iam/operations/sa/create-access-key) to use when applying changes. If omitted, `ymqAccessKey` specified in provider config is used. For more information see [documentation](https://yandex.cloud/docs/message-queue/quickstart).
+// - `arn` (*Read-Only*) (String). ARN of the Yandex Message Queue. It is used for setting up a [redrive policy](https://yandex.cloud/docs/message-queue/concepts/dlq). See [documentation](https://yandex.cloud/docs/message-queue/api-ref/queue/SetQueueAttributes).
+// - `id` (String).
+// - `name` (**Required**)(String). Queue name. The maximum length is 80 characters. You can use numbers, letters, underscores, and hyphens in the name. The name of a FIFO queue must end with the `.fifo` suffix. If not specified, random name will be generated. Conflicts with `namePrefix`. For more information see [documentation](https://yandex.cloud/docs/message-queue/api-ref/queue/CreateQueue).
+// - `regionId` (String). ID of the region where the message queue is located at. The default is 'ru-central1'.
+// - `secretKey` (String). The [secret key](https://yandex.cloud/docs/iam/operations/sa/create-access-key) to use when applying changes. If omitted, `ymqSecretKey` specified in provider config is used. For more information see [documentation](https://yandex.cloud/docs/message-queue/quickstart).
+// - `url` (*Read-Only*) (String). URL of the queue.
 func LookupMessageQueue(ctx *pulumi.Context, args *LookupMessageQueueArgs, opts ...pulumi.InvokeOption) (*LookupMessageQueueResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMessageQueueResult

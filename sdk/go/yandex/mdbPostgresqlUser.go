@@ -8,10 +8,185 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a PostgreSQL user within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.5.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			myCluster, err := yandex.NewMdbPostgresqlCluster(ctx, "myCluster", &yandex.MdbPostgresqlClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Config: &yandex.MdbPostgresqlClusterConfigArgs{
+//					Version: pulumi.String("15"),
+//					Resources: &yandex.MdbPostgresqlClusterConfigResourcesArgs{
+//						ResourcePresetId: pulumi.String("s2.micro"),
+//						DiskTypeId:       pulumi.String("network-ssd"),
+//						DiskSize:         pulumi.Int(16),
+//					},
+//				},
+//				Hosts: yandex.MdbPostgresqlClusterHostArray{
+//					&yandex.MdbPostgresqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB PostgreSQL database User.
+//			_, err = yandex.NewMdbPostgresqlUser(ctx, "myUser", &yandex.MdbPostgresqlUserArgs{
+//				ClusterId: myCluster.ID().ToIDOutput().ToStringOutput(),
+//				Password:  pulumi.String("password"),
+//				ConnLimit: pulumi.Int(50),
+//				Settings: pulumi.StringMap{
+//					"default_transaction_isolation": pulumi.String("read committed"),
+//					"log_min_duration_statement":    pulumi.String("5000"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `authMethod` (String). Authentication method for the user. Possible values are `AUTH_METHOD_PASSWORD`, `AUTH_METHOD_IAM`. Default is `AUTH_METHOD_PASSWORD`.
+// - `clusterId` (**Required**)(String). The ID of the PostgreSQL cluster.
+// - `connLimit` (Number). The maximum number of connections per user. (Default 50).
+// - `connectionManager` (*Read-Only*) (Map Of String). Connection Manager connection configuration. Populated from `userConnectionManager`.
+// - `deletionProtection` (String). The `true` value means that resource is protected from accidental deletion.
+// - `generatePassword` (Bool). Generate password using Connection Manager. Allowed values: true or false. It's used only during user creation and is ignored during updating.
+//
+// > **Must specify either password or generate_password**.
+//
+// - `grants` (List Of String). List of the user's grants.
+// - `id` (String).
+// - `login` (Bool). User's ability to login.
+// - `name` (**Required**)(String). The name of the PostgreSQL user.
+// - `password` (String). The password of the user.
+// - `passwordWo` (String). The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher
+// - `passwordWoVersion` (Number). A version number for the write-only password. Increment this to trigger a password update.
+// - `settings` (Map Of String). Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
+//
+//   - `defaultTransactionIsolation` - defines the default isolation level to be set for all new SQL transactions. One of:
+//
+//   - `read uncommitted`
+//
+//   - `read committed`
+//
+//   - `repeatable read`
+//
+//   - `serializable`
+//
+//   - `lockTimeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0)
+//
+//   - `logMinDurationStatement` - This setting controls logging of the duration of statements. (default -1 disables logging of the duration of statements.)
+//
+//   - `synchronousCommit` - This setting defines whether DBMS will commit transaction in a synchronous way. One of:
+//
+//   - `on`
+//
+//   - `off`
+//
+//   - `local`
+//
+//   - `remote write`
+//
+//   - `remote apply`
+//
+//   - `tempFileLimit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.
+//
+//   - `logStatement` - This setting specifies which SQL statements should be logged (on the user level). One of:
+//
+//   - `none`
+//
+//   - `ddl`
+//
+//   - `mod`
+//
+//   - `all`
+//
+//   - `poolMode` - Mode that the connection pooler is working in with specified user. One of:
+//
+//   - `session`
+//
+//   - `transaction`
+//
+//   - `statement`
+//
+//   - `preparedStatementsPooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.
+//
+//   - `catchupTimeout` - The connection pooler setting. It determines the maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this threshold. Default value is 0, which disables this feature. Integer.
+//
+//   - `walSenderTimeout` - The maximum time (in milliseconds) to wait for WAL replication (can be set only for PostgreSQL 12+). Terminate replication connections that are inactive for longer than this amount of time. Integer.
+//
+//   - `idleInTransactionSessionTimeout` - Sets the maximum allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout. Integer.
+//
+//   - `statementTimeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer.
+//
+//   - `pgaudit` - Settings of the PostgreSQL Audit Extension (pgaudit). [Full description](https://yandex.cloud/ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.PGAuditSettings). String (json with with escaped quotes). Example `"{\"log\": [\"READ\", \"WRITE\"]}"`
+//
+// - `userPasswordEncryption` (String). Password-based authentication method for user.
+// Possible values are `USER_PASSWORD_ENCRYPTION_MD5` or `USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256`.
+// The default is passwordEncryption setting for cluster.
+// - `permission` [Block]. Set of permissions granted to the user.
+//   - `databaseName` (**Required**)(String). The name of the database that the permission grants access to.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// - `userConnectionManager` [Block]. Connection Manager settings for the user.
+//   - `connectionFolderId` (String). ID of the folder where the connection is created. Defaults to the cluster's folder if not specified. Cannot be changed after user creation.
+//   - `connectionId` (*Read-Only*) (String). ID of the connection manager connection for this user. Computed by the server.
+//   - `secretFolderId` (String). ID of the folder where the secret is created. Defaults to the cluster's folder if not specified. Cannot be changed after user creation.
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_mdb_postgresql_user.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/mdbPostgresqlUser:MdbPostgresqlUser my_user ...
+// ```
 type MdbPostgresqlUser struct {
 	pulumi.CustomResourceState
 
@@ -21,7 +196,9 @@ type MdbPostgresqlUser struct {
 	ClusterId pulumi.StringOutput `pulumi:"clusterId"`
 	// The maximum number of connections per user. (Default 50).
 	ConnLimit pulumi.IntOutput `pulumi:"connLimit"`
-	// Connection Manager connection configuration. Filled in by the server automatically.
+	// Connection Manager connection configuration. Populated from `userConnectionManager`.
+	//
+	// Deprecated: The 'connection_manager' field has been deprecated. Please use 'user_connection_manager' instead.
 	ConnectionManager pulumi.StringMapOutput `pulumi:"connectionManager"`
 	// The `true` value means that resource is protected from accidental deletion.
 	DeletionProtection pulumi.StringPtrOutput `pulumi:"deletionProtection"`
@@ -37,6 +214,11 @@ type MdbPostgresqlUser struct {
 	Name pulumi.StringOutput `pulumi:"name"`
 	// The password of the user.
 	Password pulumi.StringPtrOutput `pulumi:"password"`
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher
+	PasswordWo pulumi.StringPtrOutput `pulumi:"passwordWo"`
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion pulumi.IntPtrOutput `pulumi:"passwordWoVersion"`
 	// Set of permissions granted to the user.
 	Permissions MdbPostgresqlUserPermissionArrayOutput `pulumi:"permissions"`
 	// Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
@@ -83,6 +265,8 @@ type MdbPostgresqlUser struct {
 	//
 	//   - `pgaudit` - Settings of the PostgreSQL Audit Extension (pgaudit). [Full description](https://yandex.cloud/ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.PGAuditSettings). String (json with with escaped quotes). Example `"{\"log\": [\"READ\", \"WRITE\"]}"`
 	Settings pulumi.StringMapOutput `pulumi:"settings"`
+	// Connection Manager settings for the user.
+	UserConnectionManager MdbPostgresqlUserUserConnectionManagerOutput `pulumi:"userConnectionManager"`
 	// Password-based authentication method for user.
 	// Possible values are `USER_PASSWORD_ENCRYPTION_MD5` or `USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256`.
 	// The default is passwordEncryption setting for cluster.
@@ -102,8 +286,12 @@ func NewMdbPostgresqlUser(ctx *pulumi.Context,
 	if args.Password != nil {
 		args.Password = pulumi.ToSecret(args.Password).(pulumi.StringPtrInput)
 	}
+	if args.PasswordWo != nil {
+		args.PasswordWo = pulumi.ToSecret(args.PasswordWo).(pulumi.StringPtrInput)
+	}
 	secrets := pulumi.AdditionalSecretOutputs([]string{
 		"password",
+		"passwordWo",
 	})
 	opts = append(opts, secrets)
 	opts = internal.PkgResourceDefaultOpts(opts)
@@ -135,7 +323,9 @@ type mdbPostgresqlUserState struct {
 	ClusterId *string `pulumi:"clusterId"`
 	// The maximum number of connections per user. (Default 50).
 	ConnLimit *int `pulumi:"connLimit"`
-	// Connection Manager connection configuration. Filled in by the server automatically.
+	// Connection Manager connection configuration. Populated from `userConnectionManager`.
+	//
+	// Deprecated: The 'connection_manager' field has been deprecated. Please use 'user_connection_manager' instead.
 	ConnectionManager map[string]string `pulumi:"connectionManager"`
 	// The `true` value means that resource is protected from accidental deletion.
 	DeletionProtection *string `pulumi:"deletionProtection"`
@@ -151,6 +341,11 @@ type mdbPostgresqlUserState struct {
 	Name *string `pulumi:"name"`
 	// The password of the user.
 	Password *string `pulumi:"password"`
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher
+	PasswordWo *string `pulumi:"passwordWo"`
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion *int `pulumi:"passwordWoVersion"`
 	// Set of permissions granted to the user.
 	Permissions []MdbPostgresqlUserPermission `pulumi:"permissions"`
 	// Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
@@ -197,6 +392,8 @@ type mdbPostgresqlUserState struct {
 	//
 	//   - `pgaudit` - Settings of the PostgreSQL Audit Extension (pgaudit). [Full description](https://yandex.cloud/ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.PGAuditSettings). String (json with with escaped quotes). Example `"{\"log\": [\"READ\", \"WRITE\"]}"`
 	Settings map[string]string `pulumi:"settings"`
+	// Connection Manager settings for the user.
+	UserConnectionManager *MdbPostgresqlUserUserConnectionManager `pulumi:"userConnectionManager"`
 	// Password-based authentication method for user.
 	// Possible values are `USER_PASSWORD_ENCRYPTION_MD5` or `USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256`.
 	// The default is passwordEncryption setting for cluster.
@@ -210,7 +407,9 @@ type MdbPostgresqlUserState struct {
 	ClusterId pulumi.StringPtrInput
 	// The maximum number of connections per user. (Default 50).
 	ConnLimit pulumi.IntPtrInput
-	// Connection Manager connection configuration. Filled in by the server automatically.
+	// Connection Manager connection configuration. Populated from `userConnectionManager`.
+	//
+	// Deprecated: The 'connection_manager' field has been deprecated. Please use 'user_connection_manager' instead.
 	ConnectionManager pulumi.StringMapInput
 	// The `true` value means that resource is protected from accidental deletion.
 	DeletionProtection pulumi.StringPtrInput
@@ -226,6 +425,11 @@ type MdbPostgresqlUserState struct {
 	Name pulumi.StringPtrInput
 	// The password of the user.
 	Password pulumi.StringPtrInput
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher
+	PasswordWo pulumi.StringPtrInput
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion pulumi.IntPtrInput
 	// Set of permissions granted to the user.
 	Permissions MdbPostgresqlUserPermissionArrayInput
 	// Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
@@ -272,6 +476,8 @@ type MdbPostgresqlUserState struct {
 	//
 	//   - `pgaudit` - Settings of the PostgreSQL Audit Extension (pgaudit). [Full description](https://yandex.cloud/ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.PGAuditSettings). String (json with with escaped quotes). Example `"{\"log\": [\"READ\", \"WRITE\"]}"`
 	Settings pulumi.StringMapInput
+	// Connection Manager settings for the user.
+	UserConnectionManager MdbPostgresqlUserUserConnectionManagerPtrInput
 	// Password-based authentication method for user.
 	// Possible values are `USER_PASSWORD_ENCRYPTION_MD5` or `USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256`.
 	// The default is passwordEncryption setting for cluster.
@@ -303,6 +509,11 @@ type mdbPostgresqlUserArgs struct {
 	Name *string `pulumi:"name"`
 	// The password of the user.
 	Password *string `pulumi:"password"`
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher
+	PasswordWo *string `pulumi:"passwordWo"`
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion *int `pulumi:"passwordWoVersion"`
 	// Set of permissions granted to the user.
 	Permissions []MdbPostgresqlUserPermission `pulumi:"permissions"`
 	// Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
@@ -349,6 +560,8 @@ type mdbPostgresqlUserArgs struct {
 	//
 	//   - `pgaudit` - Settings of the PostgreSQL Audit Extension (pgaudit). [Full description](https://yandex.cloud/ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.PGAuditSettings). String (json with with escaped quotes). Example `"{\"log\": [\"READ\", \"WRITE\"]}"`
 	Settings map[string]string `pulumi:"settings"`
+	// Connection Manager settings for the user.
+	UserConnectionManager *MdbPostgresqlUserUserConnectionManager `pulumi:"userConnectionManager"`
 	// Password-based authentication method for user.
 	// Possible values are `USER_PASSWORD_ENCRYPTION_MD5` or `USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256`.
 	// The default is passwordEncryption setting for cluster.
@@ -377,6 +590,11 @@ type MdbPostgresqlUserArgs struct {
 	Name pulumi.StringPtrInput
 	// The password of the user.
 	Password pulumi.StringPtrInput
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher
+	PasswordWo pulumi.StringPtrInput
+	// A version number for the write-only password. Increment this to trigger a password update.
+	PasswordWoVersion pulumi.IntPtrInput
 	// Set of permissions granted to the user.
 	Permissions MdbPostgresqlUserPermissionArrayInput
 	// Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
@@ -423,6 +641,8 @@ type MdbPostgresqlUserArgs struct {
 	//
 	//   - `pgaudit` - Settings of the PostgreSQL Audit Extension (pgaudit). [Full description](https://yandex.cloud/ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.PGAuditSettings). String (json with with escaped quotes). Example `"{\"log\": [\"READ\", \"WRITE\"]}"`
 	Settings pulumi.StringMapInput
+	// Connection Manager settings for the user.
+	UserConnectionManager MdbPostgresqlUserUserConnectionManagerPtrInput
 	// Password-based authentication method for user.
 	// Possible values are `USER_PASSWORD_ENCRYPTION_MD5` or `USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256`.
 	// The default is passwordEncryption setting for cluster.
@@ -531,7 +751,9 @@ func (o MdbPostgresqlUserOutput) ConnLimit() pulumi.IntOutput {
 	return o.ApplyT(func(v *MdbPostgresqlUser) pulumi.IntOutput { return v.ConnLimit }).(pulumi.IntOutput)
 }
 
-// Connection Manager connection configuration. Filled in by the server automatically.
+// Connection Manager connection configuration. Populated from `userConnectionManager`.
+//
+// Deprecated: The 'connection_manager' field has been deprecated. Please use 'user_connection_manager' instead.
 func (o MdbPostgresqlUserOutput) ConnectionManager() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *MdbPostgresqlUser) pulumi.StringMapOutput { return v.ConnectionManager }).(pulumi.StringMapOutput)
 }
@@ -566,6 +788,17 @@ func (o MdbPostgresqlUserOutput) Name() pulumi.StringOutput {
 // The password of the user.
 func (o MdbPostgresqlUserOutput) Password() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *MdbPostgresqlUser) pulumi.StringPtrOutput { return v.Password }).(pulumi.StringPtrOutput)
+}
+
+// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+// The password of the user. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher
+func (o MdbPostgresqlUserOutput) PasswordWo() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *MdbPostgresqlUser) pulumi.StringPtrOutput { return v.PasswordWo }).(pulumi.StringPtrOutput)
+}
+
+// A version number for the write-only password. Increment this to trigger a password update.
+func (o MdbPostgresqlUserOutput) PasswordWoVersion() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *MdbPostgresqlUser) pulumi.IntPtrOutput { return v.PasswordWoVersion }).(pulumi.IntPtrOutput)
 }
 
 // Set of permissions granted to the user.
@@ -634,6 +867,13 @@ func (o MdbPostgresqlUserOutput) Permissions() MdbPostgresqlUserPermissionArrayO
 //   - `pgaudit` - Settings of the PostgreSQL Audit Extension (pgaudit). [Full description](https://yandex.cloud/ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.PGAuditSettings). String (json with with escaped quotes). Example `"{\"log\": [\"READ\", \"WRITE\"]}"`
 func (o MdbPostgresqlUserOutput) Settings() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *MdbPostgresqlUser) pulumi.StringMapOutput { return v.Settings }).(pulumi.StringMapOutput)
+}
+
+// Connection Manager settings for the user.
+func (o MdbPostgresqlUserOutput) UserConnectionManager() MdbPostgresqlUserUserConnectionManagerOutput {
+	return o.ApplyT(func(v *MdbPostgresqlUser) MdbPostgresqlUserUserConnectionManagerOutput {
+		return v.UserConnectionManager
+	}).(MdbPostgresqlUserUserConnectionManagerOutput)
 }
 
 // Password-based authentication method for user.

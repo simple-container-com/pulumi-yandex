@@ -8,10 +8,219 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// A VM instance resource. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/vm).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"os"
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func readFileOrPanic(path string) string {
+//		data, err := os.ReadFile(path)
+//		if err != nil {
+//			panic(err.Error())
+//		}
+//		return string(data)
+//	}
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources for Compute Instance
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-a"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.5.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new Compute Instance
+//			_, err = yandex.NewComputeInstance(ctx, "default", &yandex.ComputeInstanceArgs{
+//				PlatformId: pulumi.String("standard-v3"),
+//				Zone:       pulumi.String("ru-central1-a"),
+//				Resources: &yandex.ComputeInstanceResourcesArgs{
+//					Cores:  pulumi.Int(2),
+//					Memory: pulumi.Float64(4),
+//				},
+//				BootDisk: &yandex.ComputeInstanceBootDiskArgs{
+//					DiskId: pulumi.Any(yandex_compute_disk.BootDisk.Id),
+//				},
+//				NetworkInterfaces: yandex.ComputeInstanceNetworkInterfaceArray{
+//					&yandex.ComputeInstanceNetworkInterfaceArgs{
+//						Index:    pulumi.Int(1),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//				Metadata: pulumi.StringMap{
+//					"foo":      pulumi.String("bar"),
+//					"ssh-keys": pulumi.Sprintf("ubuntu:%v", readFileOrPanic("~/.ssh/id_ed25519.pub")),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `allowRecreate` (Bool).
+// - `allowStoppingForUpdate` (Bool). If `true`, allows Terraform to stop the instance in order to update its properties. If you try to update a property that requires stopping the instance without setting this field, the update will fail.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `fqdn` (*Read-Only*) (String). The fully qualified DNS name of this instance.
+// - `gpuClusterId` (String). ID of the GPU cluster to attach this instance to.
+// - `hardwareGeneration` (*Read-Only*) (List Of Object).
+//   - `generation2Features` .
+//   - `legacyFeatures` .
+//   - `pciTopology` .
+//
+// - `hostname` (String). Host name for the instance. This field is used to generate the instance `fqdn` value. The host name must be unique within the network and region. If not specified, the host name will be equal to `id` of the instance and `fqdn` will be `<id>.auto.internal`. Otherwise FQDN will be `<hostname>.<region_id>.internal`.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `maintenanceGracePeriod` (String). Time between notification via metadata service and maintenance. E.g., `60s`.
+// - `maintenancePolicy` (String). Behavior on maintenance events. Can be: `unspecified`, `migrate`, `restart`. The default is `unspecified`.
+// - `metadata` (Map Of String). Metadata key/value pairs to make available from within the instance.
+// - `name` (String). The resource name.
+// - `networkAccelerationType` (String). Type of network acceleration. Can be `standard` or `softwareAccelerated`. The default is `standard`.
+// - `platformId` (String). The type of virtual machine to create.
+// - `reservedInstancePoolId` (String). ID of the reserved instance pool to attach this instance to.
+// - `serviceAccountId` (String). [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+// - `status` (*Read-Only*) (String). The status of this instance.
+// - `zone` (String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+// - `bootDisk` [Block]. The boot disk for the instance. Either `initializeParams` or `diskId` must be specified.
+//   - `autoDelete` (Bool). Defines whether the disk will be auto-deleted when the instance is deleted. The default value is `True`.
+//   - `deviceName` (String). Name that can be used to access an attached disk.
+//   - `diskId` (String). The ID of the existing disk (such as those managed by `ComputeDisk`) to attach as a boot disk.
+//   - `mode` (String). Type of access to the disk resource. By default, a disk is attached in `READ_WRITE` mode.
+//   - `initializeParams` [Block]. Parameters for a new disk that will be created alongside the new instance. Either `initializeParams` or `diskId` must be set. Either `imageId` or `snapshotId` must be specified.
+//   - `blockSize` (Number). Block size of the disk, specified in bytes.
+//   - `description` (String). Description of the boot disk.
+//   - `imageId` (String). A disk image to initialize this disk from.
+//   - `kmsKeyId` (String). ID of KMS symmetric key used to encrypt disk.
+//   - `name` (String). Name of the boot disk.
+//   - `size` (Number). Size of the disk in GB.
+//   - `snapshotId` (String). A snapshot to initialize this disk from.
+//   - `type` (String). Disk type.
+//
+// - `filesystem` [Block]. List of filesystems that are attached to the instance.
+//   - `deviceName` (String). Name of the device representing the filesystem on the instance.
+//   - `filesystemId` (**Required**)(String). ID of the filesystem that should be attached.
+//   - `mode` (String). Mode of access to the filesystem that should be attached. By default, filesystem is attached in `READ_WRITE` mode.
+//
+// - `localDisk` [Block]. List of local disks that are attached to the instance.
+//
+// > Local disks are not available for all users by default.
+//
+//   - `deviceName` (*Read-Only*) (String). The name of the local disk device.
+//   - `kmsKeyId` (String). The ID of the KMS key to encrypt the disk.
+//   - `sizeBytes` (**Required**)(Number). Size of the disk, specified in bytes.
+//
+// - `metadataOptions` [Block]. Options allow user to configure access to instance's metadata.
+//   - `awsV1HttpEndpoint` (Number).
+//   - `awsV1HttpToken` (Number).
+//   - `awsV2HttpEndpoint` (Number).
+//   - `awsV2HttpToken` (Number).
+//   - `gceHttpEndpoint` (Number).
+//   - `gceHttpToken` (Number).
+//
+// - `networkInterface` [Block]. Networks to attach to the instance. This can be specified multiple times.
+//   - `index` (Number). Index of network interface, will be calculated automatically for instance create or update operations if not specified. Required for attach/detach operations.
+//   - `ipAddress` (String). The private IP address to assign to the instance. If empty, the address will be automatically assigned from the specified subnet.
+//   - `ipv4` (Bool). Allocate an IPv4 address for the interface. The default value is `true`.
+//   - `ipv6` (Bool). If `true`, allocate an IPv6 address for the interface. The address will be automatically assigned from the specified subnet.
+//   - `ipv6Address` (String). The private IPv6 address to assign to the instance.
+//   - `macAddress` (*Read-Only*) (String).
+//   - `nat` (Bool). Provide a public address, for instance, to access the internet over NAT.
+//   - `natIpAddress` (String). Provide a public address, for instance, to access the internet over NAT. Address should be already reserved in web UI.
+//   - `natIpVersion` (*Read-Only*) (String).
+//   - `securityGroupIds` (Set Of String). Security Group (SG) IDs for network interface.
+//   - `subnetId` (**Required**)(String). ID of the subnet to attach this interface to. The subnet must exist in the same zone where this instance will be created.
+//   - `dnsRecord` [Block]. List of configurations for creating ipv4 DNS records.
+//   - `dnsZoneId` (String). DNS zone ID (if not set, private zone used).
+//   - `fqdn` (**Required**)(String). DNS record FQDN (must have a dot at the end).
+//   - `ptr` (Bool). When set to `true`, also create a PTR DNS record.
+//   - `ttl` (Number). DNS record TTL in seconds.
+//   - `ipv6DnsRecord` [Block]. List of configurations for creating ipv6 DNS records.
+//   - `dnsZoneId` (String). DNS zone ID (if not set, private zone used).
+//   - `fqdn` (**Required**)(String). DNS record FQDN (must have a dot at the end).
+//   - `ptr` (Bool). When set to `true`, also create a PTR DNS record.
+//   - `ttl` (Number). DNS record TTL in seconds.
+//   - `natDnsRecord` [Block]. List of configurations for creating ipv4 NAT DNS records.
+//   - `dnsZoneId` (String). DNS zone ID (if not set, private zone used).
+//   - `fqdn` (**Required**)(String). DNS record FQDN (must have a dot at the end).
+//   - `ptr` (Bool). When set to `true`, also create a PTR DNS record.
+//   - `ttl` (Number). DNS record TTL in seconds.
+//
+// - `placementPolicy` [Block]. The placement policy configuration.
+//   - `hostAffinityRules` (List Of Object). List of host affinity rules.
+//
+// > Due to terraform limitations, simply deleting the `placementPolicy` fields does not work. To reset the values of these fields, you need to set them empty:
+//
+//	placementPolicy {
+//	    placementGroupId = ""
+//	    hostAffinityRules = []
+//	}
+//   - `key` .
+//   - `op` .
+//   - `values` .
+//   - `placementGroupId` (String). Specifies the id of the Placement Group to assign to the instance.
+//   - `placementGroupPartition` (Number).
+//
+// - `resources` [Block]. Compute resources that are allocated for the instance.
+//   - `coreFraction` (Number). If provided, specifies baseline performance for a core as a percent.
+//   - `cores` (**Required**)(Number). CPU cores for the instance.
+//   - `gpus` (Number). If provided, specifies the number of GPU devices for the instance.
+//   - `memory` (**Required**)(Number). Memory size in GB.
+//
+// - `schedulingPolicy` [Block]. Scheduling policy configuration.
+//   - `preemptible` (Bool). Specifies if the instance is preemptible. Defaults to `false`.
+//
+// - `secondaryDisk` [Block]. A set of disks to attach to the instance. The structure is documented below.
+//
+// > The `allowStoppingForUpdate` property must be set to `true` in order to update this structure.
+//   - `autoDelete` (Bool). Whether the disk is auto-deleted when the instance is deleted. The default value is `false`.
+//   - `deviceName` (String). Name that can be used to access an attached disk under `/dev/disk/by-id/`.
+//   - `diskId` (**Required**)(String). ID of the disk that is attached to the instance.
+//   - `mode` (String). Type of access to the disk resource. By default, a disk is attached in `READ_WRITE` mode.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_compute_instance.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/computeInstance:ComputeInstance my_vm1 fhmur**********j51ah
+// ```
 type ComputeInstance struct {
 	pulumi.CustomResourceState
 
@@ -59,6 +268,8 @@ type ComputeInstance struct {
 	PlacementPolicy ComputeInstancePlacementPolicyOutput `pulumi:"placementPolicy"`
 	// The type of virtual machine to create.
 	PlatformId pulumi.StringPtrOutput `pulumi:"platformId"`
+	// ID of the reserved instance pool to attach this instance to.
+	ReservedInstancePoolId pulumi.StringOutput `pulumi:"reservedInstancePoolId"`
 	// Compute resources that are allocated for the instance.
 	Resources ComputeInstanceResourcesOutput `pulumi:"resources"`
 	// Scheduling policy configuration.
@@ -158,6 +369,8 @@ type computeInstanceState struct {
 	PlacementPolicy *ComputeInstancePlacementPolicy `pulumi:"placementPolicy"`
 	// The type of virtual machine to create.
 	PlatformId *string `pulumi:"platformId"`
+	// ID of the reserved instance pool to attach this instance to.
+	ReservedInstancePoolId *string `pulumi:"reservedInstancePoolId"`
 	// Compute resources that are allocated for the instance.
 	Resources *ComputeInstanceResources `pulumi:"resources"`
 	// Scheduling policy configuration.
@@ -219,6 +432,8 @@ type ComputeInstanceState struct {
 	PlacementPolicy ComputeInstancePlacementPolicyPtrInput
 	// The type of virtual machine to create.
 	PlatformId pulumi.StringPtrInput
+	// ID of the reserved instance pool to attach this instance to.
+	ReservedInstancePoolId pulumi.StringPtrInput
 	// Compute resources that are allocated for the instance.
 	Resources ComputeInstanceResourcesPtrInput
 	// Scheduling policy configuration.
@@ -279,6 +494,8 @@ type computeInstanceArgs struct {
 	PlacementPolicy *ComputeInstancePlacementPolicy `pulumi:"placementPolicy"`
 	// The type of virtual machine to create.
 	PlatformId *string `pulumi:"platformId"`
+	// ID of the reserved instance pool to attach this instance to.
+	ReservedInstancePoolId *string `pulumi:"reservedInstancePoolId"`
 	// Compute resources that are allocated for the instance.
 	Resources ComputeInstanceResources `pulumi:"resources"`
 	// Scheduling policy configuration.
@@ -334,6 +551,8 @@ type ComputeInstanceArgs struct {
 	PlacementPolicy ComputeInstancePlacementPolicyPtrInput
 	// The type of virtual machine to create.
 	PlatformId pulumi.StringPtrInput
+	// ID of the reserved instance pool to attach this instance to.
+	ReservedInstancePoolId pulumi.StringPtrInput
 	// Compute resources that are allocated for the instance.
 	Resources ComputeInstanceResourcesInput
 	// Scheduling policy configuration.
@@ -543,6 +762,11 @@ func (o ComputeInstanceOutput) PlacementPolicy() ComputeInstancePlacementPolicyO
 // The type of virtual machine to create.
 func (o ComputeInstanceOutput) PlatformId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *ComputeInstance) pulumi.StringPtrOutput { return v.PlatformId }).(pulumi.StringPtrOutput)
+}
+
+// ID of the reserved instance pool to attach this instance to.
+func (o ComputeInstanceOutput) ReservedInstancePoolId() pulumi.StringOutput {
+	return o.ApplyT(func(v *ComputeInstance) pulumi.StringOutput { return v.ReservedInstancePoolId }).(pulumi.StringOutput)
 }
 
 // Compute resources that are allocated for the instance.

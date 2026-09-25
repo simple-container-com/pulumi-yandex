@@ -8,10 +8,139 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a Default Security Group within the Yandex Cloud. For more information, see the official documentation of [security group](https://yandex.cloud/docs/vpc/concepts/security-groups) or [default security group](https://yandex.cloud/docs/vpc/concepts/security-groups#default-security-group).
+//
+// > This resource is not intended for managing security group in general case. To manage normal security group use VpcSecurityGroup
+//
+// When [network](https://yandex.cloud/docs/vpc/concepts/network) is created, a non-removable security group, called a *default security group*, is automatically attached to it. Life time of default security group cannot be controlled, so in fact the resource `VpcDefaultSecurityGroup` does not create or delete any security groups, instead it simply takes or releases control of the default security group.
+//
+// > When Terraform takes over management of the default security group, it **deletes** all info in it (including security group rules) and replace it with specified configuration. When Terraform drops the management (i.e. when resource is deleted from statefile and management), the state of the security group **remains the same** as it was before the deletion.
+//
+// > Duplicating a resource (specifying same `networkId` for two different default security groups) will cause errors in the apply stage of your's configuration.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			lab_net, err := yandex.NewVpcNetwork(ctx, "lab-net", nil)
+//			if err != nil {
+//				return err
+//			}
+//			// Update rules in Default Security Group.
+//			_, err = yandex.NewVpcDefaultSecurityGroup(ctx, "default-sg", &yandex.VpcDefaultSecurityGroupArgs{
+//				Description: pulumi.String("description for default security group"),
+//				NetworkId:   lab_net.ID().ToIDOutput().ToStringOutput(),
+//				Labels: pulumi.StringMap{
+//					"my-label": pulumi.String("my-label-value"),
+//				},
+//				Ingresses: yandex.VpcDefaultSecurityGroupIngressArray{
+//					&yandex.VpcDefaultSecurityGroupIngressArgs{
+//						Protocol:    pulumi.String("TCP"),
+//						Description: pulumi.String("rule1 description"),
+//						V4CidrBlocks: pulumi.StringArray{
+//							pulumi.String("10.0.1.0/24"),
+//							pulumi.String("10.0.2.0/24"),
+//						},
+//						Port: pulumi.Int(8080),
+//					},
+//				},
+//				Egresses: yandex.VpcDefaultSecurityGroupEgressArray{
+//					&yandex.VpcDefaultSecurityGroupEgressArgs{
+//						Protocol:    pulumi.String("ANY"),
+//						Description: pulumi.String("rule2 description"),
+//						V4CidrBlocks: pulumi.StringArray{
+//							pulumi.String("10.0.1.0/24"),
+//							pulumi.String("10.0.2.0/24"),
+//						},
+//						FromPort: pulumi.Int(8090),
+//						ToPort:   pulumi.Int(8099),
+//					},
+//					&yandex.VpcDefaultSecurityGroupEgressArgs{
+//						Protocol:    pulumi.String("UDP"),
+//						Description: pulumi.String("rule3 description"),
+//						V4CidrBlocks: pulumi.StringArray{
+//							pulumi.String("10.0.1.0/24"),
+//						},
+//						FromPort: pulumi.Int(8090),
+//						ToPort:   pulumi.Int(8099),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (*Read-Only*) (String). The resource name. Cannot be updated.
+// - `networkId` (**Required**)(String). ID of the network this security group belongs to.
+// - `status` (*Read-Only*) (String). Status of this security group.
+// - `egress` [Block]. A list of egress rules.
+//   - `description` (String). Description of the rule.
+//   - `fromPort` (Number). Minimum port number.
+//   - `id` (*Read-Only*) (String). The resource identifier.
+//   - `labels` (Map Of String). Labels to assign to this rule.
+//   - `port` (Number). Port number (if applied to a single port).
+//   - `predefinedTarget` (String). Special-purpose targets. `selfSecurityGroup` refers to this particular security group. `loadbalancerHealthchecks` represents [loadbalancer health check nodes](https://yandex.cloud/docs/network-load-balancer/concepts/health-check).
+//   - `protocol` (**Required**)(String). One of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP`.
+//   - `securityGroupId` (String). Target security group ID for this rule.
+//   - `toPort` (Number). Maximum port number.
+//   - `v4CidrBlocks` (List Of String). The blocks of IPv4 addresses for this rule.
+//   - `v6CidrBlocks` (List Of String). The blocks of IPv6 addresses for this rule. `v6CidrBlocks` argument is currently not supported. It will be available in the future.
+//
+// - `ingress` [Block]. A list of ingress rules.
+//   - `description` (String). Description of the rule.
+//   - `fromPort` (Number). Minimum port number.
+//   - `id` (*Read-Only*) (String). The resource identifier.
+//   - `labels` (Map Of String). Labels to assign to this rule.
+//   - `port` (Number). Port number (if applied to a single port).
+//   - `predefinedTarget` (String). Special-purpose targets. `selfSecurityGroup` refers to this particular security group. `loadbalancerHealthchecks` represents [loadbalancer health check nodes](https://yandex.cloud/docs/network-load-balancer/concepts/health-check).
+//   - `protocol` (**Required**)(String). One of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP`.
+//   - `securityGroupId` (String). Target security group ID for this rule.
+//   - `toPort` (Number). Maximum port number.
+//   - `v4CidrBlocks` (List Of String). The blocks of IPv4 addresses for this rule.
+//   - `v6CidrBlocks` (List Of String). The blocks of IPv6 addresses for this rule. `v6CidrBlocks` argument is currently not supported. It will be available in the future.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_vpc_default_security_group.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/vpcDefaultSecurityGroup:VpcDefaultSecurityGroup default-sg ...
+// ```
 type VpcDefaultSecurityGroup struct {
 	pulumi.CustomResourceState
 

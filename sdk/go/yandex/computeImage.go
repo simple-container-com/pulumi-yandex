@@ -7,10 +7,92 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Creates a virtual machine image resource for the Yandex Compute Cloud service from an existing tarball. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/image).
+//
+// > One of `sourceFamily`, `sourceImage`, `sourceSnapshot`, `sourceDisk` or `sourceUrl` must be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Compute Image.
+//			foo_image, err := yandex.NewComputeImage(ctx, "foo-image", &yandex.ComputeImageArgs{
+//				SourceUrl: pulumi.String("https://storage.yandexcloud.net/lucky-images/kube-it.img"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// You can use "data.yandex_compute_image.my_image.id" identifier
+//			// as reference to existing resource.
+//			_, err = yandex.NewComputeInstance(ctx, "vm", &yandex.ComputeInstanceArgs{
+//				BootDisk: &yandex.ComputeInstanceBootDiskArgs{
+//					InitializeParams: &yandex.ComputeInstanceBootDiskInitializeParamsArgs{
+//						ImageId: foo_image.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `family` (String). The name of the image family to which this image belongs.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `minDiskSize` (Number). Minimum size in GB of the disk that will be created from this image.
+// - `name` (String). The resource name.
+// - `osType` (String). Operating system type that is contained in the image. Possible values: `LINUX`, `WINDOWS`.
+// - `pooled` (Bool). Optimize the image to create a disk.
+// - `productIds` (Set Of String). License IDs that indicate which licenses are attached to this image.
+// - `size` (*Read-Only*) (Number). The size of the image, specified in GB.
+// - `sourceDisk` (String). The ID of a disk to use as the source of the image. Changing this ID forces a new resource to be created.
+// - `sourceFamily` (String). The name of the family to use as the source of the new image. The ID of the latest image is taken from the `standard-images` folder. Changing the family forces a new resource to be created.
+// - `sourceImage` (String). The ID of an existing image to use as the source of the image. Changing this ID forces a new resource to be created.
+// - `sourceSnapshot` (String). The ID of a snapshot to use as the source of the image. Changing this ID forces a new resource to be created.
+// - `sourceUrl` (String). The URL to use as the source of the image. Changing this URL forces a new resource to be created.
+// - `status` (*Read-Only*) (String). The status of the image.
+// - `hardwareGeneration` [Block]. Hardware generation and its features, which will be applied to the instance when this image is used for creating a boot disk. Provide this property if you wish to override this value, which otherwise is inherited from the source.
+//   - `generation2Features` [Block]. A newer hardware generation, which always uses `PCI_TOPOLOGY_V2` and UEFI boot.
+//   - `legacyFeatures` [Block]. Defines the first known hardware generation and its features.
+//   - `pciTopology` (String). A variant of PCI topology, one of `PCI_TOPOLOGY_V1` or `PCI_TOPOLOGY_V2`.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_compute_image.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/computeImage:ComputeImage my_image fd8go**********trjsd
+// ```
 type ComputeImage struct {
 	pulumi.CustomResourceState
 

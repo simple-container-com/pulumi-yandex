@@ -7,10 +7,82 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Load Balancer network load balancer. For more information, see [the official documentation](https://yandex.cloud/docs/load-balancer/concepts/).
+//
+// This data source is used to define [Load Balancer Network Load Balancers](https://yandex.cloud/docs/load-balancer/concepts/) that can be used by other resources.
+//
+// > One of `networkLoadBalancerId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetLbNetworkLoadBalancer(ctx, &yandex.LookupLbNetworkLoadBalancerArgs{
+//				NetworkLoadBalancerId: pulumi.StringRef("my-network-load-balancer"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `allowZonalShift` (*Read-Only*) (Bool). Flag that marks the network load balancer as available to zonal shift.
+// - `attachedTargetGroup` (*Read-Only*) (Set Of Object).
+//   - `healthcheck` .
+//   - `healthyThreshold` .
+//   - `httpOptions` .
+//   - `path` .
+//   - `port` .
+//   - `interval` .
+//   - `name` .
+//   - `tcpOptions` .
+//   - `port` .
+//   - `timeout` .
+//   - `unhealthyThreshold` .
+//   - `targetGroupId` .
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (*Read-Only*) (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `listener` (*Read-Only*) (Set Of Object).
+//   - `externalAddressSpec` .
+//   - `address` .
+//   - `ipVersion` .
+//   - `internalAddressSpec` .
+//   - `address` .
+//   - `ipVersion` .
+//   - `subnetId` .
+//   - `name` .
+//   - `port` .
+//   - `protocol` .
+//   - `targetPort` .
+//
+// - `name` (String). The resource name.
+// - `networkLoadBalancerId` (String). Network load balancer ID.
+// - `regionId` (*Read-Only*) (String). ID of the availability zone where the network load balancer resides. If omitted, default region is being used.
+// - `type` (*Read-Only*) (String). Type of the network load balancer. Must be one of 'external' or 'internal'. The default is 'external'.
 func LookupLbNetworkLoadBalancer(ctx *pulumi.Context, args *LookupLbNetworkLoadBalancerArgs, opts ...pulumi.InvokeOption) (*LookupLbNetworkLoadBalancerResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupLbNetworkLoadBalancerResult

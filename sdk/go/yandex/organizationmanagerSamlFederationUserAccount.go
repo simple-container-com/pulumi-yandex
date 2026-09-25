@@ -8,10 +8,62 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of a single SAML Federation user account within an existing Yandex Cloud Organization.. For more information, see [the official documentation](https://yandex.cloud/docs/organization/operations/federations/integration-common).
+//
+// > If terraform user has sufficient access and user specified in data source does not exist, it will be created. This behaviour will be **deprecated** in future releases. Use resource `OrganizationmanagerSamlFederationUserAccount` to manage account lifecycle.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new OrganizationManager SAML Federation User Account.
+//			_, err := yandex.NewOrganizationmanagerSamlFederationUserAccount(ctx, "account", &yandex.OrganizationmanagerSamlFederationUserAccountArgs{
+//				FederationId: pulumi.String("some_federation_id"),
+//				NameId:       pulumi.String("example@example.org"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `federationId` (**Required**)(String). ID of a SAML Federation.
+// - `id` (String).
+// - `nameId` (**Required**)(String). Name ID of the SAML federated user.
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_organizationmanager_saml_federation_user_account.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/organizationmanagerSamlFederationUserAccount:OrganizationmanagerSamlFederationUserAccount account ...
+// ```
 type OrganizationmanagerSamlFederationUserAccount struct {
 	pulumi.CustomResourceState
 

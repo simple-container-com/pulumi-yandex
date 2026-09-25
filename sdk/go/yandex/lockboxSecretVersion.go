@@ -8,10 +8,108 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Yandex Cloud Lockbox secret version resource. For more information, see [the official documentation](https://yandex.cloud/docs/lockbox/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Lockbox Secret Version.
+//			mySecret, err := yandex.NewLockboxSecret(ctx, "mySecret", nil)
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewLockboxSecretVersion(ctx, "myVersion", &yandex.LockboxSecretVersionArgs{
+//				SecretId: mySecret.ID().ToIDOutput().ToStringOutput(),
+//				Entries: yandex.LockboxSecretVersionEntryArray{
+//					&yandex.LockboxSecretVersionEntryArgs{
+//						Key:       pulumi.String("key1"),
+//						TextValue: pulumi.String("value1"),
+//					},
+//					&yandex.LockboxSecretVersionEntryArgs{
+//						Key: pulumi.String("k2"),
+//						Command: &yandex.LockboxSecretVersionEntryCommandArgs{
+//							Path: pulumi.String("my_secret_generator.sh"),
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Lockbox Secret Version with password.
+//			mySecret, err := yandex.NewLockboxSecret(ctx, "mySecret", &yandex.LockboxSecretArgs{
+//				PasswordPayloadSpecification: &yandex.LockboxSecretPasswordPayloadSpecificationArgs{
+//					PasswordKey: pulumi.String("some_password"),
+//					Length:      pulumi.Int(12),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewLockboxSecretVersion(ctx, "myVersion", &yandex.LockboxSecretVersionArgs{
+//				SecretId: mySecret.ID().ToIDOutput().ToStringOutput(),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `description` (String). The resource description.
+// - `id` (String).
+// - `secretId` (**Required**)(String). The Yandex Cloud Lockbox secret ID where to add the version.
+// - `entries` [Block]. List of entries in the Yandex Cloud Lockbox secret version. Must be omitted for secrets with a payload specification.
+//
+// > One either `textValue` or `command` is required.
+//
+//   - `key` (**Required**)(String). The key of the entry.
+//   - `textValue` (String). The text value of the entry.
+//   - `command` [Block]. The command that generates the text value of the entry.
+//   - `args` (List Of String). List of arguments to be passed to the script/command.
+//   - `env` (Map Of String). Map of environment variables to set before calling the script/command.
+//   - `path` (**Required**)(String). The path to the script or command to execute.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
 type LockboxSecretVersion struct {
 	pulumi.CustomResourceState
 

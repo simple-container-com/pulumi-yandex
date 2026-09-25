@@ -8,10 +8,290 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [trail](https://yandex.cloud/docs/audit-trails/concepts/trail).
+//
+// ## Migration from deprecated filter field
+//
+// In order to migrate from using `filter` to the `filteringPolicy`, you will have to:
+// * Remove the `filter.event_filters.categories` blocks. With the introduction of `includedEvents`/`excludedEvents` you can configure filtering per each event type.
+// * Replace the `filter.event_filters.path_filter` with the appropriate `resourceScope` blocks. You have to account that `resourceScope` does not support specifying relations between resources, so your configuration will simplify to only the actual resources, that will be monitored.
+//
+// * Replace the `filter.path_filter` block with the `filtering_policy.management_events_filter`. New API states management events filtration in a more clear way. The resources, that were specified, must migrate into the `filtering_policy.management_events_filter.resource_scope`.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new basic Audit Trails Trail
+//			_, err := yandex.NewAuditTrailsTrail(ctx, "basic-trail", &yandex.AuditTrailsTrailArgs{
+//				Description: pulumi.String("Some trail description"),
+//				FilteringPolicy: &yandex.AuditTrailsTrailFilteringPolicyArgs{
+//					DataEventsFilters: yandex.AuditTrailsTrailFilteringPolicyDataEventsFilterArray{
+//						&yandex.AuditTrailsTrailFilteringPolicyDataEventsFilterArgs{
+//							ResourceScope: []map[string]string{
+//								{
+//									"resourceId":   "home-folder",
+//									"resourceType": "resource-manager.folder",
+//								},
+//							},
+//							Service: pulumi.String("storage"),
+//						},
+//						&yandex.AuditTrailsTrailFilteringPolicyDataEventsFilterArgs{
+//							DnsFilter: &yandex.AuditTrailsTrailFilteringPolicyDataEventsFilterDnsFilterArgs{
+//								IncludeNonrecursiveQueries: pulumi.Bool(true),
+//							},
+//							ResourceScope: []map[string]string{
+//								{
+//									"resourceId":   "vpc-net-id-1",
+//									"resourceType": "vpc.network",
+//								},
+//								{
+//									"resourceId":   "vpc-net-id-2",
+//									"resourceType": "vpc.network",
+//								},
+//							},
+//							Service: pulumi.String("dns"),
+//						},
+//					},
+//					ManagementEventsFilter: &yandex.AuditTrailsTrailFilteringPolicyManagementEventsFilterArgs{
+//						ResourceScope: []map[string]string{
+//							{
+//								"resourceId":   "home-folder",
+//								"resourceType": "resource-manager.folder",
+//							},
+//						},
+//					},
+//				},
+//				FolderId: pulumi.String("home-folder"),
+//				Labels: pulumi.StringMap{
+//					"key": pulumi.String("value"),
+//				},
+//				LoggingDestination: &yandex.AuditTrailsTrailLoggingDestinationArgs{
+//					LogGroupId: pulumi.String("some-log-group"),
+//				},
+//				ServiceAccountId: pulumi.String("trail-service-account"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create Trail for delivering events to YDS and gathering such events:
+//			// * Management events from the 'some-organization' organization.
+//			// * DNS data events with only recursive queries from the 'some-organization' organization.
+//			// * Object Storage data events from the 'some-organization' organization.
+//			_, err := yandex.NewAuditTrailsTrail(ctx, "basicTrail", &yandex.AuditTrailsTrailArgs{
+//				DataStreamDestination: &yandex.AuditTrailsTrailDataStreamDestinationArgs{
+//					Codec:      pulumi.String("ZSTD"),
+//					DatabaseId: pulumi.String("some-database"),
+//					StreamName: pulumi.String("some-stream"),
+//				},
+//				Description: pulumi.String("Some trail description"),
+//				FilteringPolicy: &yandex.AuditTrailsTrailFilteringPolicyArgs{
+//					DataEventsFilters: yandex.AuditTrailsTrailFilteringPolicyDataEventsFilterArray{
+//						&yandex.AuditTrailsTrailFilteringPolicyDataEventsFilterArgs{
+//							ResourceScope: []map[string]string{
+//								{
+//									"resourceId":   "some-organization",
+//									"resourceType": "organization-manager.organization",
+//								},
+//							},
+//							Service: pulumi.String("storage"),
+//						},
+//						&yandex.AuditTrailsTrailFilteringPolicyDataEventsFilterArgs{
+//							DnsFilter: &yandex.AuditTrailsTrailFilteringPolicyDataEventsFilterDnsFilterArgs{
+//								IncludeNonrecursiveQueries: pulumi.Bool(true),
+//							},
+//							ResourceScope: []map[string]string{
+//								{
+//									"resourceId":   "some-organization",
+//									"resourceType": "organization-manager.organization",
+//								},
+//							},
+//							Service: pulumi.String("dns"),
+//						},
+//					},
+//					ManagementEventsFilter: &yandex.AuditTrailsTrailFilteringPolicyManagementEventsFilterArgs{
+//						ResourceScope: []map[string]string{
+//							{
+//								"resourceId":   "some-organization",
+//								"resourceType": "organization-manager.organization",
+//							},
+//						},
+//					},
+//				},
+//				FolderId: pulumi.String("home-folder"),
+//				Labels: pulumi.StringMap{
+//					"key": pulumi.String("value"),
+//				},
+//				ServiceAccountId: pulumi.String("trail-service-account"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `description` (String). The resource description.
+// - `folderId` (**Required**)(String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (**Required**)(String). The resource name.
+// - `serviceAccountId` (**Required**)(String). [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+// - `status` (*Read-Only*) (String). Status of this trail.
+// - `trailId` (*Read-Only*) (String). ID of the trail resource.
+// - `dataStreamDestination` [Block]. Structure describing destination data stream of the trail. Mutually exclusive with `loggingDestination` and `storageDestination`.
+//   - `codec` (String). Codec for compressing events. Allowed values: RAW, GZIP, ZSTD. Default: RAW
+//   - `databaseId` (**Required**)(String). ID of the [YDB](https://yandex.cloud/docs/ydb/concepts/resources) hosting the destination data stream.
+//   - `streamName` (**Required**)(String). Name of the [YDS stream](https://yandex.cloud/docs/data-streams/concepts/glossary#stream-concepts) belonging to the specified YDB.
+//
+// - `filter` [Block]. Structure is deprecated. Use `filteringPolicy` instead.
+//   - `eventFilters` [Block]. Deprecated.
+//   - `service` (**Required**)(String). Deprecated.
+//   - `categories` [Block]. Deprecated.
+//   - `plane` (**Required**)(String). Deprecated.
+//   - `type` (**Required**)(String). Deprecated.
+//   - `pathFilter` [Block]. Deprecated.
+//   - `anyFilter` [Block]. Deprecated.
+//   - `resourceId` (**Required**)(String). Resource ID.
+//   - `resourceType` (**Required**)(String). Resource type.
+//   - `someFilter` [Block]. Deprecated.
+//   - `resourceId` (**Required**)(String). Deprecated.
+//   - `resourceType` (**Required**)(String). Deprecated.
+//   - `anyFilters` [Block]. Deprecated.
+//   - `resourceId` (**Required**)(String). Resource ID.
+//   - `resourceType` (**Required**)(String). Resource type.
+//   - `pathFilter` [Block]. Deprecated.
+//   - `anyFilter` [Block]. Deprecated.
+//   - `resourceId` (**Required**)(String). Resource ID.
+//   - `resourceType` (**Required**)(String). Resource type.
+//   - `someFilter` [Block]. Deprecated.
+//   - `resourceId` (**Required**)(String). Deprecated.
+//   - `resourceType` (**Required**)(String). Deprecated.
+//   - `anyFilters` [Block]. Deprecated.
+//   - `resourceId` (**Required**)(String). Resource ID.
+//   - `resourceType` (**Required**)(String). Resource type.
+//
+// - `filteringPolicy` [Block]. Structure describing event filtering process for the trail. Mutually exclusive with `filter`. At least one of the `managementEventsFilter` or `dataEventsFilter` fields will be filled.
+//   - `dataEventsFilter` [Block]. Structure describing filtering process for the service-specific data events.
+//   - `excludedEvents` (List Of String). A list of events that won't be gathered by the trail from this service. New events will be automatically gathered when this option is specified. Mutually exclusive with `includedEvents`.
+//   - `includedEvents` (List Of String). A list of events that will be gathered by the trail from this service. New events won't be gathered by default when this option is specified. Mutually exclusive with `excludedEvents`.
+//   - `service` (**Required**)(String). ID of the service which events will be gathered.
+//   - `dnsFilter` [Block]. Specific filter for DNS service.
+//   - `includeNonrecursiveQueries` (**Required**)(Bool). All types of queries will be delivered.
+//   - `excludeRule` [Block]. Rules defining which data events will be excluded. Rules are combined using logical OR.
+//   - `condition` [Block]. Condition that must be satisfied by an event. Conditions are combined using logical AND.
+//   - `field` (**Required**)(String). Path to a scalar field of the event.
+//   - `operator` (**Required**)(String). Operator that controls how the values are interpreted.
+//   - `values` (**Required**)(List Of String). Values interpreted according to the selected field and operator.
+//   - `includeRule` [Block]. Rules defining which data events will be included. Rules are combined using logical OR.
+//   - `condition` [Block]. Condition that must be satisfied by an event. Conditions are combined using logical AND.
+//   - `field` (**Required**)(String). Path to a scalar field of the event.
+//   - `operator` (**Required**)(String). Operator that controls how the values are interpreted.
+//   - `values` (**Required**)(List Of String). Values interpreted according to the selected field and operator.
+//   - `resourceScope` [Block]. Structure describing that events will be gathered from the specified resource.
+//   - `resourceId` (**Required**)(String). Resource ID.
+//   - `resourceType` (**Required**)(String). Resource type.
+//   - `managementEventsFilter` [Block]. Structure describing filtering process for management events.
+//   - `excludeRule` [Block]. Rules defining which management events will be excluded. Rules are combined using logical OR.
+//   - `condition` [Block]. Condition that must be satisfied by an event. Conditions are combined using logical AND.
+//   - `field` (**Required**)(String). Path to a scalar field of the event.
+//   - `operator` (**Required**)(String). Operator that controls how the values are interpreted.
+//   - `values` (**Required**)(List Of String). Values interpreted according to the selected field and operator.
+//   - `includeRule` [Block]. Rules defining which management events will be included. Rules are combined using logical OR.
+//   - `condition` [Block]. Condition that must be satisfied by an event. Conditions are combined using logical AND.
+//   - `field` (**Required**)(String). Path to a scalar field of the event.
+//   - `operator` (**Required**)(String). Operator that controls how the values are interpreted.
+//   - `values` (**Required**)(List Of String). Values interpreted according to the selected field and operator.
+//   - `resourceScope` [Block]. Structure describing that events will be gathered from the specified resource.
+//   - `resourceId` (**Required**)(String). Resource ID.
+//   - `resourceType` (**Required**)(String). Resource type.
+//
+// - `loggingDestination` [Block]. Structure describing destination log group of the trail. Mutually exclusive with `storageDestination` and `dataStreamDestination`.
+//   - `logGroupId` (**Required**)(String). ID of the destination [Cloud Logging Group](https://yandex.cloud/docs/logging/concepts/log-group).
+//
+// - `storageDestination` [Block]. Structure describing destination bucket of the trail. Mutually exclusive with `loggingDestination` and `dataStreamDestination`.
+//   - `bucketName` (**Required**)(String). Name of the [destination bucket](https://yandex.cloud/docs/storage/concepts/bucket).
+//   - `objectPrefix` (String). Additional prefix of the uploaded objects. If not specified, objects will be uploaded with prefix equal to `trailId`.
+//
+// - `timeouts` [Block].
+//   - `default` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_audit_trails_trail.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/auditTrailsTrail:AuditTrailsTrail basic-trail cnpqe**********sh835
+// ```
 type AuditTrailsTrail struct {
 	pulumi.CustomResourceState
 

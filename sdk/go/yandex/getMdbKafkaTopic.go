@@ -7,10 +7,62 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a topic of the Yandex Managed Kafka cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			foo, err := yandex.GetMdbKafkaTopic(ctx, &yandex.LookupMdbKafkaTopicArgs{
+//				ClusterId: "some_cluster_id",
+//				Name:      "test",
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("replicationFactor", foo.ReplicationFactor)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `clusterId` (**Required**)(String). The ID of the Kafka cluster.
+// - `id` (String).
+// - `name` (**Required**)(String). The resource name.
+// - `partitions` (*Read-Only*) (Number). The number of the topic's partitions.
+// - `replicationFactor` (*Read-Only*) (Number). Amount of data copies (replicas) for the topic in the cluster.
+// - `topicConfig` (*Read-Only*) (List Of Object). User-defined settings for the topic. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts/settings-list#topic-settings) and [the Kafka documentation](https://kafka.apache.org/documentation/#topicconfigs).
+//   - `cleanupPolicy` .
+//   - `compressionType` .
+//   - `deleteRetentionMs` .
+//   - `fileDeleteDelayMs` .
+//   - `flushMessages` .
+//   - `flushMs` .
+//   - `maxMessageBytes` .
+//   - `messageTimestampType` .
+//   - `minCompactionLagMs` .
+//   - `minInsyncReplicas` .
+//   - `preallocate` .
+//   - `retentionBytes` .
+//   - `retentionMs` .
+//   - `segmentBytes` .
 func LookupMdbKafkaTopic(ctx *pulumi.Context, args *LookupMdbKafkaTopicArgs, opts ...pulumi.InvokeOption) (*LookupMdbKafkaTopicResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMdbKafkaTopicResult

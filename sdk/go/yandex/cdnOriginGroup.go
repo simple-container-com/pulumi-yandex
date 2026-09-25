@@ -8,10 +8,81 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud CDN Origin Groups](https://yandex.cloud/docs/cdn/concepts/origins).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new CDN Origin Group
+//			_, err := yandex.NewCdnOriginGroup(ctx, "myGroup", &yandex.CdnOriginGroupArgs{
+//				Origins: yandex.CdnOriginGroupOriginArray{
+//					&yandex.CdnOriginGroupOriginArgs{
+//						Source: pulumi.String("ya.ru"),
+//					},
+//					&yandex.CdnOriginGroupOriginArgs{
+//						Source: pulumi.String("yandex.ru"),
+//					},
+//					&yandex.CdnOriginGroupOriginArgs{
+//						Source: pulumi.String("goo.gl"),
+//					},
+//					&yandex.CdnOriginGroupOriginArgs{
+//						Backup: pulumi.Bool(false),
+//						Source: pulumi.String("amazon.com"),
+//					},
+//				},
+//				UseNext: pulumi.Bool(true),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `name` (**Required**)(String). The resource name.
+// - `providerType` (String). CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"
+// - `useNext` (Bool). If the option is active (has true value), in case the origin responds with 4XX or 5XX codes, use the next origin from the list.
+// - `origin` [Block]. A set of available origins, an origins group must contain at least one enabled origin with fields below.
+//   - `backup` (Bool). Specifies whether the origin is used in its origin group as backup. A backup origin is used when one of active origins becomes unavailable.
+//   - `enabled` (Bool). The origin is enabled and used as a source for the CDN. Default `enabled`.
+//   - `originGroupId` (*Read-Only*) (String). The ID of a specific origin group.
+//   - `source` (**Required**)(String). IP address or Domain name of your origin and the port.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_cdn_origin_group.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/cdnOriginGroup:CdnOriginGroup my_cdn_group ...
+// ```
 type CdnOriginGroup struct {
 	pulumi.CustomResourceState
 

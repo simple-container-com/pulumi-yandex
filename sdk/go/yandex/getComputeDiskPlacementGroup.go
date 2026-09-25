@@ -7,13 +7,55 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
-func GetComputeDiskPlacementGroup(ctx *pulumi.Context, args *GetComputeDiskPlacementGroupArgs, opts ...pulumi.InvokeOption) (*GetComputeDiskPlacementGroupResult, error) {
+// Get information about a Yandex Compute Disk Placement group. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/disk#nr-disks).
+//
+// > One of `groupId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myGroup, err := yandex.GetComputeDiskPlacementGroup(ctx, &yandex.LookupComputeDiskPlacementGroupArgs{
+//				GroupId: pulumi.StringRef("some_group_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("placementGroupName", myGroup.Name)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `groupId` (String). The ID of a specific group.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `status` (*Read-Only*) (String). Status of the Disk Placement Group.
+// - `zone` (String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+func LookupComputeDiskPlacementGroup(ctx *pulumi.Context, args *LookupComputeDiskPlacementGroupArgs, opts ...pulumi.InvokeOption) (*LookupComputeDiskPlacementGroupResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
-	var rv GetComputeDiskPlacementGroupResult
+	var rv LookupComputeDiskPlacementGroupResult
 	err := ctx.Invoke("yandex:index/getComputeDiskPlacementGroup:getComputeDiskPlacementGroup", args, &rv, opts...)
 	if err != nil {
 		return nil, err
@@ -22,7 +64,7 @@ func GetComputeDiskPlacementGroup(ctx *pulumi.Context, args *GetComputeDiskPlace
 }
 
 // A collection of arguments for invoking getComputeDiskPlacementGroup.
-type GetComputeDiskPlacementGroupArgs struct {
+type LookupComputeDiskPlacementGroupArgs struct {
 	Description *string           `pulumi:"description"`
 	FolderId    *string           `pulumi:"folderId"`
 	GroupId     *string           `pulumi:"groupId"`
@@ -32,7 +74,7 @@ type GetComputeDiskPlacementGroupArgs struct {
 }
 
 // A collection of values returned by getComputeDiskPlacementGroup.
-type GetComputeDiskPlacementGroupResult struct {
+type LookupComputeDiskPlacementGroupResult struct {
 	CreatedAt   string  `pulumi:"createdAt"`
 	Description *string `pulumi:"description"`
 	FolderId    string  `pulumi:"folderId"`
@@ -45,17 +87,17 @@ type GetComputeDiskPlacementGroupResult struct {
 	Zone   *string           `pulumi:"zone"`
 }
 
-func GetComputeDiskPlacementGroupOutput(ctx *pulumi.Context, args GetComputeDiskPlacementGroupOutputArgs, opts ...pulumi.InvokeOption) GetComputeDiskPlacementGroupResultOutput {
+func LookupComputeDiskPlacementGroupOutput(ctx *pulumi.Context, args LookupComputeDiskPlacementGroupOutputArgs, opts ...pulumi.InvokeOption) LookupComputeDiskPlacementGroupResultOutput {
 	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetComputeDiskPlacementGroupResultOutput, error) {
-			args := v.(GetComputeDiskPlacementGroupArgs)
+		ApplyT(func(v interface{}) (LookupComputeDiskPlacementGroupResultOutput, error) {
+			args := v.(LookupComputeDiskPlacementGroupArgs)
 			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("yandex:index/getComputeDiskPlacementGroup:getComputeDiskPlacementGroup", args, GetComputeDiskPlacementGroupResultOutput{}, options).(GetComputeDiskPlacementGroupResultOutput), nil
-		}).(GetComputeDiskPlacementGroupResultOutput)
+			return ctx.InvokeOutput("yandex:index/getComputeDiskPlacementGroup:getComputeDiskPlacementGroup", args, LookupComputeDiskPlacementGroupResultOutput{}, options).(LookupComputeDiskPlacementGroupResultOutput), nil
+		}).(LookupComputeDiskPlacementGroupResultOutput)
 }
 
 // A collection of arguments for invoking getComputeDiskPlacementGroup.
-type GetComputeDiskPlacementGroupOutputArgs struct {
+type LookupComputeDiskPlacementGroupOutputArgs struct {
 	Description pulumi.StringPtrInput `pulumi:"description"`
 	FolderId    pulumi.StringPtrInput `pulumi:"folderId"`
 	GroupId     pulumi.StringPtrInput `pulumi:"groupId"`
@@ -64,62 +106,62 @@ type GetComputeDiskPlacementGroupOutputArgs struct {
 	Zone        pulumi.StringPtrInput `pulumi:"zone"`
 }
 
-func (GetComputeDiskPlacementGroupOutputArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetComputeDiskPlacementGroupArgs)(nil)).Elem()
+func (LookupComputeDiskPlacementGroupOutputArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupComputeDiskPlacementGroupArgs)(nil)).Elem()
 }
 
 // A collection of values returned by getComputeDiskPlacementGroup.
-type GetComputeDiskPlacementGroupResultOutput struct{ *pulumi.OutputState }
+type LookupComputeDiskPlacementGroupResultOutput struct{ *pulumi.OutputState }
 
-func (GetComputeDiskPlacementGroupResultOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetComputeDiskPlacementGroupResult)(nil)).Elem()
+func (LookupComputeDiskPlacementGroupResultOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupComputeDiskPlacementGroupResult)(nil)).Elem()
 }
 
-func (o GetComputeDiskPlacementGroupResultOutput) ToGetComputeDiskPlacementGroupResultOutput() GetComputeDiskPlacementGroupResultOutput {
+func (o LookupComputeDiskPlacementGroupResultOutput) ToLookupComputeDiskPlacementGroupResultOutput() LookupComputeDiskPlacementGroupResultOutput {
 	return o
 }
 
-func (o GetComputeDiskPlacementGroupResultOutput) ToGetComputeDiskPlacementGroupResultOutputWithContext(ctx context.Context) GetComputeDiskPlacementGroupResultOutput {
+func (o LookupComputeDiskPlacementGroupResultOutput) ToLookupComputeDiskPlacementGroupResultOutputWithContext(ctx context.Context) LookupComputeDiskPlacementGroupResultOutput {
 	return o
 }
 
-func (o GetComputeDiskPlacementGroupResultOutput) CreatedAt() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeDiskPlacementGroupResult) string { return v.CreatedAt }).(pulumi.StringOutput)
+func (o LookupComputeDiskPlacementGroupResultOutput) CreatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeDiskPlacementGroupResult) string { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-func (o GetComputeDiskPlacementGroupResultOutput) Description() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v GetComputeDiskPlacementGroupResult) *string { return v.Description }).(pulumi.StringPtrOutput)
+func (o LookupComputeDiskPlacementGroupResultOutput) Description() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v LookupComputeDiskPlacementGroupResult) *string { return v.Description }).(pulumi.StringPtrOutput)
 }
 
-func (o GetComputeDiskPlacementGroupResultOutput) FolderId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeDiskPlacementGroupResult) string { return v.FolderId }).(pulumi.StringOutput)
+func (o LookupComputeDiskPlacementGroupResultOutput) FolderId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeDiskPlacementGroupResult) string { return v.FolderId }).(pulumi.StringOutput)
 }
 
-func (o GetComputeDiskPlacementGroupResultOutput) GroupId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeDiskPlacementGroupResult) string { return v.GroupId }).(pulumi.StringOutput)
+func (o LookupComputeDiskPlacementGroupResultOutput) GroupId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeDiskPlacementGroupResult) string { return v.GroupId }).(pulumi.StringOutput)
 }
 
 // The provider-assigned unique ID for this managed resource.
-func (o GetComputeDiskPlacementGroupResultOutput) Id() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeDiskPlacementGroupResult) string { return v.Id }).(pulumi.StringOutput)
+func (o LookupComputeDiskPlacementGroupResultOutput) Id() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeDiskPlacementGroupResult) string { return v.Id }).(pulumi.StringOutput)
 }
 
-func (o GetComputeDiskPlacementGroupResultOutput) Labels() pulumi.StringMapOutput {
-	return o.ApplyT(func(v GetComputeDiskPlacementGroupResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
+func (o LookupComputeDiskPlacementGroupResultOutput) Labels() pulumi.StringMapOutput {
+	return o.ApplyT(func(v LookupComputeDiskPlacementGroupResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
 }
 
-func (o GetComputeDiskPlacementGroupResultOutput) Name() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v GetComputeDiskPlacementGroupResult) *string { return v.Name }).(pulumi.StringPtrOutput)
+func (o LookupComputeDiskPlacementGroupResultOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v LookupComputeDiskPlacementGroupResult) *string { return v.Name }).(pulumi.StringPtrOutput)
 }
 
-func (o GetComputeDiskPlacementGroupResultOutput) Status() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeDiskPlacementGroupResult) string { return v.Status }).(pulumi.StringOutput)
+func (o LookupComputeDiskPlacementGroupResultOutput) Status() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeDiskPlacementGroupResult) string { return v.Status }).(pulumi.StringOutput)
 }
 
-func (o GetComputeDiskPlacementGroupResultOutput) Zone() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v GetComputeDiskPlacementGroupResult) *string { return v.Zone }).(pulumi.StringPtrOutput)
+func (o LookupComputeDiskPlacementGroupResultOutput) Zone() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v LookupComputeDiskPlacementGroupResult) *string { return v.Zone }).(pulumi.StringPtrOutput)
 }
 
 func init() {
-	pulumi.RegisterOutputType(GetComputeDiskPlacementGroupResultOutput{})
+	pulumi.RegisterOutputType(LookupComputeDiskPlacementGroupResultOutput{})
 }

@@ -7,10 +7,75 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Yandex Database (serverless) resource. For more information, see [the official documentation](https://yandex.cloud/docs/ydb/concepts/serverless_and_dedicated).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new YDB Serverless Database.
+//			_, err := yandex.NewYdbDatabaseServerless(ctx, "myYdb", &yandex.YdbDatabaseServerlessArgs{
+//				FolderId:           pulumi.Any(data.Yandex_resourcemanager_folder.Test_folder.Id),
+//				DeletionProtection: pulumi.Bool(true),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `databasePath` (*Read-Only*) (String). Full database path of the Yandex Database serverless cluster. Useful for SDK configuration.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `documentApiEndpoint` (*Read-Only*) (String). Document API endpoint of the Yandex Database serverless cluster.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `locationId` (String). Location ID for the Yandex Database serverless cluster.
+// - `name` (**Required**)(String). The resource name.
+// - `sleepAfter` (Number).
+// - `status` (*Read-Only*) (String). Status of the Yandex Database serverless cluster.
+// - `tlsEnabled` (*Read-Only*) (Bool). Whether TLS is enabled for the Yandex Database serverless cluster. Useful for SDK configuration.
+// - `ydbApiEndpoint` (*Read-Only*) (String). API endpoint of the Yandex Database serverless cluster. Useful for SDK configuration.
+// - `ydbFullEndpoint` (*Read-Only*) (String). Full endpoint of the Yandex Database serverless cluster.
+// - `serverlessDatabase` [Block].
+//   - `enableThrottlingRcuLimit` (Bool).
+//   - `provisionedRcuLimit` (Number).
+//   - `storageSizeLimit` (Number).
+//   - `throttlingRcuLimit` (Number).
+//
+// - `timeouts` [Block].
+//   - `default` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_ydb_database_serverless.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/ydbDatabaseServerless:YdbDatabaseServerless my_ydb ...
+// ```
 type YdbDatabaseServerless struct {
 	pulumi.CustomResourceState
 

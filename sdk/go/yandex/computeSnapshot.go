@@ -8,10 +8,72 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Creates a new snapshot of a disk. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/snapshot).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Compute Snapshot.
+//			_, err := yandex.NewComputeSnapshot(ctx, "default", &yandex.ComputeSnapshotArgs{
+//				Labels: pulumi.StringMap{
+//					"my-label": pulumi.String("my-label-value"),
+//				},
+//				SourceDiskId: pulumi.String("test_disk_id"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `diskSize` (*Read-Only*) (Number). Size of the disk when the snapshot was created, specified in GB.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `sourceDiskId` (**Required**)(String). ID of the disk to create a snapshot from.
+// - `storageSize` (*Read-Only*) (Number). Size of the snapshot, specified in GB.
+// - `hardwareGeneration` [Block]. Hardware generation and its features, which will be applied to the instance when this snapshot is used as a boot disk source. Provide this property if you wish to override this value, which otherwise is inherited from the source.
+//   - `generation2Features` [Block]. A newer hardware generation, which always uses `PCI_TOPOLOGY_V2` and UEFI boot.
+//   - `legacyFeatures` [Block]. Defines the first known hardware generation and its features.
+//   - `pciTopology` (String). A variant of PCI topology, one of `PCI_TOPOLOGY_V1` or `PCI_TOPOLOGY_V2`.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_compute_snapshot.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/computeSnapshot:ComputeSnapshot my_snapshot fd8hc**********o4qe2
+// ```
 type ComputeSnapshot struct {
 	pulumi.CustomResourceState
 

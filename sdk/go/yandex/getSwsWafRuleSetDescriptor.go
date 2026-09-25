@@ -7,10 +7,59 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetSwsWafRuleSetDescriptor(ctx, &yandex.GetSwsWafRuleSetDescriptorArgs{
+//				Name:    "OWASP Core Ruleset",
+//				Version: "4.0.0",
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `id` (String). ID of the rule set
+// - `name` (**Required**)(String). Name of the RuleSetDescriptor resource to return.
+// - `ruleSetDescriptorId` (*Read-Only*) (String). ID of the rule set
+// - `rules` [Block]. List of rules
+//   - `anomalyScore` (*Read-Only*) (Number). Numeric anomaly value, i.e., a potential attack indicator.
+//     The higher this value, the more likely it is that the request that satisfies the rule is an attack.
+//     See [documentation](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#anomaly).
+//   - `id` (String). ID of the rule
+//   - `paranoiaLevel` (*Read-Only*) (Number). Paranoia level classifies rules according to their aggression.
+//     The higher the paranoia level, the better your protection, but also the higher the probability of WAF false positives.
+//     See [documentation](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#paranoia).
+//   - `ruleSetDescriptorId` (*Read-Only*) (String). ID of the rule
+//
+// - `timeouts` [Block].
+//   - `create` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+//   - `delete` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+//   - `read` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Read operations occur during any refresh or planning operation when refresh is enabled.
+//   - `update` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+//
+// - `version` (**Required**)(String). Version of the RuleSetDescriptor resource to return.
 func GetSwsWafRuleSetDescriptor(ctx *pulumi.Context, args *GetSwsWafRuleSetDescriptorArgs, opts ...pulumi.InvokeOption) (*GetSwsWafRuleSetDescriptorResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv GetSwsWafRuleSetDescriptorResult
@@ -23,19 +72,20 @@ func GetSwsWafRuleSetDescriptor(ctx *pulumi.Context, args *GetSwsWafRuleSetDescr
 
 // A collection of arguments for invoking getSwsWafRuleSetDescriptor.
 type GetSwsWafRuleSetDescriptorArgs struct {
-	Name                *string `pulumi:"name"`
-	RuleSetDescriptorId *string `pulumi:"ruleSetDescriptorId"`
-	Version             string  `pulumi:"version"`
+	Id       *string                             `pulumi:"id"`
+	Name     string                              `pulumi:"name"`
+	Timeouts *GetSwsWafRuleSetDescriptorTimeouts `pulumi:"timeouts"`
+	Version  string                              `pulumi:"version"`
 }
 
 // A collection of values returned by getSwsWafRuleSetDescriptor.
 type GetSwsWafRuleSetDescriptorResult struct {
-	// The provider-assigned unique ID for this managed resource.
-	Id                  string                           `pulumi:"id"`
-	Name                string                           `pulumi:"name"`
-	RuleSetDescriptorId *string                          `pulumi:"ruleSetDescriptorId"`
-	Rules               []GetSwsWafRuleSetDescriptorRule `pulumi:"rules"`
-	Version             string                           `pulumi:"version"`
+	Id                  string                              `pulumi:"id"`
+	Name                string                              `pulumi:"name"`
+	RuleSetDescriptorId string                              `pulumi:"ruleSetDescriptorId"`
+	Rules               []GetSwsWafRuleSetDescriptorRule    `pulumi:"rules"`
+	Timeouts            *GetSwsWafRuleSetDescriptorTimeouts `pulumi:"timeouts"`
+	Version             string                              `pulumi:"version"`
 }
 
 func GetSwsWafRuleSetDescriptorOutput(ctx *pulumi.Context, args GetSwsWafRuleSetDescriptorOutputArgs, opts ...pulumi.InvokeOption) GetSwsWafRuleSetDescriptorResultOutput {
@@ -49,9 +99,10 @@ func GetSwsWafRuleSetDescriptorOutput(ctx *pulumi.Context, args GetSwsWafRuleSet
 
 // A collection of arguments for invoking getSwsWafRuleSetDescriptor.
 type GetSwsWafRuleSetDescriptorOutputArgs struct {
-	Name                pulumi.StringPtrInput `pulumi:"name"`
-	RuleSetDescriptorId pulumi.StringPtrInput `pulumi:"ruleSetDescriptorId"`
-	Version             pulumi.StringInput    `pulumi:"version"`
+	Id       pulumi.StringPtrInput                      `pulumi:"id"`
+	Name     pulumi.StringInput                         `pulumi:"name"`
+	Timeouts GetSwsWafRuleSetDescriptorTimeoutsPtrInput `pulumi:"timeouts"`
+	Version  pulumi.StringInput                         `pulumi:"version"`
 }
 
 func (GetSwsWafRuleSetDescriptorOutputArgs) ElementType() reflect.Type {
@@ -73,7 +124,6 @@ func (o GetSwsWafRuleSetDescriptorResultOutput) ToGetSwsWafRuleSetDescriptorResu
 	return o
 }
 
-// The provider-assigned unique ID for this managed resource.
 func (o GetSwsWafRuleSetDescriptorResultOutput) Id() pulumi.StringOutput {
 	return o.ApplyT(func(v GetSwsWafRuleSetDescriptorResult) string { return v.Id }).(pulumi.StringOutput)
 }
@@ -82,12 +132,16 @@ func (o GetSwsWafRuleSetDescriptorResultOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v GetSwsWafRuleSetDescriptorResult) string { return v.Name }).(pulumi.StringOutput)
 }
 
-func (o GetSwsWafRuleSetDescriptorResultOutput) RuleSetDescriptorId() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v GetSwsWafRuleSetDescriptorResult) *string { return v.RuleSetDescriptorId }).(pulumi.StringPtrOutput)
+func (o GetSwsWafRuleSetDescriptorResultOutput) RuleSetDescriptorId() pulumi.StringOutput {
+	return o.ApplyT(func(v GetSwsWafRuleSetDescriptorResult) string { return v.RuleSetDescriptorId }).(pulumi.StringOutput)
 }
 
 func (o GetSwsWafRuleSetDescriptorResultOutput) Rules() GetSwsWafRuleSetDescriptorRuleArrayOutput {
 	return o.ApplyT(func(v GetSwsWafRuleSetDescriptorResult) []GetSwsWafRuleSetDescriptorRule { return v.Rules }).(GetSwsWafRuleSetDescriptorRuleArrayOutput)
+}
+
+func (o GetSwsWafRuleSetDescriptorResultOutput) Timeouts() GetSwsWafRuleSetDescriptorTimeoutsPtrOutput {
+	return o.ApplyT(func(v GetSwsWafRuleSetDescriptorResult) *GetSwsWafRuleSetDescriptorTimeouts { return v.Timeouts }).(GetSwsWafRuleSetDescriptorTimeoutsPtrOutput)
 }
 
 func (o GetSwsWafRuleSetDescriptorResultOutput) Version() pulumi.StringOutput {

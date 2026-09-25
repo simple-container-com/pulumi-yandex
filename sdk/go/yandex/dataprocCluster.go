@@ -8,10 +8,270 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a Yandex Data Processing cluster. For more information, see [the official documentation](https://yandex.cloud/docs/data-proc/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"fmt"
+//	"os"
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func readFileOrPanic(path string) string {
+//		data, err := os.ReadFile(path)
+//		if err != nil {
+//			panic(err.Error())
+//		}
+//		return string(data)
+//	}
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources for Data Processing Cluster
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-b"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.1.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			dataprocIamServiceAccount, err := yandex.NewIamServiceAccount(ctx, "dataprocIamServiceAccount", &yandex.IamServiceAccountArgs{
+//				Description: pulumi.String("service account to manage Dataproc Cluster"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			fooResourcemanagerFolder, err := yandex.GetResourcemanagerFolder(ctx, &yandex.LookupResourcemanagerFolderArgs{
+//				FolderId: pulumi.StringRef("some_folder_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			dataprocResourcemanagerFolderIamBinding, err := yandex.NewResourcemanagerFolderIamBinding(ctx, "dataprocResourcemanagerFolderIamBinding", &yandex.ResourcemanagerFolderIamBindingArgs{
+//				FolderId: pulumi.String(fooResourcemanagerFolder.Id),
+//				Role:     pulumi.String("mdb.dataproc.agent"),
+//				Members: pulumi.StringArray{
+//					dataprocIamServiceAccount.IamServiceAccountId.ApplyT(func(iamServiceAccountId string) (string, error) {
+//						return fmt.Sprintf("serviceAccount:%v", iamServiceAccountId), nil
+//					}).(pulumi.StringOutput),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// required in order to create bucket
+//			bucket_creator, err := yandex.NewResourcemanagerFolderIamBinding(ctx, "bucket-creator", &yandex.ResourcemanagerFolderIamBindingArgs{
+//				FolderId: pulumi.String(fooResourcemanagerFolder.Id),
+//				Role:     pulumi.String("editor"),
+//				Members: pulumi.StringArray{
+//					dataprocIamServiceAccount.IamServiceAccountId.ApplyT(func(iamServiceAccountId string) (string, error) {
+//						return fmt.Sprintf("serviceAccount:%v", iamServiceAccountId), nil
+//					}).(pulumi.StringOutput),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			fooIamServiceAccountStaticAccessKey, err := yandex.NewIamServiceAccountStaticAccessKey(ctx, "fooIamServiceAccountStaticAccessKey", &yandex.IamServiceAccountStaticAccessKeyArgs{
+//				ServiceAccountId: dataprocIamServiceAccount.IamServiceAccountId,
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			fooStorageBucket, err := yandex.NewStorageBucket(ctx, "fooStorageBucket", &yandex.StorageBucketArgs{
+//				Bucket:    pulumi.String("foo"),
+//				AccessKey: fooIamServiceAccountStaticAccessKey.AccessKey,
+//				SecretKey: fooIamServiceAccountStaticAccessKey.SecretKey,
+//			}, pulumi.DependsOn([]pulumi.Resource{
+//				bucket_creator,
+//			}))
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new Data Processing Cluster.
+//			_, err = yandex.NewDataprocCluster(ctx, "fooDataprocCluster", &yandex.DataprocClusterArgs{
+//				Bucket:      fooStorageBucket.Bucket,
+//				Description: pulumi.String("Dataproc Cluster created by Terraform"),
+//				Labels: pulumi.StringMap{
+//					"created_by": pulumi.String("terraform"),
+//				},
+//				ServiceAccountId: dataprocIamServiceAccount.IamServiceAccountId,
+//				ZoneId:           pulumi.String("ru-central1-b"),
+//				ClusterConfig: &yandex.DataprocClusterClusterConfigArgs{
+//					Hadoop: &yandex.DataprocClusterClusterConfigHadoopArgs{
+//						Services: pulumi.StringArray{
+//							pulumi.String("HDFS"),
+//							pulumi.String("YARN"),
+//							pulumi.String("SPARK"),
+//							pulumi.String("TEZ"),
+//							pulumi.String("MAPREDUCE"),
+//							pulumi.String("HIVE"),
+//						},
+//						Properties: pulumi.StringMap{
+//							"yarn:yarn.resourcemanager.am.max-attempts": pulumi.String("5"),
+//						},
+//						SshPublicKeys: pulumi.StringArray{
+//							pulumi.String(readFileOrPanic("~/.ssh/id_rsa.pub")),
+//						},
+//						InitializationActions: yandex.DataprocClusterClusterConfigHadoopInitializationActionArray{
+//							&yandex.DataprocClusterClusterConfigHadoopInitializationActionArgs{
+//								Uri: pulumi.String("s3a://yandex_storage_bucket.foo.bucket/scripts/script.sh"),
+//								Args: pulumi.StringArray{
+//									pulumi.String("arg1"),
+//									pulumi.String("arg2"),
+//								},
+//							},
+//						},
+//					},
+//					SubclusterSpecs: yandex.DataprocClusterClusterConfigSubclusterSpecArray{
+//						&yandex.DataprocClusterClusterConfigSubclusterSpecArgs{
+//							Name: pulumi.String("main"),
+//							Role: pulumi.String("MASTERNODE"),
+//							Resources: &yandex.DataprocClusterClusterConfigSubclusterSpecResourcesArgs{
+//								ResourcePresetId: pulumi.String("s2.small"),
+//								DiskTypeId:       pulumi.String("network-hdd"),
+//								DiskSize:         pulumi.Int(20),
+//							},
+//							SubnetId:   fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//							HostsCount: pulumi.Int(1),
+//						},
+//						&yandex.DataprocClusterClusterConfigSubclusterSpecArgs{
+//							Name: pulumi.String("data"),
+//							Role: pulumi.String("DATANODE"),
+//							Resources: &yandex.DataprocClusterClusterConfigSubclusterSpecResourcesArgs{
+//								ResourcePresetId: pulumi.String("s2.small"),
+//								DiskTypeId:       pulumi.String("network-hdd"),
+//								DiskSize:         pulumi.Int(20),
+//							},
+//							SubnetId:   fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//							HostsCount: pulumi.Int(2),
+//						},
+//						&yandex.DataprocClusterClusterConfigSubclusterSpecArgs{
+//							Name: pulumi.String("compute"),
+//							Role: pulumi.String("COMPUTENODE"),
+//							Resources: &yandex.DataprocClusterClusterConfigSubclusterSpecResourcesArgs{
+//								ResourcePresetId: pulumi.String("s2.small"),
+//								DiskTypeId:       pulumi.String("network-hdd"),
+//								DiskSize:         pulumi.Int(20),
+//							},
+//							SubnetId:   fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//							HostsCount: pulumi.Int(2),
+//						},
+//						&yandex.DataprocClusterClusterConfigSubclusterSpecArgs{
+//							Name: pulumi.String("compute_autoscaling"),
+//							Role: pulumi.String("COMPUTENODE"),
+//							Resources: &yandex.DataprocClusterClusterConfigSubclusterSpecResourcesArgs{
+//								ResourcePresetId: pulumi.String("s2.small"),
+//								DiskTypeId:       pulumi.String("network-hdd"),
+//								DiskSize:         pulumi.Int(20),
+//							},
+//							SubnetId:   fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//							HostsCount: pulumi.Int(2),
+//							AutoscalingConfig: &yandex.DataprocClusterClusterConfigSubclusterSpecAutoscalingConfigArgs{
+//								MaxHostsCount:         pulumi.Int(10),
+//								MeasurementDuration:   pulumi.String("60"),
+//								WarmupDuration:        pulumi.String("60"),
+//								StabilizationDuration: pulumi.String("120"),
+//								Preemptible:           pulumi.Bool(false),
+//								DecommissionTimeout:   pulumi.String("60"),
+//							},
+//						},
+//					},
+//				},
+//			}, pulumi.DependsOn([]pulumi.Resource{
+//				dataprocResourcemanagerFolderIamBinding,
+//			}))
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `autoscalingServiceAccountId` (String). Service account to be used for managing hosts in an autoscaled subcluster.
+// - `bucket` (String). Name of the Object Storage bucket to use for Yandex Data Processing jobs. Yandex Data Processing Agent saves output of job driver's process to specified bucket. In order for this to work service account (specified by the `serviceAccountId` argument) should be given permission to create objects within this bucket.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `environment` (String). Deployment environment of the cluster. Can be either `PRESTABLE` or `PRODUCTION`. The default is `PRESTABLE`.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `hostGroupIds` (Set Of String). A list of host group IDs to place VMs of the cluster on.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `logGroupId` (String). ID of the cloud logging group for cluster logs.
+// - `name` (**Required**)(String). The resource name.
+// - `securityGroupIds` (Set Of String). The list of security groups applied to resource or their components.
+// - `serviceAccountId` (**Required**)(String). Service account to be used by the Yandex Data Processing agent to access resources of Yandex Cloud. Selected service account should have `mdb.dataproc.agent` role on the folder where the Yandex Data Processing cluster will be located.
+// - `uiProxy` (Bool). Whether to enable UI Proxy feature.
+// - `zoneId` (String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+// - `clusterConfig` [Block]. Configuration and resources for hosts that should be created with the cluster.
+//   - `versionId` (String). Version of Yandex Data Processing image.
+//   - `hadoop` [Block]. Yandex Data Processing specific options.
+//   - `oslogin` (Bool). Whether to enable authorization via OS Login.
+//   - `properties` (Map Of String). A set of key/value pairs that are used to configure cluster services.
+//   - `services` (Set Of String). List of services to run on Yandex Data Processing cluster.
+//   - `sshPublicKeys` (Set Of String). List of SSH public keys to put to the hosts of the cluster. For information on how to connect to the cluster, see [the official documentation](https://yandex.cloud/docs/data-proc/operations/connect).
+//   - `initializationAction` [Block]. List of initialization scripts.
+//   - `args` (List Of String). List of arguments of the initialization script.
+//   - `timeout` (String). Script execution timeout, in seconds.
+//   - `uri` (**Required**)(String). Script URI.
+//   - `subclusterSpec` [Block]. Configuration of the Yandex Data Processing subcluster.
+//   - `assignPublicIp` (Bool). If `true` then assign public IP addresses to the hosts of the subclusters.
+//   - `hostsCount` (**Required**)(Number). Number of hosts within Yandex Data Processing subcluster.
+//   - `id` (*Read-Only*) (String). ID of the subcluster.
+//   - `name` (**Required**)(String). Name of the Yandex Data Processing subcluster.
+//   - `role` (**Required**)(String). Role of the subcluster in the Yandex Data Processing cluster.
+//   - `subnetId` (**Required**)(String). The ID of the subnet, to which hosts of the subcluster belong. Subnets of all the subclusters must belong to the same VPC network.
+//   - `autoscalingConfig` [Block]. Autoscaling configuration for compute subclusters.
+//   - `cpuUtilizationTarget` (String). Defines an autoscaling rule based on the average CPU utilization of the instance group. If not set default autoscaling metric will be used.
+//   - `decommissionTimeout` (String). Timeout to gracefully decommission nodes during downscaling. In seconds.
+//   - `maxHostsCount` (**Required**)(Number). Maximum number of nodes in autoscaling subclusters.
+//   - `measurementDuration` (String). Time in seconds allotted for averaging metrics.
+//   - `preemptible` (Bool). Use preemptible compute instances. Preemptible instances are stopped at least once every 24 hours, and can be stopped at any time if their resources are needed by Compute. For more information, see [Preemptible Virtual Machines](https://yandex.cloud/docs/compute/concepts/preemptible-vm).
+//   - `stabilizationDuration` (String). Minimum amount of time in seconds allotted for monitoring before Instance Groups can reduce the number of instances in the group. During this time, the group size doesn't decrease, even if the new metric values indicate that it should.
+//   - `warmupDuration` (String). The warmup time of the instance in seconds. During this time, traffic is sent to the instance, but instance metrics are not collected.
+//   - `resources` [Block]. Resources allocated to each host of the Yandex Data Processing subcluster.
+//   - `diskSize` (**Required**)(Number). Volume of the storage available to a host, in gigabytes.
+//   - `diskTypeId` (String). Type of the storage of a host. One of `network-hdd` (default) or `network-ssd`.
+//   - `resourcePresetId` (**Required**)(String). The ID of the preset for computational resources available to a host. All available presets are listed in the [documentation](https://yandex.cloud/docs/data-proc/concepts/instance-types).
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_dataproc_cluster.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/dataprocCluster:DataprocCluster foo c9q85**********gpn21
+// ```
 type DataprocCluster struct {
 	pulumi.CustomResourceState
 

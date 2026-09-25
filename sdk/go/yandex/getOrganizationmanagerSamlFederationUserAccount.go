@@ -7,10 +7,47 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a user of Yandex SAML Federation. For more information, see [the official documentation](https://yandex.cloud/docs/organization/operations/federations/integration-common).
+//
+// > If terraform user had sufficient access and user specified in data source did not exist, it would be created. This behavior will was **fixed**. Use resource `OrganizationmanagerSamlFederationUserAccount` to manage account lifecycle.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			account, err := yandex.GetOrganizationmanagerSamlFederationUserAccount(ctx, &yandex.LookupOrganizationmanagerSamlFederationUserAccountArgs{
+//				FederationId: "some_federation_id",
+//				NameId:       "example@example.org",
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("myFederation.id", account.Id)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `federationId` (**Required**)(String). ID of a SAML Federation.
+// - `id` (String).
+// - `nameId` (**Required**)(String). Name ID of the SAML federated user.
 func LookupOrganizationmanagerSamlFederationUserAccount(ctx *pulumi.Context, args *LookupOrganizationmanagerSamlFederationUserAccountArgs, opts ...pulumi.InvokeOption) (*LookupOrganizationmanagerSamlFederationUserAccountResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupOrganizationmanagerSamlFederationUserAccountResult

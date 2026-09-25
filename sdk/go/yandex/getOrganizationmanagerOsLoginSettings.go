@@ -7,10 +7,49 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Cloud OS Login Settings.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetOrganizationmanagerOsLoginSettings(ctx, &yandex.LookupOrganizationmanagerOsLoginSettingsArgs{
+//				OrganizationId: pulumi.StringRef("some_organization_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("myOrganizationSshCertificatesEnabled", pulumi.String("data.yandex_organizationmanager_os_login_settings.my_os_login_settings.ssh_certificate_settings.0.enabled"))
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `id` (String).
+// - `organizationId` (String). ID of the organization.
+// - `sshCertificateSettings` [Block].
+//   - `enabled` (Bool).
+//
+// - `userSshKeySettings` [Block].
+//   - `allowManageOwnKeys` (Bool).
+//   - `enabled` (Bool).
 func LookupOrganizationmanagerOsLoginSettings(ctx *pulumi.Context, args *LookupOrganizationmanagerOsLoginSettingsArgs, opts ...pulumi.InvokeOption) (*LookupOrganizationmanagerOsLoginSettingsResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupOrganizationmanagerOsLoginSettingsResult

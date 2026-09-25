@@ -7,10 +7,70 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex VPC address. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/address).
+//
+// This data source is used to define [VPC Address](https://yandex.cloud/docs/vpc/concepts/address) that can be used by other resources.
+//
+// > One of `addressId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetVpcAddress(ctx, &yandex.LookupVpcAddressArgs{
+//				AddressId: pulumi.StringRef("my-address-id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `addressId` (String). ID of the address.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (*Read-Only*) (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `dnsRecord` (*Read-Only*) (List Of Object). DNS record specifications.
+//   - `dnsZoneId` .
+//   - `fqdn` .
+//   - `ptr` .
+//   - `ttl` .
+//
+// - `externalIpv4Address` (*Read-Only*) (List Of Object). External IPv4 address specification.
+//   - `address` .
+//   - `ddosProtectionProvider` .
+//   - `outgoingSmtpCapability` .
+//   - `zoneId` .
+//
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `internalIpv4Address` (*Read-Only*) (List Of Object). Internal IPv4 address specification.
+//   - `address` .
+//   - `subnetId` .
+//
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `reserved` (*Read-Only*) (Bool). `false` means that address is ephemeral.
+// - `used` (*Read-Only*) (Bool). `true` if address is used.
 func LookupVpcAddress(ctx *pulumi.Context, args *LookupVpcAddressArgs, opts ...pulumi.InvokeOption) (*LookupVpcAddressResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupVpcAddressResult
@@ -38,11 +98,12 @@ type LookupVpcAddressResult struct {
 	ExternalIpv4Addresses []GetVpcAddressExternalIpv4Address `pulumi:"externalIpv4Addresses"`
 	FolderId              string                             `pulumi:"folderId"`
 	// The provider-assigned unique ID for this managed resource.
-	Id       string            `pulumi:"id"`
-	Labels   map[string]string `pulumi:"labels"`
-	Name     string            `pulumi:"name"`
-	Reserved bool              `pulumi:"reserved"`
-	Used     bool              `pulumi:"used"`
+	Id                    string                             `pulumi:"id"`
+	InternalIpv4Addresses []GetVpcAddressInternalIpv4Address `pulumi:"internalIpv4Addresses"`
+	Labels                map[string]string                  `pulumi:"labels"`
+	Name                  string                             `pulumi:"name"`
+	Reserved              bool                               `pulumi:"reserved"`
+	Used                  bool                               `pulumi:"used"`
 }
 
 func LookupVpcAddressOutput(ctx *pulumi.Context, args LookupVpcAddressOutputArgs, opts ...pulumi.InvokeOption) LookupVpcAddressResultOutput {
@@ -111,6 +172,10 @@ func (o LookupVpcAddressResultOutput) FolderId() pulumi.StringOutput {
 // The provider-assigned unique ID for this managed resource.
 func (o LookupVpcAddressResultOutput) Id() pulumi.StringOutput {
 	return o.ApplyT(func(v LookupVpcAddressResult) string { return v.Id }).(pulumi.StringOutput)
+}
+
+func (o LookupVpcAddressResultOutput) InternalIpv4Addresses() GetVpcAddressInternalIpv4AddressArrayOutput {
+	return o.ApplyT(func(v LookupVpcAddressResult) []GetVpcAddressInternalIpv4Address { return v.InternalIpv4Addresses }).(GetVpcAddressInternalIpv4AddressArrayOutput)
 }
 
 func (o LookupVpcAddressResultOutput) Labels() pulumi.StringMapOutput {

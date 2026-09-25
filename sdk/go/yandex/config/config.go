@@ -4,9 +4,9 @@
 package config
 
 import (
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
 var _ = internal.GetEnvOrDefault
@@ -23,6 +23,12 @@ func GetCloudId(ctx *pulumi.Context) string {
 		value = d.(string)
 	}
 	return value
+}
+
+// Yandex DataLens [DataLens API Endpoint](https://yandex.cloud/docs/datalens/). Default value is **https://api.datalens.tech**.
+// This can also be defined by environment variable `YC_DATALENS_ENDPOINT`.
+func GetDatalensEndpoint(ctx *pulumi.Context) string {
+	return config.Get(ctx, "yandex:datalensEndpoint")
 }
 
 // The endpoint for API calls, default value is **api.cloud.yandex.net:443**.

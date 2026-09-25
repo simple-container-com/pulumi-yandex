@@ -7,8 +7,8 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
 // The provider type for the yandex package. By default, resources use package-wide configuration
@@ -21,6 +21,9 @@ type Provider struct {
 	// The ID of the [Cloud](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#cloud) to apply any resources to.
 	// This can also be specified using environment variable `YC_CLOUD_ID`.
 	CloudId pulumi.StringPtrOutput `pulumi:"cloudId"`
+	// Yandex DataLens [DataLens API Endpoint](https://yandex.cloud/docs/datalens/). Default value is **https://api.datalens.tech**.
+	// This can also be defined by environment variable `YC_DATALENS_ENDPOINT`.
+	DatalensEndpoint pulumi.StringPtrOutput `pulumi:"datalensEndpoint"`
 	// The endpoint for API calls, default value is **api.cloud.yandex.net:443**.
 	// This can also be defined by environment variable `YC_ENDPOINT`.
 	Endpoint pulumi.StringPtrOutput `pulumi:"endpoint"`
@@ -202,6 +205,9 @@ type providerArgs struct {
 	// The ID of the [Cloud](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#cloud) to apply any resources to.
 	// This can also be specified using environment variable `YC_CLOUD_ID`.
 	CloudId *string `pulumi:"cloudId"`
+	// Yandex DataLens [DataLens API Endpoint](https://yandex.cloud/docs/datalens/). Default value is **https://api.datalens.tech**.
+	// This can also be defined by environment variable `YC_DATALENS_ENDPOINT`.
+	DatalensEndpoint *string `pulumi:"datalensEndpoint"`
 	// The endpoint for API calls, default value is **api.cloud.yandex.net:443**.
 	// This can also be defined by environment variable `YC_ENDPOINT`.
 	Endpoint *string `pulumi:"endpoint"`
@@ -264,6 +270,9 @@ type ProviderArgs struct {
 	// The ID of the [Cloud](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#cloud) to apply any resources to.
 	// This can also be specified using environment variable `YC_CLOUD_ID`.
 	CloudId pulumi.StringPtrInput
+	// Yandex DataLens [DataLens API Endpoint](https://yandex.cloud/docs/datalens/). Default value is **https://api.datalens.tech**.
+	// This can also be defined by environment variable `YC_DATALENS_ENDPOINT`.
+	DatalensEndpoint pulumi.StringPtrInput
 	// The endpoint for API calls, default value is **api.cloud.yandex.net:443**.
 	// This can also be defined by environment variable `YC_ENDPOINT`.
 	Endpoint pulumi.StringPtrInput
@@ -385,6 +394,12 @@ func (o ProviderOutput) ToProviderOutputWithContext(ctx context.Context) Provide
 // This can also be specified using environment variable `YC_CLOUD_ID`.
 func (o ProviderOutput) CloudId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.CloudId }).(pulumi.StringPtrOutput)
+}
+
+// Yandex DataLens [DataLens API Endpoint](https://yandex.cloud/docs/datalens/). Default value is **https://api.datalens.tech**.
+// This can also be defined by environment variable `YC_DATALENS_ENDPOINT`.
+func (o ProviderOutput) DatalensEndpoint() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.DatalensEndpoint }).(pulumi.StringPtrOutput)
 }
 
 // The endpoint for API calls, default value is **api.cloud.yandex.net:443**.

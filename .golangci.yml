@@ -38,7 +38,7 @@ formatters:
         - blank
         - default
         - prefix(github.com/pulumi/)
-        - prefix(github.com/masikrus/pulumi-yandex)
+        - prefix(github.com/simple-container-com/pulumi-yandex)
       custom-order: true
   exclusions:
     generated: lax

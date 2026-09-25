@@ -7,29 +7,1185 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// A AdvancedRateLimiterProfile (ARL) resource.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new SWS Advanced Rate Limiter Profile.
+//			_, err := yandex.NewSwsAdvancedRateLimiterProfile(ctx, "demo-profile", &yandex.SwsAdvancedRateLimiterProfileArgs{
+//				AdvancedRateLimiterRules: yandex.SwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleArray{
+//					&yandex.SwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleArgs{
+//						Description: pulumi.String("First test rule"),
+//						DryRun:      pulumi.Bool(true),
+//						Name:        pulumi.String("rule1"),
+//						Priority:    pulumi.Int(10),
+//						StaticQuota: &yandex.SwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStaticQuotaArgs{
+//							Action: pulumi.String("DENY"),
+//							Condition: &yandex.SwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStaticQuotaConditionArgs{
+//								RequestUri: &yandex.SwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStaticQuotaConditionRequestUriArgs{
+//									Path: &yandex.SwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStaticQuotaConditionRequestUriPathArgs{
+//										ExactMatch: pulumi.String("/api"),
+//									},
+//								},
+//							},
+//							Limit:  pulumi.Int(10000000),
+//							Period: pulumi.Int(1),
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `advancedRateLimiterProfileId` (String). ID of the AdvancedRateLimiterProfile resource to return.
+// - `cloudId` (String). ID of the cloud that the ARL profile belongs to.
+// - `createdAt` (*Read-Only*) (String). Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+// - `description` (String). Optional description of the ARL profile.
+// - `folderId` (String). ID of the folder that the ARL profile belongs to.
+// - `id` (String). ID of the AdvancedRateLimiterProfile resource to return.
+// - `labels` (Map Of String). Labels as “key:value“ pairs. Maximum of 64 per resource.
+// - `name` (**Required**)(String). Name of the ARL profile. The name is unique within the folder. 1-50 characters long.
+// - `updatedAt` (*Read-Only*) (String). Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+// - `advancedRateLimiterRule` [Block]. List of rules.
+//   - `description` (String). Optional description of the rule. 0-512 characters long.
+//   - `dryRun` (Bool). This allows you to evaluate backend capabilities and find the optimum limit values.
+//     Requests will not be blocked in this mode.
+//   - `name` (**Required**)(String). Name of the rule. The name is unique within the ARL profile. 1-50 characters long.
+//   - `priority` (Number). Determines the priority in case there are several matched rules.
+//     Enter an integer within the range of 1 and 999999.
+//     The rule priority must be unique within the entire ARL profile.
+//     A lower numeric value means a higher priority.
+//   - `dynamicQuota` [Block]. Dynamic quota. Grouping requests by a certain attribute and limiting the number of groups.
+//   - `action` (**Required**)(String). Action in case of exceeding this quota.
+//   - `banPeriod` (Number). Duration of the temporary ban, in seconds.
+//   - `limit` (Number). Desired maximum number of requests per period.
+//     Enter an integer within the range of 1 and 9999999999999.
+//   - `period` (Number). Period of time in seconds.
+//   - `characteristic` [Block]. List of characteristics.
+//   - `caseInsensitive` (Bool). Desired maximum number of requests per period.
+//     Enter an integer within the range of 1 and 9999999999999.
+//   - `keyCharacteristic` [Block]. The condition for matching the quota.
+//   - `type` (String). package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter
+//
+// filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto
+//
+//   - `value` (String). package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter
+//
+// filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto
+//
+//   - `simpleCharacteristic` [Block]. Action in case of exceeding this quota.
+//
+//   - `type` (String). package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter
+//     filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto
+//
+//   - `condition` [Block]. The condition for matching the quota.
+//
+//   - `authority` [Block]. Match authority (Host header).
+//
+//   - `authorities` [Block]. List of authorities. OR semantics implied.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `authorityMatcher` [Block]. Authority matcher.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `botCategory` [Block]. Match bot category.
+//
+//   - `botCategoryListsMatch` [Block]. Bot category lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `botCategoryListsNotMatch` [Block]. Bot category lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `botName` [Block]. Match bot name.
+//
+//   - `botNameListsMatch` [Block]. Bot name lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `botNameListsNotMatch` [Block]. Bot name lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `botScore` [Block]. Match bot score.
+//
+//   - `value` [Block]. List of integer matchers for bot score. OR semantics implied.
+//
+//   - `eqMatch` [Block]. Equal condition.
+//
+//   - `value` (Number). Value to match against.
+//
+//   - `geMatch` [Block]. Greater than or equal condition.
+//
+//   - `value` (Number). Lower bound value (inclusive).
+//
+//   - `leMatch` [Block]. Less than or equal condition.
+//
+//   - `value` (Number). Upper bound value (inclusive).
+//
+//   - `neMatch` [Block]. Not equal condition.
+//
+//   - `value` (Number). Value to not match against.
+//
+//   - `cookies` [Block]. Match cookies.
+//
+//   - `name` (**Required**)(String). Name of the cookie parametr.
+//
+//   - `value` [Block]. Value of the cookie parametr.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `fingerPrint` [Block]. Match fingerprint.
+//
+//   - `ja3Matcher` [Block]. JA3 fingerprint matcher.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `ja3Ranges` [Block]. List of JA3 fingerprint matchers. OR semantics implied.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `ja4Matcher` [Block]. JA4 fingerprint matcher.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `ja4Ranges` [Block]. List of JA4 fingerprint matchers. OR semantics implied.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `headers` [Block]. Match HTTP headers.
+//
+//   - `name` (**Required**)(String). Name of header (case insensitive).
+//
+//   - `value` [Block]. Value of the header.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `httpMethod` [Block]. Match HTTP method.
+//
+//   - `httpMethodMatcher` [Block]. HTTP method matcher.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `httpMethods` [Block]. List of HTTP methods. OR semantics implied.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `requestUri` [Block]. Match Request URI.
+//
+//   - `path` [Block]. Path of the URI [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3).
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `queries` [Block]. List of query matchers. AND semantics implied.
+//
+//   - `key` (**Required**)(String). Key of the query parameter.
+//
+//   - `value` [Block]. Value of the query parameter.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `sourceIp` [Block]. Match IP.
+//
+//   - `asnListsMatch` [Block]. ASN lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `asnListsNotMatch` [Block]. ASN lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `asnRangesMatch` [Block]. ASN ranges to match with.
+//
+//   - `asnRanges` (List Of Number). List of ASN values to match against. OR semantics implied.
+//
+//   - `asnRangesNotMatch` [Block]. ASN ranges to not match with.
+//
+//   - `asnRanges` (List Of Number). List of ASN values to match against. OR semantics implied.
+//
+//   - `geoIpMatch` [Block]. Geo locations to match with.
+//
+//   - `locations` (List Of String). ISO 3166-1 alpha 2. OR semantics implied.
+//
+//   - `geoIpNotMatch` [Block]. Geo locations to not match with.
+//
+//   - `locations` (List Of String). ISO 3166-1 alpha 2. OR semantics implied.
+//
+//   - `ipListsMatch` [Block]. IP lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `ipListsNotMatch` [Block]. IP lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `ipRangesMatch` [Block]. IP ranges to match with.
+//
+//   - `ipRanges` (List Of String). List of IP ranges. OR semantics implied.
+//
+//   - `ipRangesNotMatch` [Block]. IP ranges to not match with.
+//
+//   - `ipRanges` (List Of String). List of IP ranges. OR semantics implied.
+//
+//   - `verifiedBot` [Block]. Match verified bot.
+//
+//   - `verified` [Block]. Matches if the bot is verified or not.
+//
+//   - `match` (Bool). Boolean value to match against.
+//
+//   - `staticQuota` [Block]. Static quota. Counting each request individually.
+//
+//   - `action` (**Required**)(String). Action in case of exceeding this quota.
+//
+//   - `limit` (Number). Desired maximum number of requests per period.
+//     Enter an integer within the range of 1 and 9999999999999.
+//
+//   - `period` (Number). Period of time in seconds.
+//
+//   - `condition` [Block]. The condition for matching the quota.
+//
+//   - `authority` [Block]. Match authority (Host header).
+//
+//   - `authorities` [Block]. List of authorities. OR semantics implied.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `authorityMatcher` [Block]. Authority matcher.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `botCategory` [Block]. Match bot category.
+//
+//   - `botCategoryListsMatch` [Block]. Bot category lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `botCategoryListsNotMatch` [Block]. Bot category lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `botName` [Block]. Match bot name.
+//
+//   - `botNameListsMatch` [Block]. Bot name lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `botNameListsNotMatch` [Block]. Bot name lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `botScore` [Block]. Match bot score.
+//
+//   - `value` [Block]. List of integer matchers for bot score. OR semantics implied.
+//
+//   - `eqMatch` [Block]. Equal condition.
+//
+//   - `value` (Number). Value to match against.
+//
+//   - `geMatch` [Block]. Greater than or equal condition.
+//
+//   - `value` (Number). Lower bound value (inclusive).
+//
+//   - `leMatch` [Block]. Less than or equal condition.
+//
+//   - `value` (Number). Upper bound value (inclusive).
+//
+//   - `neMatch` [Block]. Not equal condition.
+//
+//   - `value` (Number). Value to not match against.
+//
+//   - `cookies` [Block]. Match cookies.
+//
+//   - `name` (**Required**)(String). Name of the cookie parametr.
+//
+//   - `value` [Block]. Value of the cookie parametr.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `fingerPrint` [Block]. Match fingerprint.
+//
+//   - `ja3Matcher` [Block]. JA3 fingerprint matcher.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `ja3Ranges` [Block]. List of JA3 fingerprint matchers. OR semantics implied.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `ja4Matcher` [Block]. JA4 fingerprint matcher.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `ja4Ranges` [Block]. List of JA4 fingerprint matchers. OR semantics implied.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `headers` [Block]. Match HTTP headers.
+//
+//   - `name` (**Required**)(String). Name of header (case insensitive).
+//
+//   - `value` [Block]. Value of the header.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `httpMethod` [Block]. Match HTTP method.
+//
+//   - `httpMethodMatcher` [Block]. HTTP method matcher.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `httpMethods` [Block]. List of HTTP methods. OR semantics implied.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `requestUri` [Block]. Match Request URI.
+//
+//   - `path` [Block]. Path of the URI [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3).
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `queries` [Block]. List of query matchers. AND semantics implied.
+//
+//   - `key` (**Required**)(String). Key of the query parameter.
+//
+//   - `value` [Block]. Value of the query parameter.
+//
+//   - `defined` (Bool). Matches if the field is defined.
+//
+//   - `exactMatch` (String). Exact match condition.
+//
+//   - `exactNotMatch` (String). Exact not match condition.
+//
+//   - `pireRegexMatch` (String). PIRE regex match condition.
+//
+//   - `pireRegexNotMatch` (String). PIRE regex not match condition.
+//
+//   - `prefixMatch` (String). Prefix match condition.
+//
+//   - `prefixNotMatch` (String). Prefix not match condition.
+//
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsMatch` [Block]. String lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `sourceIp` [Block]. Match IP.
+//
+//   - `asnListsMatch` [Block]. ASN lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `asnListsNotMatch` [Block]. ASN lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `asnRangesMatch` [Block]. ASN ranges to match with.
+//
+//   - `asnRanges` (List Of Number). List of ASN values to match against. OR semantics implied.
+//
+//   - `asnRangesNotMatch` [Block]. ASN ranges to not match with.
+//
+//   - `asnRanges` (List Of Number). List of ASN values to match against. OR semantics implied.
+//
+//   - `geoIpMatch` [Block]. Geo locations to match with.
+//
+//   - `locations` (List Of String). ISO 3166-1 alpha 2. OR semantics implied.
+//
+//   - `geoIpNotMatch` [Block]. Geo locations to not match with.
+//
+//   - `locations` (List Of String). ISO 3166-1 alpha 2. OR semantics implied.
+//
+//   - `ipListsMatch` [Block]. IP lists to match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `ipListsNotMatch` [Block]. IP lists to not match with.
+//
+//   - `listIds` (List Of String). List of list IDs to match against. OR semantics implied.
+//
+//   - `ipRangesMatch` [Block]. IP ranges to match with.
+//
+//   - `ipRanges` (List Of String). List of IP ranges. OR semantics implied.
+//
+//   - `ipRangesNotMatch` [Block]. IP ranges to not match with.
+//
+//   - `ipRanges` (List Of String). List of IP ranges. OR semantics implied.
+//
+//   - `verifiedBot` [Block]. Match verified bot.
+//
+//   - `verified` [Block]. Matches if the bot is verified or not.
+//
+//   - `match` (Bool). Boolean value to match against.
+//
+// - `timeouts` [Block].
+//   - `create` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+//   - `delete` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+//   - `read` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Read operations occur during any refresh or planning operation when refresh is enabled.
+//   - `update` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_sws_advanced_rate_limiter_profile.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/swsAdvancedRateLimiterProfile:SwsAdvancedRateLimiterProfile demo-profile ...
+// ```
 type SwsAdvancedRateLimiterProfile struct {
 	pulumi.CustomResourceState
 
+	// ID of the AdvancedRateLimiterProfile resource to return.
+	AdvancedRateLimiterProfileId pulumi.StringOutput `pulumi:"advancedRateLimiterProfileId"`
 	// List of rules.
-	//
-	// > Exactly one rule specifier: `staticQuota` or `dynamicQuota` should be specified.
 	AdvancedRateLimiterRules SwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleArrayOutput `pulumi:"advancedRateLimiterRules"`
-	// The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+	// ID of the cloud that the ARL profile belongs to.
 	CloudId pulumi.StringOutput `pulumi:"cloudId"`
-	// The creation timestamp of the resource.
+	// Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// The resource description.
-	Description pulumi.StringPtrOutput `pulumi:"description"`
-	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+	// Optional description of the ARL profile.
+	Description pulumi.StringOutput `pulumi:"description"`
+	// ID of the folder that the ARL profile belongs to.
 	FolderId pulumi.StringOutput `pulumi:"folderId"`
-	// A set of key/value label pairs which assigned to resource.
+	// Labels as ``key:value`` pairs. Maximum of 64 per resource.
 	Labels pulumi.StringMapOutput `pulumi:"labels"`
-	// The resource name.
+	// Name of the ARL profile. The name is unique within the folder. 1-50 characters long.
 	Name pulumi.StringOutput `pulumi:"name"`
+	// ID of the AdvancedRateLimiterProfile resource to return.
+	SwsAdvancedRateLimiterProfileId pulumi.StringOutput                            `pulumi:"swsAdvancedRateLimiterProfileId"`
+	Timeouts                        SwsAdvancedRateLimiterProfileTimeoutsPtrOutput `pulumi:"timeouts"`
+	// Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+	UpdatedAt pulumi.StringOutput `pulumi:"updatedAt"`
 }
 
 // NewSwsAdvancedRateLimiterProfile registers a new resource with the given unique name, arguments, and options.
@@ -62,41 +1218,51 @@ func GetSwsAdvancedRateLimiterProfile(ctx *pulumi.Context,
 
 // Input properties used for looking up and filtering SwsAdvancedRateLimiterProfile resources.
 type swsAdvancedRateLimiterProfileState struct {
+	// ID of the AdvancedRateLimiterProfile resource to return.
+	AdvancedRateLimiterProfileId *string `pulumi:"advancedRateLimiterProfileId"`
 	// List of rules.
-	//
-	// > Exactly one rule specifier: `staticQuota` or `dynamicQuota` should be specified.
 	AdvancedRateLimiterRules []SwsAdvancedRateLimiterProfileAdvancedRateLimiterRule `pulumi:"advancedRateLimiterRules"`
-	// The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+	// ID of the cloud that the ARL profile belongs to.
 	CloudId *string `pulumi:"cloudId"`
-	// The creation timestamp of the resource.
+	// Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
 	CreatedAt *string `pulumi:"createdAt"`
-	// The resource description.
+	// Optional description of the ARL profile.
 	Description *string `pulumi:"description"`
-	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+	// ID of the folder that the ARL profile belongs to.
 	FolderId *string `pulumi:"folderId"`
-	// A set of key/value label pairs which assigned to resource.
+	// Labels as ``key:value`` pairs. Maximum of 64 per resource.
 	Labels map[string]string `pulumi:"labels"`
-	// The resource name.
+	// Name of the ARL profile. The name is unique within the folder. 1-50 characters long.
 	Name *string `pulumi:"name"`
+	// ID of the AdvancedRateLimiterProfile resource to return.
+	SwsAdvancedRateLimiterProfileId *string                                `pulumi:"swsAdvancedRateLimiterProfileId"`
+	Timeouts                        *SwsAdvancedRateLimiterProfileTimeouts `pulumi:"timeouts"`
+	// Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+	UpdatedAt *string `pulumi:"updatedAt"`
 }
 
 type SwsAdvancedRateLimiterProfileState struct {
+	// ID of the AdvancedRateLimiterProfile resource to return.
+	AdvancedRateLimiterProfileId pulumi.StringPtrInput
 	// List of rules.
-	//
-	// > Exactly one rule specifier: `staticQuota` or `dynamicQuota` should be specified.
 	AdvancedRateLimiterRules SwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleArrayInput
-	// The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+	// ID of the cloud that the ARL profile belongs to.
 	CloudId pulumi.StringPtrInput
-	// The creation timestamp of the resource.
+	// Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
 	CreatedAt pulumi.StringPtrInput
-	// The resource description.
+	// Optional description of the ARL profile.
 	Description pulumi.StringPtrInput
-	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+	// ID of the folder that the ARL profile belongs to.
 	FolderId pulumi.StringPtrInput
-	// A set of key/value label pairs which assigned to resource.
+	// Labels as ``key:value`` pairs. Maximum of 64 per resource.
 	Labels pulumi.StringMapInput
-	// The resource name.
+	// Name of the ARL profile. The name is unique within the folder. 1-50 characters long.
 	Name pulumi.StringPtrInput
+	// ID of the AdvancedRateLimiterProfile resource to return.
+	SwsAdvancedRateLimiterProfileId pulumi.StringPtrInput
+	Timeouts                        SwsAdvancedRateLimiterProfileTimeoutsPtrInput
+	// Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+	UpdatedAt pulumi.StringPtrInput
 }
 
 func (SwsAdvancedRateLimiterProfileState) ElementType() reflect.Type {
@@ -104,38 +1270,44 @@ func (SwsAdvancedRateLimiterProfileState) ElementType() reflect.Type {
 }
 
 type swsAdvancedRateLimiterProfileArgs struct {
+	// ID of the AdvancedRateLimiterProfile resource to return.
+	AdvancedRateLimiterProfileId *string `pulumi:"advancedRateLimiterProfileId"`
 	// List of rules.
-	//
-	// > Exactly one rule specifier: `staticQuota` or `dynamicQuota` should be specified.
 	AdvancedRateLimiterRules []SwsAdvancedRateLimiterProfileAdvancedRateLimiterRule `pulumi:"advancedRateLimiterRules"`
-	// The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+	// ID of the cloud that the ARL profile belongs to.
 	CloudId *string `pulumi:"cloudId"`
-	// The resource description.
+	// Optional description of the ARL profile.
 	Description *string `pulumi:"description"`
-	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+	// ID of the folder that the ARL profile belongs to.
 	FolderId *string `pulumi:"folderId"`
-	// A set of key/value label pairs which assigned to resource.
+	// Labels as ``key:value`` pairs. Maximum of 64 per resource.
 	Labels map[string]string `pulumi:"labels"`
-	// The resource name.
+	// Name of the ARL profile. The name is unique within the folder. 1-50 characters long.
 	Name *string `pulumi:"name"`
+	// ID of the AdvancedRateLimiterProfile resource to return.
+	SwsAdvancedRateLimiterProfileId *string                                `pulumi:"swsAdvancedRateLimiterProfileId"`
+	Timeouts                        *SwsAdvancedRateLimiterProfileTimeouts `pulumi:"timeouts"`
 }
 
 // The set of arguments for constructing a SwsAdvancedRateLimiterProfile resource.
 type SwsAdvancedRateLimiterProfileArgs struct {
+	// ID of the AdvancedRateLimiterProfile resource to return.
+	AdvancedRateLimiterProfileId pulumi.StringPtrInput
 	// List of rules.
-	//
-	// > Exactly one rule specifier: `staticQuota` or `dynamicQuota` should be specified.
 	AdvancedRateLimiterRules SwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleArrayInput
-	// The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+	// ID of the cloud that the ARL profile belongs to.
 	CloudId pulumi.StringPtrInput
-	// The resource description.
+	// Optional description of the ARL profile.
 	Description pulumi.StringPtrInput
-	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+	// ID of the folder that the ARL profile belongs to.
 	FolderId pulumi.StringPtrInput
-	// A set of key/value label pairs which assigned to resource.
+	// Labels as ``key:value`` pairs. Maximum of 64 per resource.
 	Labels pulumi.StringMapInput
-	// The resource name.
+	// Name of the ARL profile. The name is unique within the folder. 1-50 characters long.
 	Name pulumi.StringPtrInput
+	// ID of the AdvancedRateLimiterProfile resource to return.
+	SwsAdvancedRateLimiterProfileId pulumi.StringPtrInput
+	Timeouts                        SwsAdvancedRateLimiterProfileTimeoutsPtrInput
 }
 
 func (SwsAdvancedRateLimiterProfileArgs) ElementType() reflect.Type {
@@ -225,43 +1397,62 @@ func (o SwsAdvancedRateLimiterProfileOutput) ToSwsAdvancedRateLimiterProfileOutp
 	return o
 }
 
+// ID of the AdvancedRateLimiterProfile resource to return.
+func (o SwsAdvancedRateLimiterProfileOutput) AdvancedRateLimiterProfileId() pulumi.StringOutput {
+	return o.ApplyT(func(v *SwsAdvancedRateLimiterProfile) pulumi.StringOutput { return v.AdvancedRateLimiterProfileId }).(pulumi.StringOutput)
+}
+
 // List of rules.
-//
-// > Exactly one rule specifier: `staticQuota` or `dynamicQuota` should be specified.
 func (o SwsAdvancedRateLimiterProfileOutput) AdvancedRateLimiterRules() SwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleArrayOutput {
 	return o.ApplyT(func(v *SwsAdvancedRateLimiterProfile) SwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleArrayOutput {
 		return v.AdvancedRateLimiterRules
 	}).(SwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleArrayOutput)
 }
 
-// The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+// ID of the cloud that the ARL profile belongs to.
 func (o SwsAdvancedRateLimiterProfileOutput) CloudId() pulumi.StringOutput {
 	return o.ApplyT(func(v *SwsAdvancedRateLimiterProfile) pulumi.StringOutput { return v.CloudId }).(pulumi.StringOutput)
 }
 
-// The creation timestamp of the resource.
+// Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
 func (o SwsAdvancedRateLimiterProfileOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *SwsAdvancedRateLimiterProfile) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// The resource description.
-func (o SwsAdvancedRateLimiterProfileOutput) Description() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v *SwsAdvancedRateLimiterProfile) pulumi.StringPtrOutput { return v.Description }).(pulumi.StringPtrOutput)
+// Optional description of the ARL profile.
+func (o SwsAdvancedRateLimiterProfileOutput) Description() pulumi.StringOutput {
+	return o.ApplyT(func(v *SwsAdvancedRateLimiterProfile) pulumi.StringOutput { return v.Description }).(pulumi.StringOutput)
 }
 
-// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// ID of the folder that the ARL profile belongs to.
 func (o SwsAdvancedRateLimiterProfileOutput) FolderId() pulumi.StringOutput {
 	return o.ApplyT(func(v *SwsAdvancedRateLimiterProfile) pulumi.StringOutput { return v.FolderId }).(pulumi.StringOutput)
 }
 
-// A set of key/value label pairs which assigned to resource.
+// Labels as “key:value“ pairs. Maximum of 64 per resource.
 func (o SwsAdvancedRateLimiterProfileOutput) Labels() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *SwsAdvancedRateLimiterProfile) pulumi.StringMapOutput { return v.Labels }).(pulumi.StringMapOutput)
 }
 
-// The resource name.
+// Name of the ARL profile. The name is unique within the folder. 1-50 characters long.
 func (o SwsAdvancedRateLimiterProfileOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *SwsAdvancedRateLimiterProfile) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
+}
+
+// ID of the AdvancedRateLimiterProfile resource to return.
+func (o SwsAdvancedRateLimiterProfileOutput) SwsAdvancedRateLimiterProfileId() pulumi.StringOutput {
+	return o.ApplyT(func(v *SwsAdvancedRateLimiterProfile) pulumi.StringOutput { return v.SwsAdvancedRateLimiterProfileId }).(pulumi.StringOutput)
+}
+
+func (o SwsAdvancedRateLimiterProfileOutput) Timeouts() SwsAdvancedRateLimiterProfileTimeoutsPtrOutput {
+	return o.ApplyT(func(v *SwsAdvancedRateLimiterProfile) SwsAdvancedRateLimiterProfileTimeoutsPtrOutput {
+		return v.Timeouts
+	}).(SwsAdvancedRateLimiterProfileTimeoutsPtrOutput)
+}
+
+// Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+func (o SwsAdvancedRateLimiterProfileOutput) UpdatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v *SwsAdvancedRateLimiterProfile) pulumi.StringOutput { return v.UpdatedAt }).(pulumi.StringOutput)
 }
 
 type SwsAdvancedRateLimiterProfileArrayOutput struct{ *pulumi.OutputState }

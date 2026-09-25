@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	"github.com/blang/semver"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
 type module struct {
@@ -21,6 +21,12 @@ func (m *module) Version() semver.Version {
 
 func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi.Resource, err error) {
 	switch typ {
+	case "yandex:index/airflowCluster:AirflowCluster":
+		r = &AirflowCluster{}
+	case "yandex:index/airflowClusterChangeFreeze:AirflowClusterChangeFreeze":
+		r = &AirflowClusterChangeFreeze{}
+	case "yandex:index/airflowClusterIamBinding:AirflowClusterIamBinding":
+		r = &AirflowClusterIamBinding{}
 	case "yandex:index/albBackendGroup:AlbBackendGroup":
 		r = &AlbBackendGroup{}
 	case "yandex:index/albHttpRouter:AlbHttpRouter":
@@ -33,142 +39,478 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 		r = &AlbVirtualHost{}
 	case "yandex:index/apiGateway:ApiGateway":
 		r = &ApiGateway{}
+	case "yandex:index/apiGatewayIamBinding:ApiGatewayIamBinding":
+		r = &ApiGatewayIamBinding{}
+	case "yandex:index/apiGatewayIamMember:ApiGatewayIamMember":
+		r = &ApiGatewayIamMember{}
 	case "yandex:index/auditTrailsTrail:AuditTrailsTrail":
 		r = &AuditTrailsTrail{}
 	case "yandex:index/backupPolicy:BackupPolicy":
 		r = &BackupPolicy{}
 	case "yandex:index/backupPolicyBindings:BackupPolicyBindings":
 		r = &BackupPolicyBindings{}
+	case "yandex:index/billingCloudBinding:BillingCloudBinding":
+		r = &BillingCloudBinding{}
 	case "yandex:index/cdnOriginGroup:CdnOriginGroup":
 		r = &CdnOriginGroup{}
 	case "yandex:index/cdnResource:CdnResource":
 		r = &CdnResource{}
+	case "yandex:index/cloudDesktopsDesktop:CloudDesktopsDesktop":
+		r = &CloudDesktopsDesktop{}
+	case "yandex:index/cloudDesktopsDesktopGroup:CloudDesktopsDesktopGroup":
+		r = &CloudDesktopsDesktopGroup{}
+	case "yandex:index/cloudregistryFolder:CloudregistryFolder":
+		r = &CloudregistryFolder{}
+	case "yandex:index/cloudregistryFolderIamBinding:CloudregistryFolderIamBinding":
+		r = &CloudregistryFolderIamBinding{}
+	case "yandex:index/cloudregistryFolderIamMember:CloudregistryFolderIamMember":
+		r = &CloudregistryFolderIamMember{}
+	case "yandex:index/cloudregistryLifecyclePolicy:CloudregistryLifecyclePolicy":
+		r = &CloudregistryLifecyclePolicy{}
+	case "yandex:index/cloudregistryRegistry:CloudregistryRegistry":
+		r = &CloudregistryRegistry{}
+	case "yandex:index/cloudregistryRegistryIamBinding:CloudregistryRegistryIamBinding":
+		r = &CloudregistryRegistryIamBinding{}
+	case "yandex:index/cloudregistryRegistryIamMember:CloudregistryRegistryIamMember":
+		r = &CloudregistryRegistryIamMember{}
+	case "yandex:index/cloudregistryRegistryIpPermission:CloudregistryRegistryIpPermission":
+		r = &CloudregistryRegistryIpPermission{}
+	case "yandex:index/cloudregistryScanPolicy:CloudregistryScanPolicy":
+		r = &CloudregistryScanPolicy{}
+	case "yandex:index/cloudrouterRoutingInstance:CloudrouterRoutingInstance":
+		r = &CloudrouterRoutingInstance{}
 	case "yandex:index/cmCertificate:CmCertificate":
 		r = &CmCertificate{}
+	case "yandex:index/cmCertificateIamBinding:CmCertificateIamBinding":
+		r = &CmCertificateIamBinding{}
+	case "yandex:index/cmCertificateIamMember:CmCertificateIamMember":
+		r = &CmCertificateIamMember{}
 	case "yandex:index/computeDisk:ComputeDisk":
 		r = &ComputeDisk{}
+	case "yandex:index/computeDiskIamBinding:ComputeDiskIamBinding":
+		r = &ComputeDiskIamBinding{}
+	case "yandex:index/computeDiskPlacementGroup:ComputeDiskPlacementGroup":
+		r = &ComputeDiskPlacementGroup{}
+	case "yandex:index/computeDiskPlacementGroupIamBinding:ComputeDiskPlacementGroupIamBinding":
+		r = &ComputeDiskPlacementGroupIamBinding{}
+	case "yandex:index/computeFilesystem:ComputeFilesystem":
+		r = &ComputeFilesystem{}
+	case "yandex:index/computeFilesystemIamBinding:ComputeFilesystemIamBinding":
+		r = &ComputeFilesystemIamBinding{}
+	case "yandex:index/computeGpuCluster:ComputeGpuCluster":
+		r = &ComputeGpuCluster{}
+	case "yandex:index/computeGpuClusterIamBinding:ComputeGpuClusterIamBinding":
+		r = &ComputeGpuClusterIamBinding{}
 	case "yandex:index/computeImage:ComputeImage":
 		r = &ComputeImage{}
+	case "yandex:index/computeImageIamBinding:ComputeImageIamBinding":
+		r = &ComputeImageIamBinding{}
 	case "yandex:index/computeInstance:ComputeInstance":
 		r = &ComputeInstance{}
 	case "yandex:index/computeInstanceGroup:ComputeInstanceGroup":
 		r = &ComputeInstanceGroup{}
+	case "yandex:index/computeInstanceIamBinding:ComputeInstanceIamBinding":
+		r = &ComputeInstanceIamBinding{}
 	case "yandex:index/computePlacementGroup:ComputePlacementGroup":
 		r = &ComputePlacementGroup{}
+	case "yandex:index/computePlacementGroupIamBinding:ComputePlacementGroupIamBinding":
+		r = &ComputePlacementGroupIamBinding{}
+	case "yandex:index/computeReservedInstancePool:ComputeReservedInstancePool":
+		r = &ComputeReservedInstancePool{}
 	case "yandex:index/computeSnapshot:ComputeSnapshot":
 		r = &ComputeSnapshot{}
+	case "yandex:index/computeSnapshotIamBinding:ComputeSnapshotIamBinding":
+		r = &ComputeSnapshotIamBinding{}
 	case "yandex:index/computeSnapshotSchedule:ComputeSnapshotSchedule":
 		r = &ComputeSnapshotSchedule{}
+	case "yandex:index/computeSnapshotScheduleIamBinding:ComputeSnapshotScheduleIamBinding":
+		r = &ComputeSnapshotScheduleIamBinding{}
+	case "yandex:index/connectionmanagerConnection:ConnectionmanagerConnection":
+		r = &ConnectionmanagerConnection{}
+	case "yandex:index/containerRegistry:ContainerRegistry":
+		r = &ContainerRegistry{}
+	case "yandex:index/containerRegistryIamBinding:ContainerRegistryIamBinding":
+		r = &ContainerRegistryIamBinding{}
 	case "yandex:index/containerRegistryIpPermission:ContainerRegistryIpPermission":
 		r = &ContainerRegistryIpPermission{}
+	case "yandex:index/containerRepository:ContainerRepository":
+		r = &ContainerRepository{}
+	case "yandex:index/containerRepositoryIamBinding:ContainerRepositoryIamBinding":
+		r = &ContainerRepositoryIamBinding{}
 	case "yandex:index/containerRepositoryLifecyclePolicy:ContainerRepositoryLifecyclePolicy":
 		r = &ContainerRepositoryLifecyclePolicy{}
+	case "yandex:index/datacatalogCatalog:DatacatalogCatalog":
+		r = &DatacatalogCatalog{}
+	case "yandex:index/datalensConnection:DatalensConnection":
+		r = &DatalensConnection{}
 	case "yandex:index/dataprocCluster:DataprocCluster":
 		r = &DataprocCluster{}
+	case "yandex:index/dataprocClusterChangeFreeze:DataprocClusterChangeFreeze":
+		r = &DataprocClusterChangeFreeze{}
+	case "yandex:index/dataprocClusterIamBinding:DataprocClusterIamBinding":
+		r = &DataprocClusterIamBinding{}
+	case "yandex:index/datasphereCommunity:DatasphereCommunity":
+		r = &DatasphereCommunity{}
+	case "yandex:index/datasphereCommunityIamBinding:DatasphereCommunityIamBinding":
+		r = &DatasphereCommunityIamBinding{}
+	case "yandex:index/datasphereProject:DatasphereProject":
+		r = &DatasphereProject{}
+	case "yandex:index/datasphereProjectIamBinding:DatasphereProjectIamBinding":
+		r = &DatasphereProjectIamBinding{}
+	case "yandex:index/datatransferEndpoint:DatatransferEndpoint":
+		r = &DatatransferEndpoint{}
+	case "yandex:index/datatransferTransfer:DatatransferTransfer":
+		r = &DatatransferTransfer{}
+	case "yandex:index/dnsFirewall:DnsFirewall":
+		r = &DnsFirewall{}
+	case "yandex:index/dnsFirewallIamBinding:DnsFirewallIamBinding":
+		r = &DnsFirewallIamBinding{}
+	case "yandex:index/dnsInboundEndpoint:DnsInboundEndpoint":
+		r = &DnsInboundEndpoint{}
+	case "yandex:index/dnsInboundEndpointIamBinding:DnsInboundEndpointIamBinding":
+		r = &DnsInboundEndpointIamBinding{}
 	case "yandex:index/dnsRecordset:DnsRecordset":
 		r = &DnsRecordset{}
 	case "yandex:index/dnsZone:DnsZone":
 		r = &DnsZone{}
+	case "yandex:index/dnsZoneIamBinding:DnsZoneIamBinding":
+		r = &DnsZoneIamBinding{}
 	case "yandex:index/function:Function":
 		r = &Function{}
+	case "yandex:index/functionIamBinding:FunctionIamBinding":
+		r = &FunctionIamBinding{}
+	case "yandex:index/functionIamMember:FunctionIamMember":
+		r = &FunctionIamMember{}
 	case "yandex:index/functionScalingPolicy:FunctionScalingPolicy":
 		r = &FunctionScalingPolicy{}
 	case "yandex:index/functionTrigger:FunctionTrigger":
 		r = &FunctionTrigger{}
+	case "yandex:index/gitlabInstance:GitlabInstance":
+		r = &GitlabInstance{}
+	case "yandex:index/iamOauthClient:IamOauthClient":
+		r = &IamOauthClient{}
 	case "yandex:index/iamOauthClientSecret:IamOauthClientSecret":
 		r = &IamOauthClientSecret{}
+	case "yandex:index/iamServiceAccount:IamServiceAccount":
+		r = &IamServiceAccount{}
 	case "yandex:index/iamServiceAccountApiKey:IamServiceAccountApiKey":
 		r = &IamServiceAccountApiKey{}
+	case "yandex:index/iamServiceAccountIamBinding:IamServiceAccountIamBinding":
+		r = &IamServiceAccountIamBinding{}
+	case "yandex:index/iamServiceAccountIamMember:IamServiceAccountIamMember":
+		r = &IamServiceAccountIamMember{}
 	case "yandex:index/iamServiceAccountIamPolicy:IamServiceAccountIamPolicy":
 		r = &IamServiceAccountIamPolicy{}
 	case "yandex:index/iamServiceAccountKey:IamServiceAccountKey":
 		r = &IamServiceAccountKey{}
 	case "yandex:index/iamServiceAccountStaticAccessKey:IamServiceAccountStaticAccessKey":
 		r = &IamServiceAccountStaticAccessKey{}
+	case "yandex:index/iamWorkloadIdentityFederatedCredential:IamWorkloadIdentityFederatedCredential":
+		r = &IamWorkloadIdentityFederatedCredential{}
+	case "yandex:index/iamWorkloadIdentityOidcFederation:IamWorkloadIdentityOidcFederation":
+		r = &IamWorkloadIdentityOidcFederation{}
+	case "yandex:index/iamWorkloadIdentityOidcFederationIamBinding:IamWorkloadIdentityOidcFederationIamBinding":
+		r = &IamWorkloadIdentityOidcFederationIamBinding{}
 	case "yandex:index/iotCoreBroker:IotCoreBroker":
 		r = &IotCoreBroker{}
 	case "yandex:index/iotCoreDevice:IotCoreDevice":
 		r = &IotCoreDevice{}
 	case "yandex:index/iotCoreRegistry:IotCoreRegistry":
 		r = &IotCoreRegistry{}
+	case "yandex:index/kmsAsymmetricEncryptionKey:KmsAsymmetricEncryptionKey":
+		r = &KmsAsymmetricEncryptionKey{}
+	case "yandex:index/kmsAsymmetricEncryptionKeyIamBinding:KmsAsymmetricEncryptionKeyIamBinding":
+		r = &KmsAsymmetricEncryptionKeyIamBinding{}
+	case "yandex:index/kmsAsymmetricEncryptionKeyIamMember:KmsAsymmetricEncryptionKeyIamMember":
+		r = &KmsAsymmetricEncryptionKeyIamMember{}
+	case "yandex:index/kmsAsymmetricSignatureKey:KmsAsymmetricSignatureKey":
+		r = &KmsAsymmetricSignatureKey{}
+	case "yandex:index/kmsAsymmetricSignatureKeyIamBinding:KmsAsymmetricSignatureKeyIamBinding":
+		r = &KmsAsymmetricSignatureKeyIamBinding{}
+	case "yandex:index/kmsAsymmetricSignatureKeyIamMember:KmsAsymmetricSignatureKeyIamMember":
+		r = &KmsAsymmetricSignatureKeyIamMember{}
 	case "yandex:index/kmsSecretCiphertext:KmsSecretCiphertext":
 		r = &KmsSecretCiphertext{}
+	case "yandex:index/kmsSymmetricKey:KmsSymmetricKey":
+		r = &KmsSymmetricKey{}
+	case "yandex:index/kmsSymmetricKeyIamBinding:KmsSymmetricKeyIamBinding":
+		r = &KmsSymmetricKeyIamBinding{}
+	case "yandex:index/kmsSymmetricKeyIamMember:KmsSymmetricKeyIamMember":
+		r = &KmsSymmetricKeyIamMember{}
 	case "yandex:index/kubernetesCluster:KubernetesCluster":
 		r = &KubernetesCluster{}
+	case "yandex:index/kubernetesClusterIamBinding:KubernetesClusterIamBinding":
+		r = &KubernetesClusterIamBinding{}
+	case "yandex:index/kubernetesClusterIamMember:KubernetesClusterIamMember":
+		r = &KubernetesClusterIamMember{}
+	case "yandex:index/kubernetesMarketplaceHelmRelease:KubernetesMarketplaceHelmRelease":
+		r = &KubernetesMarketplaceHelmRelease{}
 	case "yandex:index/kubernetesNodeGroup:KubernetesNodeGroup":
 		r = &KubernetesNodeGroup{}
 	case "yandex:index/lbNetworkLoadBalancer:LbNetworkLoadBalancer":
 		r = &LbNetworkLoadBalancer{}
-	case "yandex:index/loadtestingAgent:LoadtestingAgent":
-		r = &LoadtestingAgent{}
+	case "yandex:index/lbTargetGroup:LbTargetGroup":
+		r = &LbTargetGroup{}
 	case "yandex:index/lockboxSecret:LockboxSecret":
 		r = &LockboxSecret{}
+	case "yandex:index/lockboxSecretIamBinding:LockboxSecretIamBinding":
+		r = &LockboxSecretIamBinding{}
+	case "yandex:index/lockboxSecretIamMember:LockboxSecretIamMember":
+		r = &LockboxSecretIamMember{}
 	case "yandex:index/lockboxSecretVersion:LockboxSecretVersion":
 		r = &LockboxSecretVersion{}
 	case "yandex:index/lockboxSecretVersionHashed:LockboxSecretVersionHashed":
 		r = &LockboxSecretVersionHashed{}
+	case "yandex:index/loggingGroup:LoggingGroup":
+		r = &LoggingGroup{}
 	case "yandex:index/mdbClickhouseCluster:MdbClickhouseCluster":
 		r = &MdbClickhouseCluster{}
+	case "yandex:index/mdbClickhouseClusterChangeFreeze:MdbClickhouseClusterChangeFreeze":
+		r = &MdbClickhouseClusterChangeFreeze{}
+	case "yandex:index/mdbClickhouseClusterIamBinding:MdbClickhouseClusterIamBinding":
+		r = &MdbClickhouseClusterIamBinding{}
+	case "yandex:index/mdbClickhouseClusterV2:MdbClickhouseClusterV2":
+		r = &MdbClickhouseClusterV2{}
+	case "yandex:index/mdbClickhouseDatabase:MdbClickhouseDatabase":
+		r = &MdbClickhouseDatabase{}
+	case "yandex:index/mdbClickhouseUser:MdbClickhouseUser":
+		r = &MdbClickhouseUser{}
 	case "yandex:index/mdbGreenplumCluster:MdbGreenplumCluster":
 		r = &MdbGreenplumCluster{}
+	case "yandex:index/mdbGreenplumClusterChangeFreeze:MdbGreenplumClusterChangeFreeze":
+		r = &MdbGreenplumClusterChangeFreeze{}
+	case "yandex:index/mdbGreenplumClusterIamBinding:MdbGreenplumClusterIamBinding":
+		r = &MdbGreenplumClusterIamBinding{}
+	case "yandex:index/mdbGreenplumClusterV2:MdbGreenplumClusterV2":
+		r = &MdbGreenplumClusterV2{}
+	case "yandex:index/mdbGreenplumResourceGroup:MdbGreenplumResourceGroup":
+		r = &MdbGreenplumResourceGroup{}
+	case "yandex:index/mdbGreenplumUser:MdbGreenplumUser":
+		r = &MdbGreenplumUser{}
 	case "yandex:index/mdbKafkaCluster:MdbKafkaCluster":
 		r = &MdbKafkaCluster{}
+	case "yandex:index/mdbKafkaClusterChangeFreeze:MdbKafkaClusterChangeFreeze":
+		r = &MdbKafkaClusterChangeFreeze{}
+	case "yandex:index/mdbKafkaClusterIamBinding:MdbKafkaClusterIamBinding":
+		r = &MdbKafkaClusterIamBinding{}
 	case "yandex:index/mdbKafkaConnector:MdbKafkaConnector":
 		r = &MdbKafkaConnector{}
 	case "yandex:index/mdbKafkaTopic:MdbKafkaTopic":
 		r = &MdbKafkaTopic{}
 	case "yandex:index/mdbKafkaUser:MdbKafkaUser":
 		r = &MdbKafkaUser{}
+	case "yandex:index/mdbMongodbBackupRetentionPolicy:MdbMongodbBackupRetentionPolicy":
+		r = &MdbMongodbBackupRetentionPolicy{}
 	case "yandex:index/mdbMongodbCluster:MdbMongodbCluster":
 		r = &MdbMongodbCluster{}
+	case "yandex:index/mdbMongodbClusterChangeFreeze:MdbMongodbClusterChangeFreeze":
+		r = &MdbMongodbClusterChangeFreeze{}
+	case "yandex:index/mdbMongodbClusterIamBinding:MdbMongodbClusterIamBinding":
+		r = &MdbMongodbClusterIamBinding{}
+	case "yandex:index/mdbMongodbDatabase:MdbMongodbDatabase":
+		r = &MdbMongodbDatabase{}
+	case "yandex:index/mdbMongodbUser:MdbMongodbUser":
+		r = &MdbMongodbUser{}
+	case "yandex:index/mdbMysqlBackupRetentionPolicy:MdbMysqlBackupRetentionPolicy":
+		r = &MdbMysqlBackupRetentionPolicy{}
 	case "yandex:index/mdbMysqlCluster:MdbMysqlCluster":
 		r = &MdbMysqlCluster{}
+	case "yandex:index/mdbMysqlClusterChangeFreeze:MdbMysqlClusterChangeFreeze":
+		r = &MdbMysqlClusterChangeFreeze{}
+	case "yandex:index/mdbMysqlClusterIamBinding:MdbMysqlClusterIamBinding":
+		r = &MdbMysqlClusterIamBinding{}
+	case "yandex:index/mdbMysqlClusterV2:MdbMysqlClusterV2":
+		r = &MdbMysqlClusterV2{}
 	case "yandex:index/mdbMysqlDatabase:MdbMysqlDatabase":
 		r = &MdbMysqlDatabase{}
+	case "yandex:index/mdbMysqlDatabaseV2:MdbMysqlDatabaseV2":
+		r = &MdbMysqlDatabaseV2{}
 	case "yandex:index/mdbMysqlUser:MdbMysqlUser":
 		r = &MdbMysqlUser{}
+	case "yandex:index/mdbMysqlUserV2:MdbMysqlUserV2":
+		r = &MdbMysqlUserV2{}
+	case "yandex:index/mdbOpensearchCluster:MdbOpensearchCluster":
+		r = &MdbOpensearchCluster{}
+	case "yandex:index/mdbOpensearchClusterChangeFreeze:MdbOpensearchClusterChangeFreeze":
+		r = &MdbOpensearchClusterChangeFreeze{}
+	case "yandex:index/mdbOpensearchClusterIamBinding:MdbOpensearchClusterIamBinding":
+		r = &MdbOpensearchClusterIamBinding{}
+	case "yandex:index/mdbPostgresqlBackupRetentionPolicy:MdbPostgresqlBackupRetentionPolicy":
+		r = &MdbPostgresqlBackupRetentionPolicy{}
 	case "yandex:index/mdbPostgresqlCluster:MdbPostgresqlCluster":
 		r = &MdbPostgresqlCluster{}
+	case "yandex:index/mdbPostgresqlClusterChangeFreeze:MdbPostgresqlClusterChangeFreeze":
+		r = &MdbPostgresqlClusterChangeFreeze{}
+	case "yandex:index/mdbPostgresqlClusterIamBinding:MdbPostgresqlClusterIamBinding":
+		r = &MdbPostgresqlClusterIamBinding{}
+	case "yandex:index/mdbPostgresqlClusterV2:MdbPostgresqlClusterV2":
+		r = &MdbPostgresqlClusterV2{}
 	case "yandex:index/mdbPostgresqlDatabase:MdbPostgresqlDatabase":
 		r = &MdbPostgresqlDatabase{}
 	case "yandex:index/mdbPostgresqlUser:MdbPostgresqlUser":
 		r = &MdbPostgresqlUser{}
+	case "yandex:index/mdbRedisBackupRetentionPolicy:MdbRedisBackupRetentionPolicy":
+		r = &MdbRedisBackupRetentionPolicy{}
 	case "yandex:index/mdbRedisCluster:MdbRedisCluster":
 		r = &MdbRedisCluster{}
+	case "yandex:index/mdbRedisClusterChangeFreeze:MdbRedisClusterChangeFreeze":
+		r = &MdbRedisClusterChangeFreeze{}
+	case "yandex:index/mdbRedisClusterIamBinding:MdbRedisClusterIamBinding":
+		r = &MdbRedisClusterIamBinding{}
+	case "yandex:index/mdbRedisClusterV2:MdbRedisClusterV2":
+		r = &MdbRedisClusterV2{}
+	case "yandex:index/mdbRedisUser:MdbRedisUser":
+		r = &MdbRedisUser{}
+	case "yandex:index/mdbShardedPostgresqlCluster:MdbShardedPostgresqlCluster":
+		r = &MdbShardedPostgresqlCluster{}
+	case "yandex:index/mdbShardedPostgresqlClusterChangeFreeze:MdbShardedPostgresqlClusterChangeFreeze":
+		r = &MdbShardedPostgresqlClusterChangeFreeze{}
+	case "yandex:index/mdbShardedPostgresqlClusterIamBinding:MdbShardedPostgresqlClusterIamBinding":
+		r = &MdbShardedPostgresqlClusterIamBinding{}
+	case "yandex:index/mdbShardedPostgresqlDatabase:MdbShardedPostgresqlDatabase":
+		r = &MdbShardedPostgresqlDatabase{}
+	case "yandex:index/mdbShardedPostgresqlShard:MdbShardedPostgresqlShard":
+		r = &MdbShardedPostgresqlShard{}
+	case "yandex:index/mdbShardedPostgresqlUser:MdbShardedPostgresqlUser":
+		r = &MdbShardedPostgresqlUser{}
 	case "yandex:index/messageQueue:MessageQueue":
 		r = &MessageQueue{}
+	case "yandex:index/metastoreCluster:MetastoreCluster":
+		r = &MetastoreCluster{}
+	case "yandex:index/metastoreClusterChangeFreeze:MetastoreClusterChangeFreeze":
+		r = &MetastoreClusterChangeFreeze{}
+	case "yandex:index/metastoreClusterIamBinding:MetastoreClusterIamBinding":
+		r = &MetastoreClusterIamBinding{}
 	case "yandex:index/monitoringDashboard:MonitoringDashboard":
 		r = &MonitoringDashboard{}
+	case "yandex:index/organizationManagerOrganizationIamPolicyBinding:OrganizationManagerOrganizationIamPolicyBinding":
+		r = &OrganizationManagerOrganizationIamPolicyBinding{}
+	case "yandex:index/organizationmanagerGroup:OrganizationmanagerGroup":
+		r = &OrganizationmanagerGroup{}
+	case "yandex:index/organizationmanagerGroupIamMember:OrganizationmanagerGroupIamMember":
+		r = &OrganizationmanagerGroupIamMember{}
 	case "yandex:index/organizationmanagerGroupMapping:OrganizationmanagerGroupMapping":
 		r = &OrganizationmanagerGroupMapping{}
 	case "yandex:index/organizationmanagerGroupMappingItem:OrganizationmanagerGroupMappingItem":
 		r = &OrganizationmanagerGroupMappingItem{}
 	case "yandex:index/organizationmanagerGroupMembership:OrganizationmanagerGroupMembership":
 		r = &OrganizationmanagerGroupMembership{}
+	case "yandex:index/organizationmanagerIdpApplicationOauthApplication:OrganizationmanagerIdpApplicationOauthApplication":
+		r = &OrganizationmanagerIdpApplicationOauthApplication{}
+	case "yandex:index/organizationmanagerIdpApplicationOauthApplicationAssignment:OrganizationmanagerIdpApplicationOauthApplicationAssignment":
+		r = &OrganizationmanagerIdpApplicationOauthApplicationAssignment{}
+	case "yandex:index/organizationmanagerIdpApplicationSamlApplication:OrganizationmanagerIdpApplicationSamlApplication":
+		r = &OrganizationmanagerIdpApplicationSamlApplication{}
+	case "yandex:index/organizationmanagerIdpApplicationSamlApplicationAssignment:OrganizationmanagerIdpApplicationSamlApplicationAssignment":
+		r = &OrganizationmanagerIdpApplicationSamlApplicationAssignment{}
+	case "yandex:index/organizationmanagerIdpApplicationSamlSignatureCertificate:OrganizationmanagerIdpApplicationSamlSignatureCertificate":
+		r = &OrganizationmanagerIdpApplicationSamlSignatureCertificate{}
+	case "yandex:index/organizationmanagerIdpUser:OrganizationmanagerIdpUser":
+		r = &OrganizationmanagerIdpUser{}
+	case "yandex:index/organizationmanagerIdpUserpool:OrganizationmanagerIdpUserpool":
+		r = &OrganizationmanagerIdpUserpool{}
+	case "yandex:index/organizationmanagerIdpUserpoolDomain:OrganizationmanagerIdpUserpoolDomain":
+		r = &OrganizationmanagerIdpUserpoolDomain{}
+	case "yandex:index/organizationmanagerMfaEnforcement:OrganizationmanagerMfaEnforcement":
+		r = &OrganizationmanagerMfaEnforcement{}
+	case "yandex:index/organizationmanagerMfaEnforcementAudience:OrganizationmanagerMfaEnforcementAudience":
+		r = &OrganizationmanagerMfaEnforcementAudience{}
+	case "yandex:index/organizationmanagerMfaEnforcementExcludedAudience:OrganizationmanagerMfaEnforcementExcludedAudience":
+		r = &OrganizationmanagerMfaEnforcementExcludedAudience{}
+	case "yandex:index/organizationmanagerOrganizationIamBinding:OrganizationmanagerOrganizationIamBinding":
+		r = &OrganizationmanagerOrganizationIamBinding{}
+	case "yandex:index/organizationmanagerOrganizationIamMember:OrganizationmanagerOrganizationIamMember":
+		r = &OrganizationmanagerOrganizationIamMember{}
 	case "yandex:index/organizationmanagerOsLoginSettings:OrganizationmanagerOsLoginSettings":
 		r = &OrganizationmanagerOsLoginSettings{}
 	case "yandex:index/organizationmanagerSamlFederation:OrganizationmanagerSamlFederation":
 		r = &OrganizationmanagerSamlFederation{}
 	case "yandex:index/organizationmanagerSamlFederationUserAccount:OrganizationmanagerSamlFederationUserAccount":
 		r = &OrganizationmanagerSamlFederationUserAccount{}
+	case "yandex:index/organizationmanagerUserSshKey:OrganizationmanagerUserSshKey":
+		r = &OrganizationmanagerUserSshKey{}
+	case "yandex:index/resourceManagerCloudIamPolicyBinding:ResourceManagerCloudIamPolicyBinding":
+		r = &ResourceManagerCloudIamPolicyBinding{}
+	case "yandex:index/resourceManagerFolderIamPolicyBinding:ResourceManagerFolderIamPolicyBinding":
+		r = &ResourceManagerFolderIamPolicyBinding{}
+	case "yandex:index/resourcemanagerCloud:ResourcemanagerCloud":
+		r = &ResourcemanagerCloud{}
+	case "yandex:index/resourcemanagerCloudIamBinding:ResourcemanagerCloudIamBinding":
+		r = &ResourcemanagerCloudIamBinding{}
+	case "yandex:index/resourcemanagerCloudIamMember:ResourcemanagerCloudIamMember":
+		r = &ResourcemanagerCloudIamMember{}
+	case "yandex:index/resourcemanagerFolder:ResourcemanagerFolder":
+		r = &ResourcemanagerFolder{}
+	case "yandex:index/resourcemanagerFolderIamBinding:ResourcemanagerFolderIamBinding":
+		r = &ResourcemanagerFolderIamBinding{}
+	case "yandex:index/resourcemanagerFolderIamMember:ResourcemanagerFolderIamMember":
+		r = &ResourcemanagerFolderIamMember{}
 	case "yandex:index/resourcemanagerFolderIamPolicy:ResourcemanagerFolderIamPolicy":
 		r = &ResourcemanagerFolderIamPolicy{}
 	case "yandex:index/serverlessContainer:ServerlessContainer":
 		r = &ServerlessContainer{}
+	case "yandex:index/serverlessContainerIamBinding:ServerlessContainerIamBinding":
+		r = &ServerlessContainerIamBinding{}
+	case "yandex:index/serverlessContainerIamMember:ServerlessContainerIamMember":
+		r = &ServerlessContainerIamMember{}
+	case "yandex:index/serverlessEventrouterBus:ServerlessEventrouterBus":
+		r = &ServerlessEventrouterBus{}
 	case "yandex:index/serverlessEventrouterConnector:ServerlessEventrouterConnector":
 		r = &ServerlessEventrouterConnector{}
 	case "yandex:index/serverlessEventrouterRule:ServerlessEventrouterRule":
 		r = &ServerlessEventrouterRule{}
+	case "yandex:index/serverlessTriggers:ServerlessTriggers":
+		r = &ServerlessTriggers{}
+	case "yandex:index/serverlessWorkflow:ServerlessWorkflow":
+		r = &ServerlessWorkflow{}
+	case "yandex:index/serverlessWorkflowIamBinding:ServerlessWorkflowIamBinding":
+		r = &ServerlessWorkflowIamBinding{}
+	case "yandex:index/serverlessWorkflowIamMember:ServerlessWorkflowIamMember":
+		r = &ServerlessWorkflowIamMember{}
+	case "yandex:index/smartcaptchaCaptcha:SmartcaptchaCaptcha":
+		r = &SmartcaptchaCaptcha{}
+	case "yandex:index/sparkCluster:SparkCluster":
+		r = &SparkCluster{}
+	case "yandex:index/sparkClusterChangeFreeze:SparkClusterChangeFreeze":
+		r = &SparkClusterChangeFreeze{}
+	case "yandex:index/sparkClusterIamBinding:SparkClusterIamBinding":
+		r = &SparkClusterIamBinding{}
 	case "yandex:index/storageBucket:StorageBucket":
 		r = &StorageBucket{}
+	case "yandex:index/storageBucketGrant:StorageBucketGrant":
+		r = &StorageBucketGrant{}
+	case "yandex:index/storageBucketIamBinding:StorageBucketIamBinding":
+		r = &StorageBucketIamBinding{}
+	case "yandex:index/storageBucketPolicy:StorageBucketPolicy":
+		r = &StorageBucketPolicy{}
 	case "yandex:index/storageObject:StorageObject":
 		r = &StorageObject{}
 	case "yandex:index/swsAdvancedRateLimiterProfile:SwsAdvancedRateLimiterProfile":
 		r = &SwsAdvancedRateLimiterProfile{}
+	case "yandex:index/swsDomain:SwsDomain":
+		r = &SwsDomain{}
+	case "yandex:index/swsLoadBalancer:SwsLoadBalancer":
+		r = &SwsLoadBalancer{}
+	case "yandex:index/swsMatchList:SwsMatchList":
+		r = &SwsMatchList{}
 	case "yandex:index/swsSecurityProfile:SwsSecurityProfile":
 		r = &SwsSecurityProfile{}
+	case "yandex:index/swsSecurityProfileAdvancedRateLimiterProfileAttachment:SwsSecurityProfileAdvancedRateLimiterProfileAttachment":
+		r = &SwsSecurityProfileAdvancedRateLimiterProfileAttachment{}
+	case "yandex:index/swsSecurityProfileWafProfileAttachment:SwsSecurityProfileWafProfileAttachment":
+		r = &SwsSecurityProfileWafProfileAttachment{}
 	case "yandex:index/swsWafProfile:SwsWafProfile":
 		r = &SwsWafProfile{}
+	case "yandex:index/trinoAccessControl:TrinoAccessControl":
+		r = &TrinoAccessControl{}
+	case "yandex:index/trinoCatalog:TrinoCatalog":
+		r = &TrinoCatalog{}
+	case "yandex:index/trinoCluster:TrinoCluster":
+		r = &TrinoCluster{}
+	case "yandex:index/trinoClusterChangeFreeze:TrinoClusterChangeFreeze":
+		r = &TrinoClusterChangeFreeze{}
+	case "yandex:index/trinoClusterIamBinding:TrinoClusterIamBinding":
+		r = &TrinoClusterIamBinding{}
 	case "yandex:index/vpcAddress:VpcAddress":
 		r = &VpcAddress{}
 	case "yandex:index/vpcDefaultSecurityGroup:VpcDefaultSecurityGroup":
@@ -183,10 +525,14 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 		r = &VpcRouteTable{}
 	case "yandex:index/vpcSecurityGroup:VpcSecurityGroup":
 		r = &VpcSecurityGroup{}
+	case "yandex:index/vpcSecurityGroupRule:VpcSecurityGroupRule":
+		r = &VpcSecurityGroupRule{}
 	case "yandex:index/vpcSubnet:VpcSubnet":
 		r = &VpcSubnet{}
 	case "yandex:index/ydbDatabaseDedicated:YdbDatabaseDedicated":
 		r = &YdbDatabaseDedicated{}
+	case "yandex:index/ydbDatabaseIamBinding:YdbDatabaseIamBinding":
+		r = &YdbDatabaseIamBinding{}
 	case "yandex:index/ydbDatabaseServerless:YdbDatabaseServerless":
 		r = &YdbDatabaseServerless{}
 	case "yandex:index/ydbTable:YdbTable":
@@ -197,6 +543,20 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 		r = &YdbTableIndex{}
 	case "yandex:index/ydbTopic:YdbTopic":
 		r = &YdbTopic{}
+	case "yandex:index/yqMonitoringConnection:YqMonitoringConnection":
+		r = &YqMonitoringConnection{}
+	case "yandex:index/yqObjectStorageBinding:YqObjectStorageBinding":
+		r = &YqObjectStorageBinding{}
+	case "yandex:index/yqObjectStorageConnection:YqObjectStorageConnection":
+		r = &YqObjectStorageConnection{}
+	case "yandex:index/yqYdbConnection:YqYdbConnection":
+		r = &YqYdbConnection{}
+	case "yandex:index/yqYdsBinding:YqYdsBinding":
+		r = &YqYdsBinding{}
+	case "yandex:index/yqYdsConnection:YqYdsConnection":
+		r = &YqYdsConnection{}
+	case "yandex:index/ytsaurusCluster:YtsaurusCluster":
+		r = &YtsaurusCluster{}
 	default:
 		return nil, fmt.Errorf("unknown resource type: %s", typ)
 	}
@@ -230,6 +590,21 @@ func init() {
 	}
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/airflowCluster",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/airflowClusterChangeFreeze",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/airflowClusterIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/albBackendGroup",
 		&module{version},
 	)
@@ -260,6 +635,16 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/apiGatewayIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/apiGatewayIamMember",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/auditTrailsTrail",
 		&module{version},
 	)
@@ -275,6 +660,11 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/billingCloudBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/cdnOriginGroup",
 		&module{version},
 	)
@@ -285,7 +675,77 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/cloudDesktopsDesktop",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/cloudDesktopsDesktopGroup",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/cloudregistryFolder",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/cloudregistryFolderIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/cloudregistryFolderIamMember",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/cloudregistryLifecyclePolicy",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/cloudregistryRegistry",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/cloudregistryRegistryIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/cloudregistryRegistryIamMember",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/cloudregistryRegistryIpPermission",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/cloudregistryScanPolicy",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/cloudrouterRoutingInstance",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/cmCertificate",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/cmCertificateIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/cmCertificateIamMember",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -295,7 +755,47 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/computeDiskIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/computeDiskPlacementGroup",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/computeDiskPlacementGroupIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/computeFilesystem",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/computeFilesystemIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/computeGpuCluster",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/computeGpuClusterIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/computeImage",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/computeImageIamBinding",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -310,7 +810,22 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/computeInstanceIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/computePlacementGroup",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/computePlacementGroupIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/computeReservedInstancePool",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -320,7 +835,32 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/computeSnapshotIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/computeSnapshotSchedule",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/computeSnapshotScheduleIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/connectionmanagerConnection",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/containerRegistry",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/containerRegistryIamBinding",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -330,12 +870,92 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/containerRepository",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/containerRepositoryIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/containerRepositoryLifecyclePolicy",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/datacatalogCatalog",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/datalensConnection",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/dataprocCluster",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/dataprocClusterChangeFreeze",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/dataprocClusterIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/datasphereCommunity",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/datasphereCommunityIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/datasphereProject",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/datasphereProjectIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/datatransferEndpoint",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/datatransferTransfer",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/dnsFirewall",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/dnsFirewallIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/dnsInboundEndpoint",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/dnsInboundEndpointIamBinding",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -350,7 +970,22 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/dnsZoneIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/function",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/functionIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/functionIamMember",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -365,12 +1000,37 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/gitlabInstance",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/iamOauthClient",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/iamOauthClientSecret",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/iamServiceAccount",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/iamServiceAccountApiKey",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/iamServiceAccountIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/iamServiceAccountIamMember",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -390,6 +1050,21 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/iamWorkloadIdentityFederatedCredential",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/iamWorkloadIdentityOidcFederation",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/iamWorkloadIdentityOidcFederationIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/iotCoreBroker",
 		&module{version},
 	)
@@ -405,12 +1080,72 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/kmsAsymmetricEncryptionKey",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/kmsAsymmetricEncryptionKeyIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/kmsAsymmetricEncryptionKeyIamMember",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/kmsAsymmetricSignatureKey",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/kmsAsymmetricSignatureKeyIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/kmsAsymmetricSignatureKeyIamMember",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/kmsSecretCiphertext",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/kmsSymmetricKey",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/kmsSymmetricKeyIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/kmsSymmetricKeyIamMember",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/kubernetesCluster",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/kubernetesClusterIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/kubernetesClusterIamMember",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/kubernetesMarketplaceHelmRelease",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -425,12 +1160,22 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
-		"index/loadtestingAgent",
+		"index/lbTargetGroup",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
 		"index/lockboxSecret",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/lockboxSecretIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/lockboxSecretIamMember",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -445,7 +1190,37 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/loggingGroup",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/mdbClickhouseCluster",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbClickhouseClusterChangeFreeze",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbClickhouseClusterIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbClickhouseClusterV2",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbClickhouseDatabase",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbClickhouseUser",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -455,7 +1230,42 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/mdbGreenplumClusterChangeFreeze",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbGreenplumClusterIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbGreenplumClusterV2",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbGreenplumResourceGroup",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbGreenplumUser",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/mdbKafkaCluster",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbKafkaClusterChangeFreeze",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbKafkaClusterIamBinding",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -475,7 +1285,37 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/mdbMongodbBackupRetentionPolicy",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/mdbMongodbCluster",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbMongodbClusterChangeFreeze",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbMongodbClusterIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbMongodbDatabase",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbMongodbUser",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbMysqlBackupRetentionPolicy",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -485,7 +1325,27 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/mdbMysqlClusterChangeFreeze",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbMysqlClusterIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbMysqlClusterV2",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/mdbMysqlDatabase",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbMysqlDatabaseV2",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -495,7 +1355,47 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/mdbMysqlUserV2",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbOpensearchCluster",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbOpensearchClusterChangeFreeze",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbOpensearchClusterIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbPostgresqlBackupRetentionPolicy",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/mdbPostgresqlCluster",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbPostgresqlClusterChangeFreeze",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbPostgresqlClusterIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbPostgresqlClusterV2",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -510,7 +1410,62 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/mdbRedisBackupRetentionPolicy",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/mdbRedisCluster",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbRedisClusterChangeFreeze",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbRedisClusterIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbRedisClusterV2",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbRedisUser",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbShardedPostgresqlCluster",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbShardedPostgresqlClusterChangeFreeze",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbShardedPostgresqlClusterIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbShardedPostgresqlDatabase",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbShardedPostgresqlShard",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/mdbShardedPostgresqlUser",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -520,7 +1475,37 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/metastoreCluster",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/metastoreClusterChangeFreeze",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/metastoreClusterIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/monitoringDashboard",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationManagerOrganizationIamPolicyBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationmanagerGroup",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationmanagerGroupIamMember",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -540,6 +1525,71 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/organizationmanagerIdpApplicationOauthApplication",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationmanagerIdpApplicationOauthApplicationAssignment",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationmanagerIdpApplicationSamlApplication",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationmanagerIdpApplicationSamlApplicationAssignment",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationmanagerIdpApplicationSamlSignatureCertificate",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationmanagerIdpUser",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationmanagerIdpUserpool",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationmanagerIdpUserpoolDomain",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationmanagerMfaEnforcement",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationmanagerMfaEnforcementAudience",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationmanagerMfaEnforcementExcludedAudience",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationmanagerOrganizationIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/organizationmanagerOrganizationIamMember",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/organizationmanagerOsLoginSettings",
 		&module{version},
 	)
@@ -555,12 +1605,72 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/organizationmanagerUserSshKey",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/resourceManagerCloudIamPolicyBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/resourceManagerFolderIamPolicyBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/resourcemanagerCloud",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/resourcemanagerCloudIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/resourcemanagerCloudIamMember",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/resourcemanagerFolder",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/resourcemanagerFolderIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/resourcemanagerFolderIamMember",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/resourcemanagerFolderIamPolicy",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
 		"index/serverlessContainer",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/serverlessContainerIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/serverlessContainerIamMember",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/serverlessEventrouterBus",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -575,7 +1685,62 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/serverlessTriggers",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/serverlessWorkflow",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/serverlessWorkflowIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/serverlessWorkflowIamMember",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/smartcaptchaCaptcha",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/sparkCluster",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/sparkClusterChangeFreeze",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/sparkClusterIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/storageBucket",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/storageBucketGrant",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/storageBucketIamBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/storageBucketPolicy",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -590,12 +1755,62 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/swsDomain",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/swsLoadBalancer",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/swsMatchList",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/swsSecurityProfile",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/swsSecurityProfileAdvancedRateLimiterProfileAttachment",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/swsSecurityProfileWafProfileAttachment",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/swsWafProfile",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/trinoAccessControl",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/trinoCatalog",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/trinoCluster",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/trinoClusterChangeFreeze",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/trinoClusterIamBinding",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -635,12 +1850,22 @@ func init() {
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
+		"index/vpcSecurityGroupRule",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
 		"index/vpcSubnet",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
 		"yandex",
 		"index/ydbDatabaseDedicated",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/ydbDatabaseIamBinding",
 		&module{version},
 	)
 	pulumi.RegisterResourceModule(
@@ -666,6 +1891,41 @@ func init() {
 	pulumi.RegisterResourceModule(
 		"yandex",
 		"index/ydbTopic",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/yqMonitoringConnection",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/yqObjectStorageBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/yqObjectStorageConnection",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/yqYdbConnection",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/yqYdsBinding",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/yqYdsConnection",
+		&module{version},
+	)
+	pulumi.RegisterResourceModule(
+		"yandex",
+		"index/ytsaurusCluster",
 		&module{version},
 	)
 	pulumi.RegisterResourcePackage(

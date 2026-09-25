@@ -7,10 +7,134 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Kubernetes Node Group. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kubernetes/concepts/#node-group).
+//
+// > One of `nodeGroupId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myNodeGroup, err := yandex.GetKubernetesNodeGroup(ctx, &yandex.LookupKubernetesNodeGroupArgs{
+//				NodeGroupId: pulumi.StringRef("some_k8s_node_group_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("myNodeGroup.status", myNodeGroup.Status)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `allocationPolicy` (*Read-Only*) (List Of Object). This argument specify subnets (zones), that will be used by node group compute instances.
+//   - `location` .
+//   - `subnetId` .
+//   - `zone` .
+//
+// - `allowedUnsafeSysctls` (*Read-Only*) (List Of String). A list of allowed unsafe `sysctl` parameters for this node group. For more details see [documentation](https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster).
+// - `clusterId` (*Read-Only*) (String). The ID of the Kubernetes cluster that this node group belongs to.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deployPolicy` (*Read-Only*) (List Of Object). Deploy policy of the node group.
+//   - `maxExpansion` .
+//   - `maxUnavailable` .
+//
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `instanceGroupId` (*Read-Only*) (String). ID of instance group that is used to manage this Kubernetes node group.
+// - `instanceTemplate` (*Read-Only*) (List Of Object). Template used to create compute instances in this Kubernetes node group.
+//   - `bootDisk` .
+//   - `size` .
+//   - `type` .
+//   - `containerNetwork` .
+//   - `podMtu` .
+//   - `containerRuntime` .
+//   - `type` .
+//   - `gpuSettings` .
+//   - `gpuClusterId` .
+//   - `gpuEnvironment` .
+//   - `labels` .
+//   - `metadata` .
+//   - `name` .
+//   - `nat` .
+//   - `networkAccelerationType` .
+//   - `networkInterface` .
+//   - `ipv4` .
+//   - `ipv4DnsRecords` .
+//   - `dnsZoneId` .
+//   - `fqdn` .
+//   - `ptr` .
+//   - `ttl` .
+//   - `ipv6` .
+//   - `ipv6DnsRecords` .
+//   - `dnsZoneId` .
+//   - `fqdn` .
+//   - `ptr` .
+//   - `ttl` .
+//   - `nat` .
+//   - `securityGroupIds` .
+//   - `subnetIds` .
+//   - `placementPolicy` .
+//   - `placementGroupId` .
+//   - `platformId` .
+//   - `reservedInstancePoolId` .
+//   - `resources` .
+//   - `coreFraction` .
+//   - `cores` .
+//   - `gpus` .
+//   - `memory` .
+//   - `schedulingPolicy` .
+//   - `preemptible` .
+//
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `maintenancePolicy` (*Read-Only*) (List Of Object). Maintenance policy for this Kubernetes node group. If policy is omitted, automatic revision upgrades are enabled and could happen at any time. Revision upgrades are performed only within the same minor version, e.g. `1.29`. Minor version upgrades (e.g. `1.29`->`1.30`) should be performed manually.
+//   - `autoRepair` .
+//   - `autoUpgrade` .
+//   - `maintenanceWindow` .
+//   - `day` .
+//   - `duration` .
+//   - `startTime` .
+//
+// - `name` (String). The resource name.
+// - `nodeGroupId` (String). ID of a specific Kubernetes node group.
+// - `nodeLabels` (*Read-Only*) (Map Of String). A set of key/value label pairs, that are assigned to all the nodes of this Kubernetes node group.
+// - `nodeTaints` (*Read-Only*) (List Of String). A list of Kubernetes taints, that are applied to all the nodes of this Kubernetes node group.
+// - `scalePolicy` (*Read-Only*) (List Of Object). Scale policy of the node group.
+//   - `autoScale` .
+//   - `initial` .
+//   - `max` .
+//   - `min` .
+//   - `fixedScale` .
+//   - `size` .
+//
+// - `status` (*Read-Only*) (String). Status of the Kubernetes node group.
+// - `variables` (*Read-Only*) (Map Of String). Variables for templating as key/value pairs.
+// - `versionInfo` (*Read-Only*) (List Of Object). Information about Kubernetes node group version.
+//   - `currentVersion` .
+//   - `newRevisionAvailable` .
+//   - `newRevisionSummary` .
+//   - `versionDeprecated` .
+//
+// - `workloadIdentityFederation` (*Read-Only*) (List Of Object). Workload Identity Federation configuration.
+//   - `enabled` .
 func LookupKubernetesNodeGroup(ctx *pulumi.Context, args *LookupKubernetesNodeGroupArgs, opts ...pulumi.InvokeOption) (*LookupKubernetesNodeGroupResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupKubernetesNodeGroupResult
@@ -38,18 +162,20 @@ type LookupKubernetesNodeGroupResult struct {
 	Description          string                                   `pulumi:"description"`
 	FolderId             string                                   `pulumi:"folderId"`
 	// The provider-assigned unique ID for this managed resource.
-	Id                  string                                    `pulumi:"id"`
-	InstanceGroupId     string                                    `pulumi:"instanceGroupId"`
-	InstanceTemplates   []GetKubernetesNodeGroupInstanceTemplate  `pulumi:"instanceTemplates"`
-	Labels              map[string]string                         `pulumi:"labels"`
-	MaintenancePolicies []GetKubernetesNodeGroupMaintenancePolicy `pulumi:"maintenancePolicies"`
-	Name                string                                    `pulumi:"name"`
-	NodeGroupId         string                                    `pulumi:"nodeGroupId"`
-	NodeLabels          map[string]string                         `pulumi:"nodeLabels"`
-	NodeTaints          []string                                  `pulumi:"nodeTaints"`
-	ScalePolicies       []GetKubernetesNodeGroupScalePolicy       `pulumi:"scalePolicies"`
-	Status              string                                    `pulumi:"status"`
-	VersionInfos        []GetKubernetesNodeGroupVersionInfo       `pulumi:"versionInfos"`
+	Id                          string                                             `pulumi:"id"`
+	InstanceGroupId             string                                             `pulumi:"instanceGroupId"`
+	InstanceTemplates           []GetKubernetesNodeGroupInstanceTemplate           `pulumi:"instanceTemplates"`
+	Labels                      map[string]string                                  `pulumi:"labels"`
+	MaintenancePolicies         []GetKubernetesNodeGroupMaintenancePolicy          `pulumi:"maintenancePolicies"`
+	Name                        string                                             `pulumi:"name"`
+	NodeGroupId                 string                                             `pulumi:"nodeGroupId"`
+	NodeLabels                  map[string]string                                  `pulumi:"nodeLabels"`
+	NodeTaints                  []string                                           `pulumi:"nodeTaints"`
+	ScalePolicies               []GetKubernetesNodeGroupScalePolicy                `pulumi:"scalePolicies"`
+	Status                      string                                             `pulumi:"status"`
+	Variables                   map[string]string                                  `pulumi:"variables"`
+	VersionInfos                []GetKubernetesNodeGroupVersionInfo                `pulumi:"versionInfos"`
+	WorkloadIdentityFederations []GetKubernetesNodeGroupWorkloadIdentityFederation `pulumi:"workloadIdentityFederations"`
 }
 
 func LookupKubernetesNodeGroupOutput(ctx *pulumi.Context, args LookupKubernetesNodeGroupOutputArgs, opts ...pulumi.InvokeOption) LookupKubernetesNodeGroupResultOutput {
@@ -166,8 +292,18 @@ func (o LookupKubernetesNodeGroupResultOutput) Status() pulumi.StringOutput {
 	return o.ApplyT(func(v LookupKubernetesNodeGroupResult) string { return v.Status }).(pulumi.StringOutput)
 }
 
+func (o LookupKubernetesNodeGroupResultOutput) Variables() pulumi.StringMapOutput {
+	return o.ApplyT(func(v LookupKubernetesNodeGroupResult) map[string]string { return v.Variables }).(pulumi.StringMapOutput)
+}
+
 func (o LookupKubernetesNodeGroupResultOutput) VersionInfos() GetKubernetesNodeGroupVersionInfoArrayOutput {
 	return o.ApplyT(func(v LookupKubernetesNodeGroupResult) []GetKubernetesNodeGroupVersionInfo { return v.VersionInfos }).(GetKubernetesNodeGroupVersionInfoArrayOutput)
+}
+
+func (o LookupKubernetesNodeGroupResultOutput) WorkloadIdentityFederations() GetKubernetesNodeGroupWorkloadIdentityFederationArrayOutput {
+	return o.ApplyT(func(v LookupKubernetesNodeGroupResult) []GetKubernetesNodeGroupWorkloadIdentityFederation {
+		return v.WorkloadIdentityFederations
+	}).(GetKubernetesNodeGroupWorkloadIdentityFederationArrayOutput)
 }
 
 func init() {

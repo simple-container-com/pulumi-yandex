@@ -7,10 +7,57 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Managed MySQL user. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetMdbMysqlUser(ctx, &yandex.LookupMdbMysqlUserArgs{
+//				ClusterId: "some_cluster_id",
+//				Name:      "test",
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("permission", pulumi.Any(data.Yandex_mdb_mysql_user.Foo.Permission))
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `authenticationPlugin` (*Read-Only*) (String). Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH`).
+// - `clusterId` (**Required**)(String). The ID of the MySQL cluster.
+// - `connectionLimits` (*Read-Only*) (List Of Object).
+//   - `maxConnectionsPerHour` .
+//   - `maxQuestionsPerHour` .
+//   - `maxUpdatesPerHour` .
+//   - `maxUserConnections` .
+//
+// - `connectionManager` (*Read-Only*) (Map Of String). Connection Manager connection configuration. Filled in by the server automatically.
+// - `globalPermissions` (*Read-Only*) (Set Of String). List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS`, `FLUSH_OPTIMIZER_COSTS`, `SHOW_ROUTINE`, `MDB_ADMIN` for clear list use empty list. If the attribute is not specified there will be no changes.
+// - `id` (String).
+// - `name` (**Required**)(String). The name of the MySQL user.
+// - `permission` [Block].
+//   - `databaseName` (*Read-Only*) (String).
+//   - `roles` (List Of String).
 func LookupMdbMysqlUser(ctx *pulumi.Context, args *LookupMdbMysqlUserArgs, opts ...pulumi.InvokeOption) (*LookupMdbMysqlUserResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMdbMysqlUserResult

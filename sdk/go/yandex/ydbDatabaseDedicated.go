@@ -8,10 +8,160 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Yandex Database (dedicated) resource. For more information, see [the official documentation](https://yandex.cloud/docs/ydb/concepts/serverless_and_dedicated).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new YDB Dedicated Database.
+//			_, err := yandex.NewYdbDatabaseDedicated(ctx, "database1", &yandex.YdbDatabaseDedicatedArgs{
+//				FolderId:  pulumi.Any(data.Yandex_resourcemanager_folder.Test_folder.Id),
+//				NetworkId: pulumi.Any(yandex_vpc_network.MyInstGroupNetwork.Id),
+//				SubnetIds: pulumi.StringArray{
+//					yandex_vpc_subnet.MyInstGroupSubnet.Id,
+//				},
+//				ResourcePresetId:   pulumi.String("medium"),
+//				DeletionProtection: pulumi.Bool(true),
+//				ScalePolicy: &yandex.YdbDatabaseDedicatedScalePolicyArgs{
+//					FixedScale: &yandex.YdbDatabaseDedicatedScalePolicyFixedScaleArgs{
+//						Size: pulumi.Int(1),
+//					},
+//				},
+//				StorageConfig: &yandex.YdbDatabaseDedicatedStorageConfigArgs{
+//					GroupCount:    pulumi.Int(1),
+//					StorageTypeId: pulumi.String("ssd"),
+//				},
+//				Location: &yandex.YdbDatabaseDedicatedLocationArgs{
+//					Region: &yandex.YdbDatabaseDedicatedLocationRegionArgs{
+//						Id: pulumi.String("ru-central1"),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new YDB Dedicated Database with auto-scale policy.
+//			_, err := yandex.NewYdbDatabaseDedicated(ctx, "database1", &yandex.YdbDatabaseDedicatedArgs{
+//				FolderId:  pulumi.Any(data.Yandex_resourcemanager_folder.Test_folder.Id),
+//				NetworkId: pulumi.Any(yandex_vpc_network.MyInstGroupNetwork.Id),
+//				SubnetIds: pulumi.StringArray{
+//					yandex_vpc_subnet.MyInstGroupSubnet.Id,
+//				},
+//				ResourcePresetId:   pulumi.String("medium"),
+//				DeletionProtection: pulumi.Bool(true),
+//				ScalePolicy: &yandex.YdbDatabaseDedicatedScalePolicyArgs{
+//					AutoScale: &yandex.YdbDatabaseDedicatedScalePolicyAutoScaleArgs{
+//						MinSize: pulumi.Int(2),
+//						MaxSize: pulumi.Int(8),
+//						TargetTracking: &yandex.YdbDatabaseDedicatedScalePolicyAutoScaleTargetTrackingArgs{
+//							CpuUtilizationPercent: pulumi.Int(70),
+//						},
+//					},
+//				},
+//				Labels: pulumi.StringMap{
+//					"enable_autoscaling": pulumi.String("1"),
+//				},
+//				StorageConfig: &yandex.YdbDatabaseDedicatedStorageConfigArgs{
+//					GroupCount:    pulumi.Int(1),
+//					StorageTypeId: pulumi.String("ssd"),
+//				},
+//				Location: &yandex.YdbDatabaseDedicatedLocationArgs{
+//					Region: &yandex.YdbDatabaseDedicatedLocationRegionArgs{
+//						Id: pulumi.String("ru-central1"),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `assignPublicIps` (Bool). Whether public IP addresses should be assigned to the Yandex Database cluster.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `databasePath` (*Read-Only*) (String). Full database path of the Yandex Database cluster. Useful for SDK configuration.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `locationId` (String). Location ID for the Yandex Database cluster.
+// - `name` (**Required**)(String). The resource name.
+// - `networkId` (**Required**)(String). The `VPC Network ID` of subnets which resource attached to.
+// - `resourcePresetId` (**Required**)(String). The Yandex Database cluster preset. Available presets can be obtained via `yc ydb resource-preset list` command.
+// - `securityGroupIds` (Set Of String). The list of security groups applied to resource or their components.
+// - `sleepAfter` (Number).
+// - `status` (*Read-Only*) (String). Status of the Yandex Database cluster.
+// - `subnetIds` (**Required**)(Set Of String). The list of VPC subnets identifiers which resource is attached.
+// - `tlsEnabled` (*Read-Only*) (Bool). Whether TLS is enabled for the Yandex Database cluster. Useful for SDK configuration.
+// - `ydbApiEndpoint` (*Read-Only*) (String). API endpoint of the Yandex Database cluster. Useful for SDK configuration.
+// - `ydbFullEndpoint` (*Read-Only*) (String). Full endpoint of the Yandex Database cluster.
+// - `location` [Block]. Location for the Yandex Database cluster.
+//   - `region` [Block]. Region for the Yandex Database cluster.
+//   - `id` (**Required**)(String). Region ID for the Yandex Database cluster.
+//
+// - `scalePolicy` [Block]. Scaling policy for the Yandex Database cluster.
+//   - `autoScale` [Block]. Auto scaling policy for the Yandex Database cluster. This is a preview feature, and you need to enable it using the label `enable_autoscaling=1`.
+//   - `maxSize` (**Required**)(Number). Maximum number of nodes to which autoscaling can scale the database.
+//   - `minSize` (**Required**)(Number). Minimum number of nodes to which autoscaling can scale the database.
+//   - `targetTracking` [Block]. A target tracking scaling policy automatically scales the capacity of your Yandex Database cluster based on a target metric value.
+//   - `cpuUtilizationPercent` (**Required**)(Number). A percentage of database nodes average CPU utilization.
+//   - `fixedScale` [Block]. Fixed scaling policy for the Yandex Database cluster.
+//   - `size` (**Required**)(Number). Number of instances for the Yandex Database cluster.
+//
+// - `storageConfig` [Block]. A list of storage configuration options for the Yandex Database cluster.
+//   - `groupCount` (**Required**)(Number). Amount of storage groups of selected type for the Yandex Database cluster.
+//   - `storageTypeId` (**Required**)(String). Storage type ID for the Yandex Database cluster. Available presets can be obtained via `yc ydb storage-type list` command.
+//
+// - `timeouts` [Block].
+//   - `default` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_ydb_database_dedicated.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/ydbDatabaseDedicated:YdbDatabaseDedicated my_ydb ...
+// ```
 type YdbDatabaseDedicated struct {
 	pulumi.CustomResourceState
 

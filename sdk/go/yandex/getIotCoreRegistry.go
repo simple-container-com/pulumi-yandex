@@ -7,10 +7,58 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex IoT Core Registry. For more information IoT Core, see [Yandex Cloud IoT Registry](https://yandex.cloud/docs/iot-core/quickstart).
+// This data source is used to define [Yandex Cloud IoT Registry](https://yandex.cloud/docs/iot-core/quickstart) that can be used by other resources.
+//
+// > Either `registryId` or `name` must be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetIotCoreRegistry(ctx, &yandex.LookupIotCoreRegistryArgs{
+//				RegistryId: pulumi.StringRef("are1sampleregistry11"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `certificates` (*Read-Only*) (Set Of String). A set of certificate's fingerprints for the IoT Core Registry.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `logOptions` (*Read-Only*) (List Of Object).
+//   - `disabled` .
+//   - `folderId` .
+//   - `logGroupId` .
+//   - `minLevel` .
+//
+// - `name` (String). The resource name.
+// - `passwords` (*Read-Only*) (Set Of String). A set of passwords's id for the IoT Core Registry.
+// - `registryId` (String). IoT Core Registry id used to define registry.
 func LookupIotCoreRegistry(ctx *pulumi.Context, args *LookupIotCoreRegistryArgs, opts ...pulumi.InvokeOption) (*LookupIotCoreRegistryResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupIotCoreRegistryResult

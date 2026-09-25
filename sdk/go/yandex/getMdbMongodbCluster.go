@@ -7,10 +7,245 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Managed MongoDB cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts).
+//
+// > Either `clusterId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			foo, err := yandex.GetMdbMongodbCluster(ctx, &yandex.LookupMdbMongodbClusterArgs{
+//				Name: pulumi.StringRef("test"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("networkId", foo.NetworkId)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `clusterId` (String). The ID of the cluster.
+// - `createdAt` (String). The creation timestamp of the resource.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `diskEncryptionKeyId` (String). ID of the KMS key for cluster disk encryption.
+// - `environment` (String). Deployment environment of the MongoDB cluster. Can be either `PRESTABLE` or `PRODUCTION`.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `health` (String). Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-mongodb/api-ref/Cluster/).
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `networkId` (String). The `VPC Network ID` of subnets which resource attached to.
+// - `securityGroupIds` (Set Of String). The list of security groups applied to resource or their components.
+// - `sharded` (Bool). MongoDB Cluster mode enabled/disabled.
+// - `status` (String). Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-mongodb/api-ref/Cluster/).
+// - `clusterConfig` [Block]. Configuration of the MongoDB subcluster.
+//   - `backupRetainPeriodDays` (Number). Retain period of automatically created backup in days.
+//   - `featureCompatibilityVersion` (String). Feature compatibility version of MongoDB. If not provided version is taken. Can be either `6.0`, `5.0`, `4.4` and `4.2`.
+//   - `version` (String). Version of the MongoDB server software. Can be either `4.2`, `4.4`, `4.4-enterprise`, `5.0`, `5.0-enterprise`, `6.0` and `6.0-enterprise`.
+//   - `access` [Block]. Access policy to the MongoDB cluster.
+//   - `dataLens` (Bool). Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
+//   - `dataTransfer` (Bool). Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer).
+//   - `webSql` (Bool). Allow access for [WebSQL](https://yandex.cloud/ru/docs/websql/).
+//   - `autocompactConfig` [Block]. Autocompaction configuration for the MongoDB cluster.
+//   - `bloatPercent` (Number). Bloat percent for autocompaction.
+//   - `compactionType` (String). Compaction type for autocompaction.
+//   - `enabled` (Bool). Enable or disable autocompaction.
+//   - `targetFreeSpace` (Number). Target free space for autocompaction.
+//   - `backupWindowStart` [Block]. Time to start the daily backup, in the UTC timezone.
+//   - `hours` (Number). The hour at which backup will be started.
+//   - `minutes` (Number). The minute at which backup will be started.
+//   - `mongocfg` [Block]. Configuration of the mongocfg service.
+//   - `chainingAllowed` (Bool). Chained replication setting. For more information, see the [chainingAllowed](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-chainingAllowed) description in the official documentation.
+//   - `auditLog` [Block]. A set of audit log settings (see the [auditLog](https://www.mongodb.com/docs/manual/reference/configuration-options/#auditlog-options) option). Available only in enterprise edition.
+//   - `filter` (String). Configuration of the audit log filter in JSON format. For more information see [auditLog.filter](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-auditLog.filter) description in the official documentation. Available only in enterprise edition.
+//   - `net` [Block].  A set of network settings (see the [net](https://www.mongodb.com/docs/manual/reference/configuration-options/#net-options) option).
+//   - `maxIncomingConnections` (Number). The maximum number of simultaneous connections that host will accept. For more information, see the [net.maxIncomingConnections](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.maxIncomingConnections) description in the official documentation.
+//   - `operationProfiling` [Block]. A set of profiling settings (see the [operationProfiling](https://www.mongodb.com/docs/manual/reference/configuration-options/#operationprofiling-options) option).
+//   - `mode` (String). Specifies which operations should be profiled. The following profiler levels are available: off, slow_op, all. For more information, see the [operationProfiling.mode](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.mode) description in the official documentation.
+//   - `slowOpThreshold` (Number). The slow operation time threshold, in milliseconds. Operations that run for longer than this threshold are considered slow. For more information, see the [operationProfiling.slowOpThresholdMs](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpThresholdMs) description in the official documentation.
+//   - `oplog` [Block]. A set of oplog settings (see the [oplog](https://www.mongodb.com/docs/manual/core/replica-set-oplog) option).
+//   - `maxSizePercent` (Number). The maximum size of the oplog, as a percentage of the total storage size. For more information, see the [oplog.oplogSizeMB](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-replication.oplogSizeMB) description in the official documentation.
+//   - `minRetentionHours` (Number). The minimum number of hours to preserve an oplog entry, where decimal values represent the fractions of an hour. For more information, see the [oplog.minRetentionHours](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-replication.oplogSizeMB) description in the official documentation.
+//   - `setParameter` [Block]. A set of MongoDB Server Parameters (see the [setParameter](https://www.mongodb.com/docs/manual/reference/configuration-options/#setparameter-option) option).
+//   - `auditAuthorizationSuccess` (Bool). Enables the auditing of authorization successes. Can be either true or false. For more information, see the [auditAuthorizationSuccess](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.auditAuthorizationSuccess) description in the official documentation. Available only in enterprise edition.
+//   - `enableFlowControl` (Bool). Enables the flow control. Can be either true or false. For more information, see the [enableFlowControl](https://www.mongodb.com/docs/rapid/reference/parameters/#mongodb-parameter-param.enableFlowControl) description in the official documentation.
+//   - `storage` [Block]. A set of storage settings (see the [storage](https://www.mongodb.com/docs/manual/reference/configuration-options/#storage-options) option).
+//   - `wiredTiger` [Block]. The WiredTiger engine settings. (see the [storage.wiredTiger](https://www.mongodb.com/docs/manual/reference/configuration-options/#storage.wiredtiger-options) option).
+//   - `cacheSize` (Number). Defines the maximum size of the internal cache that WiredTiger will use for all data in percents. For more information, see the [storage.wiredTiger.engineConfig.cacheSize](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.engineConfig.cacheSizePct) description in the official documentation.
+//   - `cacheSizeGb` (Number). Defines the maximum size of the internal cache that WiredTiger will use for all data. For more information, see the [storage.wiredTiger.engineConfig.cacheSizeGB](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.engineConfig.cacheSizeGB) description in the official documentation.
+//   - `mongod` [Block]. Configuration of the mongod service.
+//   - `chainingAllowed` (Bool). Chained replication setting. For more information, see the [chainingAllowed](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-chainingAllowed) description in the official documentation.
+//   - `auditLog` [Block]. A set of audit log settings (see the [auditLog](https://www.mongodb.com/docs/manual/reference/configuration-options/#auditlog-options) option). Available only in enterprise edition.
+//   - `filter` (String). Configuration of the audit log filter in JSON format. For more information see [auditLog.filter](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-auditLog.filter) description in the official documentation. Available only in enterprise edition.
+//   - `runtimeConfiguration` (Bool). Specifies if a node allows runtime configuration of audit filters and the auditAuthorizationSuccess variable. For more information see [auditLog.runtimeConfiguration](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-auditLog.runtimeConfiguration) description in the official documentation. Available only in enterprise edition.
+//   - `net` [Block]. A set of network settings (see the [net](https://www.mongodb.com/docs/manual/reference/configuration-options/#net-options) option).
+//   - `compressors` (List Of String). Specifies the default compressor(s) to use for communication between this mongod or mongos. Accepts array of compressors. Order matters. Available compressors: snappy, zlib, zstd, disabled. To disable network compression, make `disabled` the only value. For more information, see the [net.Compression.Compressors](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.compression.compressors) description in the official documentation.
+//   - `maxIncomingConnections` (Number). The maximum number of simultaneous connections that host will accept. For more information, see the [net.maxIncomingConnections](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.maxIncomingConnections) description in the official documentation.
+//   - `operationProfiling` [Block]. A set of profiling settings (see the [operationProfiling](https://www.mongodb.com/docs/manual/reference/configuration-options/#operationprofiling-options) option).
+//   - `mode` (String). Specifies which operations should be profiled. The following profiler levels are available: off, slow_op, all. For more information, see the [operationProfiling.mode](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.mode) description in the official documentation.
+//   - `slowOpSampleRate` (Number). The fraction of slow operations that should be profiled or logged. Accepts values between 0 and 1, inclusive. For more information, see the [operationProfiling.slowOpSampleRate](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpSampleRate) description in the official documentation.
+//   - `slowOpThreshold` (Number). The slow operation time threshold, in milliseconds. Operations that run for longer than this threshold are considered slow. For more information, see the [operationProfiling.slowOpThresholdMs](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpThresholdMs) description in the official documentation.
+//   - `oplog` [Block]. A set of oplog settings (see the [oplog](https://www.mongodb.com/docs/manual/core/replica-set-oplog) option).
+//   - `maxSizePercent` (Number). The maximum size of the oplog, as a percentage of the total storage size. For more information, see the [oplog.oplogSizeMB](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-replication.oplogSizeMB) description in the official documentation.
+//   - `minRetentionHours` (Number). The minimum number of hours to preserve an oplog entry, where decimal values represent the fractions of an hour. For more information, see the [oplog.minRetentionHours](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-replication.oplogSizeMB) description in the official documentation.
+//   - `security` [Block]. A set of MongoDB Security settings (see the [security](https://www.mongodb.com/docs/manual/reference/configuration-options/#security-options) option). Available only in enterprise edition.
+//   - `enableEncryption` (Bool). Enables the encryption for the WiredTiger storage engine. Can be either true or false. For more information see [security.enableEncryption](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.enableEncryption) description in the official documentation. Available only in enterprise edition.
+//   - `kmip` [Block]. Configuration of the third party key management appliance via the Key Management Interoperability Protocol (KMIP) (see [Encryption tutorial](https://www.mongodb.com/docs/rapid/tutorial/configure-encryption) ). Requires `enableEncryption` to be true. The structure is documented below. Available only in enterprise edition.
+//   - `clientCertificate` (String). String containing the client certificate used for authenticating MongoDB to the KMIP server. For more information see [security.kmip.clientCertificateFile](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.clientCertificateFile) description in the official documentation.
+//   - `keyIdentifier` (String). Unique KMIP identifier for an existing key within the KMIP server. For more information see [security.kmip.keyIdentifier](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.keyIdentifier) description in the official documentation.
+//   - `port` (Number). Port number to use to communicate with the KMIP server. Default: 5696 For more information see [security.kmip.port](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.port) description in the official documentation.
+//   - `serverCa` (String). Path to CA File. Used for validating secure client connection to KMIP server. For more information see [security.kmip.serverCAFile](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.serverCAFile) description in the official documentation.
+//   - `serverName` (String). Hostname or IP address of the KMIP server to connect to. For more information see [security.kmip.serverName](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.serverName) description in the official documentation.
+//   - `setParameter` [Block]. A set of MongoDB Server Parameters (see the [setParameter](https://www.mongodb.com/docs/manual/reference/configuration-options/#setparameter-option) option).
+//   - `auditAuthorizationSuccess` (Bool). Enables the auditing of authorization successes. Can be either true or false. For more information, see the [auditAuthorizationSuccess](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.auditAuthorizationSuccess) description in the official documentation. Available only in enterprise edition.
+//   - `enableFlowControl` (Bool). Enables the flow control. Can be either true or false. For more information, see the [enableFlowControl](https://www.mongodb.com/docs/rapid/reference/parameters/#mongodb-parameter-param.enableFlowControl) description in the official documentation.
+//   - `flowControlTargetLagSeconds` (Number). The target maximum majority committed lag when running with flow control. For more information, see the [flowControlTargetLagSeconds](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.flowControlTargetLagSeconds) description in the official documentation.
+//   - `flowControlWarnThresholdSeconds` (Number). The amount of time to wait to log a warning once the flow control mechanism detects the majority commit point has not moved. For more information, see the [flowControlWarnThresholdSeconds](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.flowControlWarnThresholdSeconds) description in the official documentation.
+//   - `migrateCloneInsertionBatchDelayMs` (Number). Time in milliseconds to wait between batches of insertions during cloning step of the migration process. For more information, see the [migrateCloneInsertionBatchDelayMs](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.migrateCloneInsertionBatchDelayMS) description in the official documentation.
+//   - `migrateCloneInsertionBatchSize` (Number). The maximum number of documents to insert in a single batch during the cloning step of the migration process. For more information, see the [migrateCloneInsertionBatchSize](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.migrateCloneInsertionBatchSize) description in the official documentation.
+//   - `minSnapshotHistoryWindowInSeconds` (Number). The minimum time window in seconds for which the storage engine keeps the snapshot history. For more information, see the [minSnapshotHistoryWindowInSeconds](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.minSnapshotHistoryWindowInSeconds) description in the official documentation.
+//   - `orphanCleanupDelaySecs` (Number). Minimum delay before a migrated chunk is deleted from the source shard. For more information, see the [orphanCleanupDelaySecs](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.orphanCleanupDelaySecs) description in the official documentation.
+//   - `persistedChunkCacheUpdateMaxBatchSize` (Number). Specifies the maximum batch size used for updating the persisted chunk cache. For more information, see the [persistedChunkCacheUpdateMaxBatchSize](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.persistedChunkCacheUpdateMaxBatchSize) description in the official documentation.
+//   - `rangeDeleterBatchDelayMs` (Number). The amount of time in milliseconds to wait before the next batch of deletion during the cleanup stage of chunk migration (or the cleanupOrphaned command). For more information, see the [rangeDeleterBatchDelayMS](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.rangeDeleterBatchDelayMS) description in the official documentation.
+//   - `rangeDeleterBatchSize` (Number). The maximum number of documents in each batch to delete during the cleanup stage of chunk migration (or the cleanupOrphaned command). For more information, see the [rangeDeleterBatchSize](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.rangeDeleterBatchSize) description in the official documentation.
+//   - `mirrorReads` [Block]. A set of MongoDB Mirror Reads settings (see the [mirrorReads](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.mirrorReads) option).
+//   - `maxTimeMs` (Number). The maximum time in milliseconds for the mirrored reads. For more information see [mirrorReads.maxTimeMS](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.mirrorReads) description in the official documentation
+//   - `samplingRate` (Number). The sampling rate used to mirror a subset of operations that support mirroring. For more information see [mirrorReads.samplingRate](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.mirrorReads) description in the official documentation
+//   - `storage` [Block]. A set of storage settings (see the [storage](https://www.mongodb.com/docs/manual/reference/configuration-options/#storage-options) option).
+//   - `journal` [Block]. The durability journal to ensure data files remain valid and recoverable.
+//   - `commitInterval` (Number). The maximum amount of time in milliseconds that the mongod process allows between journal operations. For more information, see the [storage.journal.commitIntervalMs](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.journal.commitIntervalMs) description in the official documentation.
+//   - `wiredTiger` [Block]. The WiredTiger engine settings. (see the [storage.wiredTiger](https://www.mongodb.com/docs/manual/reference/configuration-options/#storage.wiredtiger-options) option). These settings available only on `mongod` hosts.
+//   - `blockCompressor` (String). Specifies the default compression for collection data. You can override this on a per-collection basis when creating collections. Available compressors are: none, snappy, zlib, zstd. This setting available only on `mongod` hosts. For more information, see the [storage.wiredTiger.collectionConfig.blockCompressor](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.collectionConfig.blockCompressor) description in the official documentation.
+//   - `cacheSize` (Number). Defines the maximum size of the internal cache that WiredTiger will use for all data in percents. For more information, see the [storage.wiredTiger.engineConfig.cacheSize](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.engineConfig.cacheSizePct) description in the official documentation.
+//   - `cacheSizeGb` (Number). Defines the maximum size of the internal cache that WiredTiger will use for all data. For more information, see the [storage.wiredTiger.engineConfig.cacheSizeGB](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.engineConfig.cacheSizeGB) description in the official documentation.
+//   - `prefixCompression` (Bool). Enables or disables prefix compression for index data. Сan be either true or false. For more information, see the [storage.wiredTiger.indexConfig.prefixCompression](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.indexConfig.prefixCompression) description in the official documentation.
+//   - `mongos` [Block]. Configuration of the mongos service.
+//   - `chunkSize` (Number). The size of the chunk, in bytes. For more information, see the [chunkSize](https://www.mongodb.com/docs/manual/tutorial/modify-chunk-size-in-sharded-cluster) description in the official documentation.
+//   - `auditLog` [Block]. A set of audit log settings (see the [auditLog](https://www.mongodb.com/docs/manual/reference/configuration-options/#auditlog-options) option). Available only in enterprise edition.
+//   - `filter` (String). Configuration of the audit log filter in JSON format. For more information see [auditLog.filter](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-auditLog.filter) description in the official documentation. Available only in enterprise edition.
+//   - `net` [Block]. A set of network settings (see the [net](https://www.mongodb.com/docs/manual/reference/configuration-options/#net-options) option).
+//   - `compressors` (List Of String). Specifies the default compressor(s) to use for communication between this mongod or mongos. Accepts array of compressors. Order matters. Available compressors: snappy, zlib, zstd, disabled. To disable network compression, make `disabled` the only value. For more information, see the [net.Compression.Compressors](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.compression.compressors) description in the official documentation.
+//   - `maxIncomingConnections` (Number). The maximum number of simultaneous connections that host will accept. For more information, see the [net.maxIncomingConnections](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.maxIncomingConnections) description in the official documentation.
+//   - `operationProfiling` [Block]. A set of profiling settings (see the [operationProfiling](https://www.mongodb.com/docs/manual/reference/configuration-options/#operationprofiling-options) option).
+//   - `slowOpSampleRate` (Number). The fraction of slow operations that should be logged. Accepts values between 0 and 1, inclusive. For more information, see the [operationProfiling.slowOpSampleRate](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpSampleRate) description in the official documentation.
+//   - `slowOpThreshold` (Number). The slow operation time threshold, in milliseconds. Operations that run for longer than this threshold are considered slow, and are written to the diagnostic (slow query) log. mongos has no profiler, so only the diagnostic log is affected. For more information, see the [operationProfiling.slowOpThresholdMs](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpThresholdMs) description in the official documentation.
+//   - `setParameter` [Block]. A set of MongoDB Server Parameters (see the [setParameter](https://www.mongodb.com/docs/manual/reference/configuration-options/#setparameter-option) option).
+//   - `auditAuthorizationSuccess` (Bool). Enables the auditing of authorization successes. Can be either true or false. For more information, see the [auditAuthorizationSuccess](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.auditAuthorizationSuccess) description in the official documentation. Available only in enterprise edition.
+//   - `readHedgingMode` (String). Specifies whether mongos supports hedged reads for those read operations whose read preference have enabled the hedged read option. For more information, see the [readHedgingMode](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.readHedgingMode) description in the official documentation.
+//   - `shardingTaskExecutorPoolHostTimeoutMs` (Number). Maximum time that mongos goes without communication to a host before mongos drops all connections to the host. For more information, see the [shardingTaskExecutorPoolHostTimeoutMS](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolHostTimeoutMS) description in the official documentation.
+//   - `shardingTaskExecutorPoolMaxConnecting` (Number). Maximum number of simultaneous initiating connections (including pending connections in setup/refresh state) each TaskExecutor connection pool can have to a mongod instance. For more information, see the [shardingTaskExecutorPoolMaxConnecting](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolMaxConnecting) description in the official documentation.
+//   - `shardingTaskExecutorPoolMaxSize` (Number). Maximum number of outbound connections each TaskExecutor connection pool can open to any given mongod instance. For more information, see the [shardingTaskExecutorPoolMaxSize](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolMaxSize) description in the official documentation.
+//   - `shardingTaskExecutorPoolMaxSizeForConfigServers` (Number). Optional override for ShardingTaskExecutorPoolMaxSize to set the maximum number of outbound connections each TaskExecutor connection pool can open to a configuration server. For more information, see the [shardingTaskExecutorPoolMaxSizeForConfigServers](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolMaxSizeForConfigServers) description in the official documentation.
+//   - `shardingTaskExecutorPoolMinSize` (Number). Minimum number of outbound connections each TaskExecutor connection pool can open to any given mongod instance. For more information, see the [shardingTaskExecutorPoolMinSize](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolMinSize) description in the official documentation.
+//   - `shardingTaskExecutorPoolMinSizeForConfigServers` (Number). Optional override for ShardingTaskExecutorPoolMinSize to set the minimum number of outbound connections each TaskExecutor connection pool can open to a configuration server. For more information, see the [shardingTaskExecutorPoolMinSizeForConfigServers](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolMinSizeForConfigServers) description in the official documentation.
+//   - `shardingTaskExecutorPoolRefreshRequirementMs` (Number). Maximum time the mongos waits before attempting to heartbeat an idle connection in the pool. For more information, see the [shardingTaskExecutorPoolRefreshRequirementMS](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolRefreshRequirementMS) description in the official documentation.
+//   - `shardingTaskExecutorPoolRefreshTimeoutMs` (Number). Maximum time the mongos waits for a heartbeat before timing out the heartbeat. For more information, see the [shardingTaskExecutorPoolRefreshTimeoutMS](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolRefreshTimeoutMS) description in the official documentation.
+//   - `shardingTaskExecutorPoolReplicaSetMatching` (String). On a mongos instance, this parameter sets the policy that determines the minimum size limit of its connection pools to nodes within replica sets. For more information, see the [shardingTaskExecutorPoolReplicaSetMatching](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.ShardingTaskExecutorPoolReplicaSetMatching) description in the official documentation.
+//   - `warmMinConnectionsInShardingTaskExecutorPoolOnStartup` (Bool). Configures a mongos instance to prewarm its connection pool on startup. For more information, see the [warmMinConnectionsInShardingTaskExecutorPoolOnStartup](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.warmMinConnectionsInShardingTaskExecutorPoolOnStartup) description in the official documentation.
+//   - `warmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs` (Number). Sets the timeout threshold in milliseconds for a mongos to wait for ShardingTaskExecutorPoolMinSize connections to be established per shard host when using the warmMinConnectionsInShardingTaskExecutorPoolOnStartup parameter. For more information, see the [warmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMS](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.warmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMS) description in the official documentation.
+//   - `performanceDiagnostics` [Block]. Performance diagnostics to the MongoDB cluster.
+//   - `enabled` (Bool). Enable or disable performance diagnostics.
+//
+// - `database` [Block]. A database of the MongoDB cluster.
+//   - `name` (String). The name of the database.
+//
+// - `diskSizeAutoscalingMongocfg` [Block]. Disk size autoscaling settings for mongocfg.
+//   - `diskSizeLimit` (Number). The overall maximum for disk size (GB) that limits all autoscaling iterations.
+//   - `emergencyUsageThreshold` (Number). Immediate autoscaling disk usage (percent).
+//   - `plannedUsageThreshold` (Number). Maintenance window autoscaling disk usage (percent).
+//
+// - `diskSizeAutoscalingMongod` [Block]. Disk size autoscaling settings for mongod.
+//   - `diskSizeLimit` (Number). The overall maximum for disk size (GB) that limits all autoscaling iterations.
+//   - `emergencyUsageThreshold` (Number). Immediate autoscaling disk usage (percent).
+//   - `plannedUsageThreshold` (Number). Maintenance window autoscaling disk usage (percent).
+//
+// - `diskSizeAutoscalingMongoinfra` [Block]. Disk size autoscaling settings for mongoinfra.
+//   - `diskSizeLimit` (Number). The overall maximum for disk size (GB) that limits all autoscaling iterations.
+//   - `emergencyUsageThreshold` (Number). Immediate autoscaling disk usage (percent).
+//   - `plannedUsageThreshold` (Number). Maintenance window autoscaling disk usage (percent).
+//
+// - `diskSizeAutoscalingMongos` [Block]. Disk size autoscaling settings for mongos.
+//   - `diskSizeLimit` (Number). The overall maximum for disk size (GB) that limits all autoscaling iterations.
+//   - `emergencyUsageThreshold` (Number). Immediate autoscaling disk usage (percent).
+//   - `plannedUsageThreshold` (Number). Maintenance window autoscaling disk usage (percent).
+//
+// - `host` [Block]. A host of the MongoDB cluster.
+//   - `assignPublicIp` (Bool). Should this host have assigned public IP assigned. Can be either `true` or `false`.
+//   - `health` (String). The health of the host.
+//   - `name` (String). The fully qualified domain name of the host. Computed on server side.
+//   - `role` (String). The role of the cluster (either PRIMARY or SECONDARY).
+//   - `shardName` (String). The name of the shard to which the host belongs. Only for sharded cluster.
+//   - `subnetId` (String). The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
+//   - `type` (String). Type of Mongo daemon which runs on this host (mongod, mongos, mongocfg, mongoinfra). Defaults to `mongod`.
+//   - `zoneId` (String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+//   - `hostParameters` [Block]. The parameters of mongod host in replicaset.
+//   - `hidden` (Bool). Should this host be hidden in replicaset. Can be either `true` of `false`. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.hidden).
+//   - `priority` (Number). A floating point number that indicates the relative likelihood of a replica set member to become the primary. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.priority).
+//   - `secondaryDelaySecs` (Number). The number of seconds `behind` the primary that this replica set member should `lag`. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.secondaryDelaySecs).
+//   - `tags` (Map Of String). A set of key/value pairs to assign for the replica set member. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.tags).
+//   - `votes` (Number). The number of votes the replica set member has in an election. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.votes).
+//
+// - `maintenanceWindow` [Block]. Maintenance window settings of the MongoDB cluster.
+//   - `day` (String). Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
+//   - `hour` (Number). Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.
+//   - `type` (String). Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+//
+// - `resources` [Block]. (**DEPRECATED**, use `resources_*` instead) Resources allocated to hosts of the MongoDB cluster.
+//   - `diskSize` (Number). Volume of the storage available to a MongoDB host, in gigabytes.
+//   - `diskTypeId` (String). Type of the storage of MongoDB hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
+//   - `resourcePresetId` (String). The ID of the preset for computational resources available to a MongoDB host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts).
+//
+// - `resourcesMongocfg` [Block]. Resources allocated to `mongocfg` hosts of the MongoDB cluster.
+//   - `diskSize` (Number). Volume of the storage available to a MongoDB host, in gigabytes.
+//   - `diskTypeId` (String). Type of the storage of MongoDB hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
+//   - `resourcePresetId` (String). The ID of the preset for computational resources available to a MongoDB host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts).
+//
+// - `resourcesMongod` [Block]. Resources allocated to `mongod` hosts of the MongoDB cluster.
+//   - `diskSize` (Number). Volume of the storage available to a MongoDB host, in gigabytes.
+//   - `diskTypeId` (String). Type of the storage of MongoDB hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
+//   - `resourcePresetId` (String). The ID of the preset for computational resources available to a MongoDB host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts).
+//
+// - `resourcesMongoinfra` [Block]. Resources allocated to `mongoinfra` hosts of the MongoDB cluster.
+//   - `diskSize` (Number). Volume of the storage available to a MongoDB host, in gigabytes.
+//   - `diskTypeId` (String). Type of the storage of MongoDB hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
+//   - `resourcePresetId` (String). The ID of the preset for computational resources available to a MongoDB host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts).
+//
+// - `resourcesMongos` [Block]. Resources allocated to `mongos` hosts of the MongoDB cluster.
+//   - `diskSize` (Number). Volume of the storage available to a MongoDB host, in gigabytes.
+//   - `diskTypeId` (String). Type of the storage of MongoDB hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
+//   - `resourcePresetId` (String). The ID of the preset for computational resources available to a MongoDB host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts).
+//
+// - `restore` [Block]. The cluster will be created from the specified backup.
+//   - `backupId` (String). Backup ID. The cluster will be created from the specified backup. [How to get a list of PostgreSQL backups](https://yandex.cloud/docs/managed-mongodb/operations/cluster-backups).
+//   - `time` (String). Timestamp of the moment to which the MongoDB cluster should be restored. (Format: `2006-01-02T15:04:05` - UTC). When not set, current time is used.
+//
+// - `user` [Block]. A user of the MongoDB cluster.
+//   - `name` (String). The name of the user.
+//   - `password` (String). The password of the user.
+//   - `permission` [Block]. Set of permissions granted to the user.
+//   - `databaseName` (String). The name of the database that the permission grants access to.
+//   - `roles` (List Of String). The roles of the user in this database. For more information see [the official documentation](https://yandex.cloud/docs/managed-mongodb/concepts/users-and-roles).
 func LookupMdbMongodbCluster(ctx *pulumi.Context, args *LookupMdbMongodbClusterArgs, opts ...pulumi.InvokeOption) (*LookupMdbMongodbClusterResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMdbMongodbClusterResult

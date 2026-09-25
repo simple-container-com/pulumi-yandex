@@ -8,10 +8,151 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud API Gateway](https://yandex.cloud/docs/api-gateway/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new API Gateway
+//			_, err := yandex.NewApiGateway(ctx, "test-api-gateway", &yandex.ApiGatewayArgs{
+//				Description: pulumi.String("any description"),
+//				Labels: pulumi.StringMap{
+//					"label":       pulumi.String("label"),
+//					"empty-label": pulumi.String(""),
+//				},
+//				CustomDomains: yandex.ApiGatewayCustomDomainArray{
+//					&yandex.ApiGatewayCustomDomainArgs{
+//						Fqdn:          pulumi.String("test.example.com"),
+//						CertificateId: pulumi.String("<certificate_id_from_cert_manager>"),
+//					},
+//				},
+//				Connectivity: &yandex.ApiGatewayConnectivityArgs{
+//					NetworkId: pulumi.String("<dynamic network id>"),
+//				},
+//				Variables: pulumi.StringMap{
+//					"installation": pulumi.String("prod"),
+//				},
+//				Canary: &yandex.ApiGatewayCanaryArgs{
+//					Weight: pulumi.Int(20),
+//					Variables: pulumi.StringMap{
+//						"installation": pulumi.String("dev"),
+//					},
+//				},
+//				LogOptions: &yandex.ApiGatewayLogOptionsArgs{
+//					LogGroupId: pulumi.String("<log group id>"),
+//					MinLevel:   pulumi.String("ERROR"),
+//				},
+//				ExecutionTimeout: pulumi.String("300"),
+//				Spec: pulumi.Sprintf(`openapi: "3.0.0"
+//
+// info:
+//
+//	version: 1.0.0
+//	title: Test API
+//
+// x-yc-apigateway:
+//
+//	variables:
+//	  installation:
+//	    default: "prod"
+//	    enum:
+//	     - "prod"
+//	     - "dev"
+//
+// paths:
+//
+//	/hello:
+//	  get:
+//	    summary: Say hello
+//	    operationId: hello
+//	    parameters:
+//	      - name: user
+//	        in: query
+//	        description: User name to appear in greetings
+//	        required: false
+//	        schema:
+//	          type: string
+//	          default: 'world'
+//	    responses:
+//	      '200':
+//	        description: Greeting
+//	        content:
+//	          'text/plain':
+//	            schema:
+//	              type: "string"
+//	    x-yc-apigateway-integration:
+//	      type: dummy
+//	      http_code: 200
+//	      http_headers:
+//	        'Content-Type': "text/plain"
+//	      content:
+//	        'text/plain': "Hello again, {user} from %v release!\n"
+//
+// `, apigw.Installation),
+//
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `domain` (*Read-Only*) (String). Default domain for the Yandex Cloud API Gateway. Generated at creation time.
+// - `executionTimeout` (String). Execution timeout in seconds for the Yandex Cloud API Gateway.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `logGroupId` (*Read-Only*) (String). ID of the log group for the Yandex Cloud API Gateway.
+// - `name` (**Required**)(String). The resource name.
+// - `spec` (**Required**)(String). The OpenAPI specification for Yandex Cloud API Gateway.
+// - `status` (*Read-Only*) (String). Status of the Yandex Cloud API Gateway.
+// - `userDomains` (*Read-Only*) (Set Of String). > **DEPRECATED** Use `customDomains` instead. Set of user domains attached to Yandex Cloud API Gateway.
+//
+// - `variables` (Map Of String). A set of values for variables in gateway specification.
+// - `canary` [Block]. Canary release settings of gateway.
+//   - `variables` (Map Of String). A list of values for variables in gateway specification of canary release.
+//   - `weight` (Number). Percentage of requests, which will be processed by canary release.
+//
+// - `connectivity` [Block]. Gateway connectivity. If specified the gateway will be attached to specified network.
+//   - `networkId` (**Required**)(String). Network the gateway will have access to. It's essential to specify network with subnets in all availability zones.
+//
+// - `customDomains` [Block]. Set of custom domains to be attached to Yandex Cloud API Gateway.
+//   - `certificateId` (**Required**)(String).
+//   - `domainId` (String).
+//   - `fqdn` (**Required**)(String).
+//
+// - `logOptions` [Block]. Options for logging from Yandex Cloud API Gateway.
+//   - `disabled` (Bool). Is logging from Yandex Cloud API Gateway disabled.
+//   - `folderId` (String). Log entries are written to default log group for specified folder.
+//   - `logGroupId` (String). Log entries are written to specified log group.
+//   - `minLevel` (String). Minimum log entry level.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
 type ApiGateway struct {
 	pulumi.CustomResourceState
 

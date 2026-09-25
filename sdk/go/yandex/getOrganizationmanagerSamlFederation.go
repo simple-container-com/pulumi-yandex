@@ -7,10 +7,61 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex SAML Federation. For more information, see [the official documentation](https://yandex.cloud/docs/organization/add-federation).
+//
+// > One of `federationId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			federation, err := yandex.GetOrganizationmanagerSamlFederation(ctx, &yandex.LookupOrganizationmanagerSamlFederationArgs{
+//				FederationId:   pulumi.StringRef("some_federation_id"),
+//				OrganizationId: pulumi.StringRef("some_organization_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("myFederation.name", federation.Name)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `autoCreateAccountOnLogin` (*Read-Only*) (Bool). Add new users automatically on successful authentication. The user will get the `resource-manager.clouds.member` role automatically, but you need to grant other roles to them. If the value is `false`, users who aren't added to the cloud can't log in, even if they have authenticated on your server.
+// - `caseInsensitiveNameIds` (*Read-Only*) (Bool). Use case-insensitive name IDs.
+// - `cookieMaxAge` (*Read-Only*) (String). The lifetime of a Browser cookie in seconds. If the cookie is still valid, the management console authenticates the user immediately and redirects them to the home page. The default value is `8h`.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `federationId` (String). ID of a SAML Federation.
+// - `id` (String).
+// - `issuer` (*Read-Only*) (String). The ID of the IdP server to be used for authentication. The IdP server also responds to IAM with this ID after the user authenticates.
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `organizationId` (String). Organization that the federation belongs to. If value is omitted, the default provider organization is used.
+// - `securitySettings` (*Read-Only*) (List Of Object).
+//   - `encryptedAssertions` .
+//   - `forceAuthn` .
+//
+// - `ssoBinding` (*Read-Only*) (String). Single sign-on endpoint binding type. Most Identity Providers support the `POST` binding type. SAML Binding is a mapping of a SAML protocol message onto standard messaging formats and/or communications protocols.
+// - `ssoUrl` (*Read-Only*) (String). Single sign-on (SSO) endpoint URL. Specify the link to the IdP login page here.
 func LookupOrganizationmanagerSamlFederation(ctx *pulumi.Context, args *LookupOrganizationmanagerSamlFederationArgs, opts ...pulumi.InvokeOption) (*LookupOrganizationmanagerSamlFederationResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupOrganizationmanagerSamlFederationResult

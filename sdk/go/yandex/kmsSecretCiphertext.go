@@ -8,10 +8,61 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Encrypts given plaintext with the specified Yandex KMS key and provides access to the **CipherText**.
+//
+// > Using this resource will allow you to conceal secret data within your resource definitions, but it does not take care of protecting that data in the logging output, plan output, or state output. Please take care to secure your secret data outside of resource definitions.
+// For more information, see [the official documentation](https://yandex.cloud/docs/kms/concepts/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new KMS Symmetric Encryption Key and Cipher Secret for it.
+//			example, err := yandex.NewKmsSymmetricKey(ctx, "example", &yandex.KmsSymmetricKeyArgs{
+//				Description: pulumi.String("description for key"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewKmsSecretCiphertext(ctx, "password", &yandex.KmsSecretCiphertextArgs{
+//				KeyId:      example.KmsSymmetricKeyId,
+//				AadContext: pulumi.String("additional authenticated data"),
+//				Plaintext:  pulumi.String("strong password"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `aadContext` (String). Additional authenticated data (AAD context), optional. If specified, this data will be required for decryption with the `SymmetricDecryptRequest`.
+// - `ciphertext` (*Read-Only*) (String). Resulting CipherText, encoded with `standard` base64 alphabet as defined in RFC 4648 section 4.
+// - `id` (String).
+// - `keyId` (**Required**)(String). ID of the symmetric KMS key to use for encryption.
+// - `plaintext` (**Required**)(String). Plaintext to be encrypted.
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
 type KmsSecretCiphertext struct {
 	pulumi.CustomResourceState
 

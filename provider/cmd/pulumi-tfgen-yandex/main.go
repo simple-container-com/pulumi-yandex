@@ -15,13 +15,17 @@
 package main
 
 import (
-	"github.com/pulumi/pulumi-terraform-bridge/v3/pkg/tfgen"
+	pftfgen "github.com/pulumi/pulumi-terraform-bridge/v3/pkg/pf/tfgen"
 
-	yandex "github.com/masikrus/pulumi-yandex/provider"
-	"github.com/masikrus/pulumi-yandex/provider/pkg/version"
+	yandex "github.com/simple-container-com/pulumi-yandex/provider"
 )
 
 func main() {
-	// Modify the path to point to the new provider
-	tfgen.Main("yandex", version.Version, yandex.Provider())
+	// MainWithMuxer must pair with MainWithMuxer in cmd/pulumi-resource-yandex: it is
+	// what writes the "mux" dispatch table into bridge-metadata.json, recording which
+	// half of the muxed terraform-provider-yandex owns each resource. The plain
+	// tfgen.Main emits a schema that looks complete but no mux mapping, and the
+	// provider binary then dies at startup with "Missing precomputed mapping. Did you
+	// run `make tfgen`?".
+	pftfgen.MainWithMuxer("yandex", yandex.Provider())
 }

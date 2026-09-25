@@ -7,10 +7,55 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex CDN Origin Group. For more information, see [the official documentation](https://yandex.cloud/docs/cdn/concepts/origins).
+//
+// > One of `originGroupId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myGroup, err := yandex.GetCdnOriginGroup(ctx, &yandex.LookupCdnOriginGroupArgs{
+//				OriginGroupId: pulumi.StringRef("some_instance_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("originGroupName", myGroup.Name)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `name` (String). The resource name.
+// - `origin` (*Read-Only*) (Set Of Object). A set of available origins.
+//   - `backup` .
+//   - `enabled` .
+//   - `originGroupId` .
+//   - `source` .
+//
+// - `originGroupId` (String). The ID of a specific origin group.
+// - `providerType` (*Read-Only*) (String). CDN provider is a content delivery service provider
+// - `useNext` (*Read-Only*) (Bool). If the option is active (has true value), in case the origin responds with 4XX or 5XX codes, use the next origin from the list.
 func LookupCdnOriginGroup(ctx *pulumi.Context, args *LookupCdnOriginGroupArgs, opts ...pulumi.InvokeOption) (*LookupCdnOriginGroupResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupCdnOriginGroupResult

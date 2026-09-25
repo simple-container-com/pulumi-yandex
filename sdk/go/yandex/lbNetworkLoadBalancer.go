@@ -7,10 +7,120 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Creates a network load balancer in the specified folder using the data specified in the config. For more information, see [the official documentation](https://yandex.cloud/docs/load-balancer/concepts).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Network Load Balancer (NLB).
+//			_, err := yandex.NewLbNetworkLoadBalancer(ctx, "myNlb", &yandex.LbNetworkLoadBalancerArgs{
+//				Listeners: yandex.LbNetworkLoadBalancerListenerArray{
+//					&yandex.LbNetworkLoadBalancerListenerArgs{
+//						Name: pulumi.String("my-listener"),
+//						Port: pulumi.Int(8080),
+//						ExternalAddressSpec: &yandex.LbNetworkLoadBalancerListenerExternalAddressSpecArgs{
+//							IpVersion: pulumi.String("ipv4"),
+//						},
+//					},
+//				},
+//				AttachedTargetGroups: yandex.LbNetworkLoadBalancerAttachedTargetGroupArray{
+//					&yandex.LbNetworkLoadBalancerAttachedTargetGroupArgs{
+//						TargetGroupId: pulumi.Any(yandex_lb_target_group.MyTargetGroup.Id),
+//						Healthchecks: yandex.LbNetworkLoadBalancerAttachedTargetGroupHealthcheckArray{
+//							&yandex.LbNetworkLoadBalancerAttachedTargetGroupHealthcheckArgs{
+//								Name: pulumi.String("http"),
+//								HttpOptions: &yandex.LbNetworkLoadBalancerAttachedTargetGroupHealthcheckHttpOptionsArgs{
+//									Port: pulumi.Int(8080),
+//									Path: pulumi.String("/ping"),
+//								},
+//							},
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `allowZonalShift` (Bool). Flag that marks the network load balancer as available to zonal shift.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `regionId` (String). ID of the availability zone where the network load balancer resides. If omitted, default region is being used.
+// - `type` (String). Type of the network load balancer. Must be one of 'external' or 'internal'. The default is 'external'.
+// - `attachedTargetGroup` [Block]. An AttachedTargetGroup resource.
+//   - `targetGroupId` (**Required**)(String). ID of the target group.
+//   - `healthcheck` [Block]. A HealthCheck resource.
+//
+// > One of `httpOptions` or `tcpOptions` should be specified.
+//
+//   - `healthyThreshold` (Number). Number of successful health checks required in order to set the `HEALTHY` status for the target.
+//   - `interval` (Number). The interval between health checks. The default is 2 seconds.
+//   - `name` (**Required**)(String). Name of the health check. The name must be unique for each target group that attached to a single load balancer.
+//   - `timeout` (Number). Timeout for a target to return a response for the health check. The default is 1 second.
+//   - `unhealthyThreshold` (Number). Number of failed health checks before changing the status to `UNHEALTHY`. The default is 2.
+//   - `httpOptions` [Block]. Options for HTTP health check.
+//   - `path` (String). URL path to set for health checking requests for every target in the target group. For example `/ping`. The default path is `/`.
+//   - `port` (**Required**)(Number). Port to use for HTTP health checks.
+//   - `tcpOptions` [Block]. Options for TCP health check.
+//   - `port` (**Required**)(Number). Port to use for TCP health checks.
+//
+// - `listener` [Block]. Listener specification that will be used by a network load balancer.
+//
+// > One of `externalAddressSpec` or `internalAddressSpec` should be specified.
+//
+//   - `name` (**Required**)(String). Name of the listener. The name must be unique for each listener on a single load balancer.
+//   - `port` (**Required**)(Number). Port for incoming traffic.
+//   - `protocol` (String). Protocol for incoming traffic. TCP or UDP and the default is TCP.
+//   - `targetPort` (Number). Port of a target. The default is the same as listener's port.
+//   - `externalAddressSpec` [Block]. External IP address specification.
+//   - `address` (String). External IP address for a listener. IP address will be allocated if it wasn't been set.
+//   - `ipVersion` (String). IP version of the external addresses that the load balancer works with. Must be one of `ipv4` or `ipv6`. The default is `ipv4`.
+//   - `internalAddressSpec` [Block]. Internal IP address specification.
+//   - `address` (String). Internal IP address for a listener. Must belong to the subnet that is referenced in subnet_id. IP address will be allocated if it wasn't been set.
+//   - `ipVersion` (String). IP version of the external addresses that the load balancer works with. Must be one of `ipv4` or `ipv6`. The default is `ipv4`.
+//   - `subnetId` (**Required**)(String). ID of the subnet to which the internal IP address belongs.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_lb_network_load_balancer.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/lbNetworkLoadBalancer:LbNetworkLoadBalancer my_nlb ...
+// ```
 type LbNetworkLoadBalancer struct {
 	pulumi.CustomResourceState
 

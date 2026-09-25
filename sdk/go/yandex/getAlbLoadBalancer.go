@@ -7,10 +7,145 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Application Load Balancer. For more information, see [Yandex Cloud Application Load Balancer](https://yandex.cloud/docs/application-load-balancer/quickstart).
+//
+// This data source is used to define [Application Load Balancer](https://yandex.cloud/docs/application-load-balancer/concepts/application-load-balancer) that can be used by other resources.
+//
+// > One of `loadBalancerId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetAlbLoadBalancer(ctx, &yandex.LookupAlbLoadBalancerArgs{
+//				LoadBalancerId: pulumi.StringRef("my-alb-id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `allocationPolicy` (*Read-Only*) (List Of Object). Allocation zones for the Load Balancer instance.
+//   - `location` .
+//   - `disableTraffic` .
+//   - `subnetId` .
+//   - `zoneId` .
+//
+// - `allowZonalShift` (*Read-Only*) (Bool). Specifies whether application load balancer is available to zonal shift
+// - `autoScalePolicy` (*Read-Only*) (List Of Object). Scaling settings of the application load balancer.
+//   - `maxSize` .
+//   - `minZoneSize` .
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (*Read-Only*) (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `listener` (*Read-Only*) (List Of Object). List of listeners for the Load Balancer.
+//   - `endpoint` .
+//   - `address` .
+//   - `externalIpv4Address` .
+//   - `address` .
+//   - `externalIpv6Address` .
+//   - `address` .
+//   - `internalIpv4Address` .
+//   - `address` .
+//   - `subnetId` .
+//   - `ports` .
+//   - `http` .
+//   - `handler` .
+//   - `allowHttp10` .
+//   - `http2Options` .
+//   - `maxConcurrentStreams` .
+//   - `httpRouterId` .
+//   - `preserveHttp1HeaderCasing` .
+//   - `rewriteRequestId` .
+//   - `redirects` .
+//   - `httpToHttps` .
+//   - `name` .
+//   - `stream` .
+//   - `handler` .
+//   - `backendGroupId` .
+//   - `idleTimeout` .
+//   - `tls` .
+//   - `defaultHandler` .
+//   - `certificateIds` .
+//   - `clientCertificatesVerification` .
+//   - `acceptUntrusted` .
+//   - `allowExpired` .
+//   - `bytes` .
+//   - `requireClientCertificate` .
+//   - `httpHandler` .
+//   - `allowHttp10` .
+//   - `http2Options` .
+//   - `maxConcurrentStreams` .
+//   - `httpRouterId` .
+//   - `preserveHttp1HeaderCasing` .
+//   - `rewriteRequestId` .
+//   - `streamHandler` .
+//   - `backendGroupId` .
+//   - `idleTimeout` .
+//   - `sniHandler` .
+//   - `handler` .
+//   - `certificateIds` .
+//   - `clientCertificatesVerification` .
+//   - `acceptUntrusted` .
+//   - `allowExpired` .
+//   - `bytes` .
+//   - `requireClientCertificate` .
+//   - `httpHandler` .
+//   - `allowHttp10` .
+//   - `http2Options` .
+//   - `maxConcurrentStreams` .
+//   - `httpRouterId` .
+//   - `preserveHttp1HeaderCasing` .
+//   - `rewriteRequestId` .
+//   - `streamHandler` .
+//   - `backendGroupId` .
+//   - `idleTimeout` .
+//   - `name` .
+//   - `serverNames` .
+//
+// - `loadBalancerId` (String). The resource identifier.
+// - `logGroupId` (*Read-Only*) (String). Cloud Logging group ID to send logs to. Leave empty to use the balancer folder default log group.
+// - `logOptions` (*Read-Only*) (List Of Object). Cloud Logging settings.
+//   - `disable` .
+//   - `discardRule` .
+//   - `discardPercent` .
+//   - `grpcCodes` .
+//   - `httpCodeIntervals` .
+//   - `httpCodes` .
+//   - `logGroupId` .
+//
+// - `name` (String). The resource name.
+// - `networkId` (*Read-Only*) (String). The `VPC Network ID` of subnets which resource attached to.
+// - `regionId` (*Read-Only*) (String). The region ID where Load Balancer is located at.
+// - `securityGroupIds` (*Read-Only*) (Set Of String). The list of security groups applied to resource or their components.
+// - `status` (*Read-Only*) (String). Status of the Load Balancer.
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
 func LookupAlbLoadBalancer(ctx *pulumi.Context, args *LookupAlbLoadBalancerArgs, opts ...pulumi.InvokeOption) (*LookupAlbLoadBalancerResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupAlbLoadBalancerResult

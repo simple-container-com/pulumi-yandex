@@ -1,4 +1,4 @@
-module github.com/masikrus/pulumi-yandex/examples
+module github.com/simple-container-com/pulumi-yandex/examples
 
 go 1.22
 

@@ -8,10 +8,54 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows members management of a single Yandex Cloud Organization Manager Group. For more information, see [the official documentation](https://yandex.cloud/docs/organization/manage-groups#add-member).
+//
+// > Multiple `yandexOrganizationmanagerGroupIamBinding` resources with the same group id will produce inconsistent behavior!
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new OrganizationManager Group Membership.
+//			_, err := yandex.NewOrganizationmanagerGroupMembership(ctx, "group", &yandex.OrganizationmanagerGroupMembershipArgs{
+//				GroupId: pulumi.String("sdf4*********3fr"),
+//				Members: pulumi.StringArray{
+//					pulumi.String("xdf********123"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `groupId` (**Required**)(String). The Group to add/remove members to/from.
+// - `id` (String).
+// - `members` (**Required**)(Set Of String). A set of members of the Group. Each member is represented by an id.
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
 type OrganizationmanagerGroupMembership struct {
 	pulumi.CustomResourceState
 

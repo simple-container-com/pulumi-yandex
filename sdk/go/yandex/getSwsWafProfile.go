@@ -7,10 +7,469 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetSwsWafProfile(ctx, &yandex.LookupSwsWafProfileArgs{
+//				WafProfileId: pulumi.StringRef(yandex_sws_waf_profile.MyProfile.Id),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.GetSwsWafProfile(ctx, &yandex.LookupSwsWafProfileArgs{
+//				Name: pulumi.StringRef(yandex_sws_waf_profile.MyProfile.Name),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `analyzeRequestBody` [Block]. The parameter is deprecated. Parameters for request body analyzer.
+//   - `isEnabled` (*Read-Only*) (Bool). Possible to turn analyzer on and turn if off.
+//   - `sizeLimit` (*Read-Only*) (Number). Maximum size of body to pass to analyzer. In kilobytes.
+//   - `sizeLimitAction` (*Read-Only*) (String). Action to perform if maximum size of body exceeded.
+//
+// - `cloudId` (String). ID of the cloud that the WAF profile belongs to.
+// - `coreRuleSet` [Block]. The parameter is deprecated. Core rule set settings.
+//   - `inboundAnomalyScore` (*Read-Only*) (Number). Anomaly score.
+//     Enter an integer within the range of 2 and 10000.
+//     The higher this value, the more likely it is that the request that satisfies the rule is an attack.
+//     See [Rules](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#anomaly) for more details.
+//   - `paranoiaLevel` (*Read-Only*) (Number). Paranoia level.
+//     Enter an integer within the range of 1 and 4.
+//     Paranoia level classifies rules according to their aggression. The higher the paranoia level, the better your protection,
+//     but also the higher the probability of WAF false positives.
+//     See [Rules](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#paranoia) for more details.
+//     NOTE: this option has no effect on enabling or disabling rules.
+//     it is used only as recommendation for user to enable all rules with paranoiaLevel <= this value.
+//   - `ruleSet` [Block]. Rule set.
+//   - `id` (*Read-Only*) (String). ID of rule set.
+//   - `name` (**Required**)(String). Name of rule set.
+//   - `type` (*Read-Only*) (String). Type of rule set.
+//   - `version` (*Read-Only*) (String). Version of rule set.
+//
+// - `createdAt` (*Read-Only*) (String). Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+// - `description` (*Read-Only*) (String). Optional description of the WAF profile.
+// - `exclusionRule` [Block]. List of exclusion rules. See [Rules](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#exclusion-rules).
+//   - `condition` [Block]. The condition for matching traffic.
+//   - `authority` [Block]. Match authority (Host header).
+//   - `authorities` [Block]. List of authorities. OR semantics implied.
+//   - `defined` (*Read-Only*) (Bool). Matches if the field is defined.
+//   - `exactMatch` (*Read-Only*) (String). Exact match condition.
+//   - `exactNotMatch` (*Read-Only*) (String). Exact not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `pireRegexMatch` (*Read-Only*) (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (*Read-Only*) (String). PIRE regex not match condition.
+//   - `prefixMatch` (*Read-Only*) (String). Prefix match condition.
+//   - `prefixNotMatch` (*Read-Only*) (String). Prefix not match condition.
+//   - `authorityMatcher` [Block]. Authority matcher.
+//   - `defined` (*Read-Only*) (Bool). Matches if the field is defined.
+//   - `exactMatch` (*Read-Only*) (String). Exact match condition.
+//   - `exactNotMatch` (*Read-Only*) (String). Exact not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `pireRegexMatch` (*Read-Only*) (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (*Read-Only*) (String). PIRE regex not match condition.
+//   - `prefixMatch` (*Read-Only*) (String). Prefix match condition.
+//   - `prefixNotMatch` (*Read-Only*) (String). Prefix not match condition.
+//   - `botCategory` [Block]. Match bot category.
+//   - `botCategoryListsMatch` [Block]. Bot category lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `botCategoryListsNotMatch` [Block]. Bot category lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `botName` [Block]. Match bot name.
+//   - `botNameListsMatch` [Block]. Bot name lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `botNameListsNotMatch` [Block]. Bot name lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `botScore` [Block]. Match bot score.
+//   - `value` [Block]. List of integer matchers for bot score. OR semantics implied.
+//   - `eqMatch` [Block]. Equal condition.
+//   - `value` (*Read-Only*) (Number). Value to match against.
+//   - `geMatch` [Block]. Greater than or equal condition.
+//   - `value` (*Read-Only*) (Number). Lower bound value (inclusive).
+//   - `leMatch` [Block]. Less than or equal condition.
+//   - `value` (*Read-Only*) (Number). Upper bound value (inclusive).
+//   - `neMatch` [Block]. Not equal condition.
+//   - `value` (*Read-Only*) (Number). Value to not match against.
+//   - `cookies` [Block]. Match cookies.
+//   - `name` (**Required**)(String). Name of the cookie parametr.
+//   - `value` [Block]. Value of the cookie parametr.
+//   - `defined` (*Read-Only*) (Bool). Matches if the field is defined.
+//   - `exactMatch` (*Read-Only*) (String). Exact match condition.
+//   - `exactNotMatch` (*Read-Only*) (String). Exact not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `pireRegexMatch` (*Read-Only*) (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (*Read-Only*) (String). PIRE regex not match condition.
+//   - `prefixMatch` (*Read-Only*) (String). Prefix match condition.
+//   - `prefixNotMatch` (*Read-Only*) (String). Prefix not match condition.
+//   - `fingerPrint` [Block]. Match fingerprint.
+//   - `ja3Matcher` [Block]. JA3 fingerprint matcher.
+//   - `defined` (*Read-Only*) (Bool). Matches if the field is defined.
+//   - `exactMatch` (*Read-Only*) (String). Exact match condition.
+//   - `exactNotMatch` (*Read-Only*) (String). Exact not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `pireRegexMatch` (*Read-Only*) (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (*Read-Only*) (String). PIRE regex not match condition.
+//   - `prefixMatch` (*Read-Only*) (String). Prefix match condition.
+//   - `prefixNotMatch` (*Read-Only*) (String). Prefix not match condition.
+//   - `ja3Ranges` [Block]. List of JA3 fingerprint matchers. OR semantics implied.
+//   - `defined` (*Read-Only*) (Bool). Matches if the field is defined.
+//   - `exactMatch` (*Read-Only*) (String). Exact match condition.
+//   - `exactNotMatch` (*Read-Only*) (String). Exact not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `pireRegexMatch` (*Read-Only*) (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (*Read-Only*) (String). PIRE regex not match condition.
+//   - `prefixMatch` (*Read-Only*) (String). Prefix match condition.
+//   - `prefixNotMatch` (*Read-Only*) (String). Prefix not match condition.
+//   - `ja4Matcher` [Block]. JA4 fingerprint matcher.
+//   - `defined` (*Read-Only*) (Bool). Matches if the field is defined.
+//   - `exactMatch` (*Read-Only*) (String). Exact match condition.
+//   - `exactNotMatch` (*Read-Only*) (String). Exact not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `pireRegexMatch` (*Read-Only*) (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (*Read-Only*) (String). PIRE regex not match condition.
+//   - `prefixMatch` (*Read-Only*) (String). Prefix match condition.
+//   - `prefixNotMatch` (*Read-Only*) (String). Prefix not match condition.
+//   - `ja4Ranges` [Block]. List of JA4 fingerprint matchers. OR semantics implied.
+//   - `defined` (*Read-Only*) (Bool). Matches if the field is defined.
+//   - `exactMatch` (*Read-Only*) (String). Exact match condition.
+//   - `exactNotMatch` (*Read-Only*) (String). Exact not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `pireRegexMatch` (*Read-Only*) (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (*Read-Only*) (String). PIRE regex not match condition.
+//   - `prefixMatch` (*Read-Only*) (String). Prefix match condition.
+//   - `prefixNotMatch` (*Read-Only*) (String). Prefix not match condition.
+//   - `headers` [Block]. Match HTTP headers.
+//   - `name` (**Required**)(String). Name of header (case insensitive).
+//   - `value` [Block]. Value of the header.
+//   - `defined` (*Read-Only*) (Bool). Matches if the field is defined.
+//   - `exactMatch` (*Read-Only*) (String). Exact match condition.
+//   - `exactNotMatch` (*Read-Only*) (String). Exact not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `pireRegexMatch` (*Read-Only*) (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (*Read-Only*) (String). PIRE regex not match condition.
+//   - `prefixMatch` (*Read-Only*) (String). Prefix match condition.
+//   - `prefixNotMatch` (*Read-Only*) (String). Prefix not match condition.
+//   - `httpMethod` [Block]. Match HTTP method.
+//   - `httpMethodMatcher` [Block]. HTTP method matcher.
+//   - `defined` (*Read-Only*) (Bool). Matches if the field is defined.
+//   - `exactMatch` (*Read-Only*) (String). Exact match condition.
+//   - `exactNotMatch` (*Read-Only*) (String). Exact not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `pireRegexMatch` (*Read-Only*) (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (*Read-Only*) (String). PIRE regex not match condition.
+//   - `prefixMatch` (*Read-Only*) (String). Prefix match condition.
+//   - `prefixNotMatch` (*Read-Only*) (String). Prefix not match condition.
+//   - `httpMethods` [Block]. List of HTTP methods. OR semantics implied.
+//   - `defined` (*Read-Only*) (Bool). Matches if the field is defined.
+//   - `exactMatch` (*Read-Only*) (String). Exact match condition.
+//   - `exactNotMatch` (*Read-Only*) (String). Exact not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `pireRegexMatch` (*Read-Only*) (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (*Read-Only*) (String). PIRE regex not match condition.
+//   - `prefixMatch` (*Read-Only*) (String). Prefix match condition.
+//   - `prefixNotMatch` (*Read-Only*) (String). Prefix not match condition.
+//   - `requestUri` [Block]. Match Request URI.
+//   - `path` [Block]. Path of the URI [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3).
+//   - `defined` (*Read-Only*) (Bool). Matches if the field is defined.
+//   - `exactMatch` (*Read-Only*) (String). Exact match condition.
+//   - `exactNotMatch` (*Read-Only*) (String). Exact not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `pireRegexMatch` (*Read-Only*) (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (*Read-Only*) (String). PIRE regex not match condition.
+//   - `prefixMatch` (*Read-Only*) (String). Prefix match condition.
+//   - `prefixNotMatch` (*Read-Only*) (String). Prefix not match condition.
+//   - `queries` [Block]. List of query matchers. AND semantics implied.
+//   - `key` (*Read-Only*) (String). Key of the query parameter.
+//   - `value` [Block]. Value of the query parameter.
+//   - `defined` (*Read-Only*) (Bool). Matches if the field is defined.
+//   - `exactMatch` (*Read-Only*) (String). Exact match condition.
+//   - `exactNotMatch` (*Read-Only*) (String). Exact not match condition.
+//   - `listsMatchers` [Block]. Matches against string and regular expression lists.
+//   - `regExpListsMatch` [Block]. Regular expression lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `regExpListsNotMatch` [Block]. Regular expression lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsMatch` [Block]. String lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `strListsNotMatch` [Block]. String lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `pireRegexMatch` (*Read-Only*) (String). PIRE regex match condition.
+//   - `pireRegexNotMatch` (*Read-Only*) (String). PIRE regex not match condition.
+//   - `prefixMatch` (*Read-Only*) (String). Prefix match condition.
+//   - `prefixNotMatch` (*Read-Only*) (String). Prefix not match condition.
+//   - `sourceIp` [Block]. Match IP.
+//   - `asnListsMatch` [Block]. ASN lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `asnListsNotMatch` [Block]. ASN lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `asnRangesMatch` [Block]. ASN ranges to match with.
+//   - `asnRanges` (*Read-Only*) (List Of Number). List of ASN values to match against. OR semantics implied.
+//   - `asnRangesNotMatch` [Block]. ASN ranges to not match with.
+//   - `asnRanges` (*Read-Only*) (List Of Number). List of ASN values to match against. OR semantics implied.
+//   - `geoIpMatch` [Block]. Geo locations to match with.
+//   - `locations` (*Read-Only*) (List Of String). ISO 3166-1 alpha 2. OR semantics implied.
+//   - `geoIpNotMatch` [Block]. Geo locations to not match with.
+//   - `locations` (*Read-Only*) (List Of String). ISO 3166-1 alpha 2. OR semantics implied.
+//   - `ipListsMatch` [Block]. IP lists to match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `ipListsNotMatch` [Block]. IP lists to not match with.
+//   - `listIds` (*Read-Only*) (List Of String). List of list IDs to match against. OR semantics implied.
+//   - `ipRangesMatch` [Block]. IP ranges to match with.
+//   - `ipRanges` (*Read-Only*) (List Of String). List of IP ranges. OR semantics implied.
+//   - `ipRangesNotMatch` [Block]. IP ranges to not match with.
+//   - `ipRanges` (*Read-Only*) (List Of String). List of IP ranges. OR semantics implied.
+//   - `verifiedBot` [Block]. Match verified bot.
+//   - `verified` [Block]. Matches if the bot is verified or not.
+//   - `match` (*Read-Only*) (Bool). Boolean value to match against.
+//   - `description` (*Read-Only*) (String). Optional description of the rule. 0-512 characters long.
+//   - `excludeRules` [Block]. Exclude rules.
+//   - `excludeAll` (*Read-Only*) (Bool). Set this option true to exclude all rules.
+//   - `ruleIds` (*Read-Only*) (List Of String). List of rules to exclude.
+//   - `logExcluded` (*Read-Only*) (Bool). Records the fact that an exception rule is triggered.
+//   - `name` (**Required**)(String). Name of exclusion rule.
+//   - `requestCondition` [Block]. Additional condition applied to specific parts of the request to refine when the exclusion is triggered.
+//   - `bodyMatcher` [Block]. Matcher for request body exclusion flag.
+//   - `bodyValue` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `caseSensitive` (*Read-Only*) (Bool). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `value` (*Read-Only*) (String). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `isExcluded` (*Read-Only*) (Bool). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `cookieMatcher` [Block]. Matcher for request cookies.
+//   - `cookieName` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `caseSensitive` (*Read-Only*) (Bool). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `value` (*Read-Only*) (String). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `headerMatcher` [Block]. Matcher for request headers.
+//   - `headerName` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `caseSensitive` (*Read-Only*) (Bool). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `value` (*Read-Only*) (String). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `paramMatcher` [Block]. Matcher for request query parameters.
+//   - `paramName` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `caseSensitive` (*Read-Only*) (Bool). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `value` (*Read-Only*) (String). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+// - `folderId` (String). ID of the folder that the WAF profile belongs to.
+// - `id` (String). ID of the WafProfile resource to return.
+// - `labels` (*Read-Only*) (Map Of String). Labels as “key:value“ pairs. Maximum of 64 per resource.
+// - `matchAllRuleSets` (*Read-Only*) (Bool). Determines
+// - `name` (String). Name of the WAF profile. The name is unique within the folder. 1-50 characters long.
+// - `rule` [Block]. Settings for each rule in rule set.
+//   - `isBlocking` (*Read-Only*) (Bool). Determines is it rule blocking or not.
+//   - `isEnabled` (*Read-Only*) (Bool). Determines is it rule enabled or not.
+//   - `ruleId` (*Read-Only*) (String). Rule ID.
+//
+// - `ruleSet` [Block]. List of rule sets.
+//   - `action` (*Read-Only*) (String). Action to perfome on rule set match.
+//   - `coreRuleSet` [Block]. Core rule set settings. See [Basic rule set](https://www.terraform.io/docs/smartwebsecurity/concepts/waf#rules-set) for details.
+//   - `inboundAnomalyScore` (*Read-Only*) (Number). Matcher for request headers.
+//   - `paranoiaLevel` (*Read-Only*) (Number). Matcher for request cookies.
+//   - `ruleSet` [Block]. Matcher for request query parameters.
+//   - `id` (*Read-Only*) (String). ID of rule set.
+//   - `name` (**Required**)(String). Name of rule set.
+//   - `type` (*Read-Only*) (String). Type of rule set.
+//   - `version` (*Read-Only*) (String). Version of rule set.
+//   - `isEnabled` (*Read-Only*) (Bool). Determines is it rule set enabled or not.
+//   - `mlRuleSet` [Block]. Yandex Machine learning rule set settings.
+//   - `ruleGroups` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `action` (*Read-Only*) (String). List of rules to exclude.
+//   - `id` (*Read-Only*) (String). Set this option true to exclude all rules.
+//   - `inboundAnomalyScore` (*Read-Only*) (Number). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `isEnabled` (*Read-Only*) (Bool). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `ruleSet` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `id` (*Read-Only*) (String). ID of rule set.
+//   - `name` (**Required**)(String). Name of rule set.
+//   - `type` (*Read-Only*) (String). Type of rule set.
+//   - `version` (*Read-Only*) (String). Version of rule set.
+//   - `priority` (*Read-Only*) (Number). Priority of rule set.
+//   - `yaRuleSet` [Block]. Yandex rule set settings.
+//   - `ruleGroup` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `action` (*Read-Only*) (String). List of rules to exclude.
+//   - `id` (*Read-Only*) (String). Set this option true to exclude all rules.
+//   - `inboundAnomalyScore` (*Read-Only*) (Number). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `isEnabled` (*Read-Only*) (Bool). package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `ruleSet` [Block]. package: yandex.cloud.smartwebsecurity.v1.waf
+//
+// filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto
+//
+//   - `id` (*Read-Only*) (String). ID of rule set.
+//   - `name` (**Required**)(String). Name of rule set.
+//   - `type` (*Read-Only*) (String). Type of rule set.
+//   - `version` (*Read-Only*) (String). Version of rule set.
+//
+// - `updatedAt` (*Read-Only*) (String). Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+// - `wafProfileId` (String). ID of the WafProfile resource to return.
+// - `timeouts` [Block].
+//   - `create` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+//   - `delete` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+//   - `read` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Read operations occur during any refresh or planning operation when refresh is enabled.
+//   - `update` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
 func LookupSwsWafProfile(ctx *pulumi.Context, args *LookupSwsWafProfileArgs, opts ...pulumi.InvokeOption) (*LookupSwsWafProfileResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupSwsWafProfileResult
@@ -23,10 +482,12 @@ func LookupSwsWafProfile(ctx *pulumi.Context, args *LookupSwsWafProfileArgs, opt
 
 // A collection of arguments for invoking getSwsWafProfile.
 type LookupSwsWafProfileArgs struct {
-	CloudId      *string `pulumi:"cloudId"`
-	FolderId     *string `pulumi:"folderId"`
-	Name         *string `pulumi:"name"`
-	WafProfileId *string `pulumi:"wafProfileId"`
+	CloudId      *string                   `pulumi:"cloudId"`
+	FolderId     *string                   `pulumi:"folderId"`
+	Id           *string                   `pulumi:"id"`
+	Name         *string                   `pulumi:"name"`
+	Timeouts     *GetSwsWafProfileTimeouts `pulumi:"timeouts"`
+	WafProfileId *string                   `pulumi:"wafProfileId"`
 }
 
 // A collection of values returned by getSwsWafProfile.
@@ -38,14 +499,15 @@ type LookupSwsWafProfileResult struct {
 	Description          string                               `pulumi:"description"`
 	ExclusionRules       []GetSwsWafProfileExclusionRule      `pulumi:"exclusionRules"`
 	FolderId             string                               `pulumi:"folderId"`
-	// The provider-assigned unique ID for this managed resource.
-	Id               string                    `pulumi:"id"`
-	Labels           map[string]string         `pulumi:"labels"`
-	MatchAllRuleSets bool                      `pulumi:"matchAllRuleSets"`
-	Name             string                    `pulumi:"name"`
-	RuleSets         []GetSwsWafProfileRuleSet `pulumi:"ruleSets"`
-	Rules            []GetSwsWafProfileRule    `pulumi:"rules"`
-	WafProfileId     *string                   `pulumi:"wafProfileId"`
+	Id                   string                               `pulumi:"id"`
+	Labels               map[string]string                    `pulumi:"labels"`
+	MatchAllRuleSets     bool                                 `pulumi:"matchAllRuleSets"`
+	Name                 string                               `pulumi:"name"`
+	RuleSets             []GetSwsWafProfileRuleSet            `pulumi:"ruleSets"`
+	Rules                []GetSwsWafProfileRule               `pulumi:"rules"`
+	Timeouts             *GetSwsWafProfileTimeouts            `pulumi:"timeouts"`
+	UpdatedAt            string                               `pulumi:"updatedAt"`
+	WafProfileId         string                               `pulumi:"wafProfileId"`
 }
 
 func LookupSwsWafProfileOutput(ctx *pulumi.Context, args LookupSwsWafProfileOutputArgs, opts ...pulumi.InvokeOption) LookupSwsWafProfileResultOutput {
@@ -59,10 +521,12 @@ func LookupSwsWafProfileOutput(ctx *pulumi.Context, args LookupSwsWafProfileOutp
 
 // A collection of arguments for invoking getSwsWafProfile.
 type LookupSwsWafProfileOutputArgs struct {
-	CloudId      pulumi.StringPtrInput `pulumi:"cloudId"`
-	FolderId     pulumi.StringPtrInput `pulumi:"folderId"`
-	Name         pulumi.StringPtrInput `pulumi:"name"`
-	WafProfileId pulumi.StringPtrInput `pulumi:"wafProfileId"`
+	CloudId      pulumi.StringPtrInput            `pulumi:"cloudId"`
+	FolderId     pulumi.StringPtrInput            `pulumi:"folderId"`
+	Id           pulumi.StringPtrInput            `pulumi:"id"`
+	Name         pulumi.StringPtrInput            `pulumi:"name"`
+	Timeouts     GetSwsWafProfileTimeoutsPtrInput `pulumi:"timeouts"`
+	WafProfileId pulumi.StringPtrInput            `pulumi:"wafProfileId"`
 }
 
 func (LookupSwsWafProfileOutputArgs) ElementType() reflect.Type {
@@ -112,7 +576,6 @@ func (o LookupSwsWafProfileResultOutput) FolderId() pulumi.StringOutput {
 	return o.ApplyT(func(v LookupSwsWafProfileResult) string { return v.FolderId }).(pulumi.StringOutput)
 }
 
-// The provider-assigned unique ID for this managed resource.
 func (o LookupSwsWafProfileResultOutput) Id() pulumi.StringOutput {
 	return o.ApplyT(func(v LookupSwsWafProfileResult) string { return v.Id }).(pulumi.StringOutput)
 }
@@ -137,8 +600,16 @@ func (o LookupSwsWafProfileResultOutput) Rules() GetSwsWafProfileRuleArrayOutput
 	return o.ApplyT(func(v LookupSwsWafProfileResult) []GetSwsWafProfileRule { return v.Rules }).(GetSwsWafProfileRuleArrayOutput)
 }
 
-func (o LookupSwsWafProfileResultOutput) WafProfileId() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v LookupSwsWafProfileResult) *string { return v.WafProfileId }).(pulumi.StringPtrOutput)
+func (o LookupSwsWafProfileResultOutput) Timeouts() GetSwsWafProfileTimeoutsPtrOutput {
+	return o.ApplyT(func(v LookupSwsWafProfileResult) *GetSwsWafProfileTimeouts { return v.Timeouts }).(GetSwsWafProfileTimeoutsPtrOutput)
+}
+
+func (o LookupSwsWafProfileResultOutput) UpdatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupSwsWafProfileResult) string { return v.UpdatedAt }).(pulumi.StringOutput)
+}
+
+func (o LookupSwsWafProfileResultOutput) WafProfileId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupSwsWafProfileResult) string { return v.WafProfileId }).(pulumi.StringOutput)
 }
 
 func init() {

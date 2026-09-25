@@ -7,10 +7,510 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Managed ClickHouse cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
+//
+// > Either `clusterId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myCluster, err := yandex.GetMdbClickhouseCluster(ctx, &yandex.LookupMdbClickhouseClusterArgs{
+//				Name: pulumi.StringRef("test"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("networkId", myCluster.NetworkId)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `adminPassword` (String). A password used to authorize as user `admin` when `sqlUserManagement` enabled.
+// - `backupRetainPeriodDays` (Number). The period in days during which backups are stored.
+// - `clusterId` (String). The cluster identifier.
+// - `copySchemaOnNewHosts` (Bool). Whether to copy schema on new ClickHouse hosts.
+// - `createdAt` (String). The creation timestamp of the resource.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `diskEncryptionKeyId` (String). ID of the KMS key for cluster disk encryption.
+// - `embeddedKeeper` (Bool). Whether to use ClickHouse Keeper as a coordination system and place it on the same hosts with ClickHouse. If not, it's used ZooKeeper with placement on separate hosts.
+// - `environment` (String). Deployment environment of the ClickHouse cluster. Can be either `PRESTABLE` or `PRODUCTION`.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `health` (String). Aggregated health of the cluster. Can be `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-clickhouse/api-ref/Cluster/).
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `networkId` (String). The `VPC Network ID` of subnets which resource attached to.
+// - `securityGroupIds` (Set Of String). The list of security groups applied to resource or their components.
+// - `serviceAccountId` (String). [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+// - `sqlDatabaseManagement` (Bool). Grants `admin` user database management permission.
+// - `sqlUserManagement` (Bool). Enables `admin` user with user management permission.
+// - `status` (String). Status of the cluster. Can be `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-clickhouse/api-ref/Cluster/).
+// - `version` (String). Version of the ClickHouse server software.
+// - `access` [Block]. Access policy to the ClickHouse cluster.
+//   - `dataLens` (Bool). Allow access for DataLens.
+//   - `dataTransfer` (Bool). Allow access for DataTransfer.
+//   - `metrika` (Bool). Allow access for Yandex.Metrika.
+//   - `serverless` (Bool). Allow access for Serverless.
+//   - `webSql` (Bool). Allow access for Web SQL.
+//   - `yandexQuery` (Bool). Allow access for YandexQuery.
+//
+// - `backupWindowStart` [Block]. Time to start the daily backup, in the UTC timezone.
+//   - `hours` (Number). The hour at which backup will be started.
+//   - `minutes` (Number). The minute at which backup will be started.
+//
+// - `clickhouse` [Block]. Configuration of the ClickHouse subcluster.
+//   - `config` [Block]. ClickHouse server parameters. For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/settings-list).
+//   - `asynchronousInsertLogEnabled` (Bool). Enable or disable asynchronousInsertLog system table.
+//   - `asynchronousInsertLogRetentionSize` (Number). The maximum size that asynchronousInsertLog can grow to before old data will be removed.
+//   - `asynchronousInsertLogRetentionTime` (Number). The maximum time that asynchronousInsertLog records will be retained before removal.
+//   - `asynchronousMetricLogEnabled` (Bool). Enable or disable asynchronousMetricLog system table.
+//   - `asynchronousMetricLogRetentionSize` (Number). The maximum size that asynchronousMetricLog can grow to before old data will be removed.
+//   - `asynchronousMetricLogRetentionTime` (Number). The maximum time that asynchronousMetricLog records will be retained before removal.
+//   - `backgroundBufferFlushSchedulePoolSize` (Number). The maximum number of threads that will be used for performing flush operations for Buffer-engine tables in the background.
+//   - `backgroundCommonPoolSize` (Number). The maximum number of threads that will be used for performing a variety of operations (mostly garbage collection) for MergeTree-engine tables in a background.
+//   - `backgroundDistributedSchedulePoolSize` (Number). The maximum number of threads that will be used for executing distributed sends.
+//   - `backgroundFetchesPoolSize` (Number). The maximum number of threads that will be used for fetching data parts from another replica for MergeTree-engine tables in a background.
+//   - `backgroundMergesMutationsConcurrencyRatio` (Number). Sets a ratio between the number of threads and the number of background merges and mutations that can be executed concurrently.
+//   - `backgroundMessageBrokerSchedulePoolSize` (Number). The maximum number of threads that will be used for executing background operations for message streaming.
+//   - `backgroundMovePoolSize` (Number). The maximum number of threads that will be used for moving data parts to another disk or volume for MergeTree-engine tables in a background.
+//   - `backgroundPoolSize` (Number). Sets the number of threads performing background merges and mutations for MergeTree-engine tables.
+//   - `backgroundSchedulePoolSize` (Number). The maximum number of threads that will be used for constantly executing some lightweight periodic operations for replicated tables, Kafka streaming, and DNS cache updates.
+//   - `defaultDatabase` (String). Default database name.
+//   - `dictionariesLazyLoad` (Bool). Lazy loading of dictionaries. If true, then each dictionary is loaded on the first use.
+//   - `geobaseEnabled` (Bool). Enable or disable geobase.
+//   - `geobaseUri` (String). Address of the archive with the user geobase in Object Storage.
+//   - `keepAliveTimeout` (Number). The number of seconds that ClickHouse waits for incoming requests for HTTP protocol before closing the connection.
+//   - `logLevel` (String). Logging level.
+//   - `markCacheSize` (Number). Maximum size of cache for marks
+//   - `maxConcurrentQueries` (Number). Limit on total number of concurrently executed queries.
+//   - `maxConnections` (Number). Max server connections.
+//   - `maxPartitionSizeToDrop` (Number). Restriction on dropping partitions.
+//   - `maxTableSizeToDrop` (Number). Restriction on deleting tables.
+//   - `metricLogEnabled` (Bool). Enable or disable metricLog system table.
+//   - `metricLogRetentionSize` (Number). The maximum size that metricLog can grow to before old data will be removed.
+//   - `metricLogRetentionTime` (Number). The maximum time that metricLog records will be retained before removal.
+//   - `opentelemetrySpanLogEnabled` (Bool). Enable or disable opentelemetrySpanLog system table.
+//   - `opentelemetrySpanLogRetentionSize` (Number). The maximum size that opentelemetrySpanLog can grow to before old data will be removed.
+//   - `opentelemetrySpanLogRetentionTime` (Number). The maximum time that opentelemetrySpanLog records will be retained before removal.
+//   - `partLogRetentionSize` (Number). The maximum size that partLog can grow to before old data will be removed.
+//   - `partLogRetentionTime` (Number). The maximum time that partLog records will be retained before removal.
+//   - `queryLogRetentionSize` (Number). The maximum size that queryLog can grow to before old data will be removed.
+//   - `queryLogRetentionTime` (Number). The maximum time that queryLog records will be retained before removal.
+//   - `queryThreadLogEnabled` (Bool). Enable or disable queryThreadLog system table.
+//   - `queryThreadLogRetentionSize` (Number). The maximum size that queryThreadLog can grow to before old data will be removed.
+//   - `queryThreadLogRetentionTime` (Number). The maximum time that queryThreadLog records will be retained before removal.
+//   - `queryViewsLogEnabled` (Bool). Enable or disable queryViewsLog system table.
+//   - `queryViewsLogRetentionSize` (Number). The maximum size that queryViewsLog can grow to before old data will be removed.
+//   - `queryViewsLogRetentionTime` (Number). The maximum time that queryViewsLog records will be retained before removal.
+//   - `sessionLogEnabled` (Bool). Enable or disable sessionLog system table.
+//   - `sessionLogRetentionSize` (Number). The maximum size that sessionLog can grow to before old data will be removed.
+//   - `sessionLogRetentionTime` (Number). The maximum time that sessionLog records will be retained before removal.
+//   - `textLogEnabled` (Bool). Enable or disable textLog system table.
+//   - `textLogLevel` (String). Logging level for textLog system table.
+//   - `textLogRetentionSize` (Number). The maximum size that textLog can grow to before old data will be removed.
+//   - `textLogRetentionTime` (Number). The maximum time that textLog records will be retained before removal.
+//   - `timezone` (String). The server's time zone.
+//   - `totalMemoryProfilerStep` (Number). Whenever server memory usage becomes larger than every next step in number of bytes the memory profiler will collect the allocating stack trace.
+//   - `traceLogEnabled` (Bool). Enable or disable traceLog system table.
+//   - `traceLogRetentionSize` (Number). The maximum size that traceLog can grow to before old data will be removed.
+//   - `traceLogRetentionTime` (Number). The maximum time that traceLog records will be retained before removal.
+//   - `uncompressedCacheSize` (Number). Cache size (in bytes) for uncompressed data used by table engines from the MergeTree family. Zero means disabled.
+//   - `zookeeperLogEnabled` (Bool). Enable or disable zookeeperLog system table.
+//   - `zookeeperLogRetentionSize` (Number). The maximum size that zookeeperLog can grow to before old data will be removed.
+//   - `zookeeperLogRetentionTime` (Number). The maximum time that zookeeperLog records will be retained before removal.
+//   - `compression` [Block]. Data compression configuration.
+//   - `level` (Number).  Compression level for `ZSTD` method.
+//   - `method` (String). Compression method. Two methods are available: `LZ4` and `zstd`.
+//   - `minPartSize` (Number). Min part size: Minimum size (in bytes) of a data part in a table. ClickHouse only applies the rule to tables with data parts greater than or equal to the Min part size value.
+//   - `minPartSizeRatio` (Number). Min part size ratio: Minimum table part size to total table size ratio. ClickHouse only applies the rule to tables in which this ratio is greater than or equal to the Min part size ratio value.
+//   - `graphiteRollup` [Block]. Graphite rollup configuration.
+//   - `name` (String). Graphite rollup configuration name.
+//   - `pathColumnName` (String). The name of the column storing the metric name (Graphite sensor). Default value: Path.
+//   - `timeColumnName` (String). The name of the column storing the time of measuring the metric. Default value: Time.
+//   - `valueColumnName` (String). The name of the column storing the value of the metric at the time set in `timeColumnName`. Default value: Value.
+//   - `versionColumnName` (String). The name of the column storing the version of the metric. Default value: Timestamp.
+//   - `pattern` [Block]. Set of thinning rules.
+//   - `function` (String). Aggregation function name.
+//   - `regexp` (String). Regular expression that the metric name must match.
+//   - `retention` [Block]. Retain parameters.
+//   - `age` (Number). Minimum data age in seconds.
+//   - `precision` (Number). Accuracy of determining the age of the data in seconds.
+//   - `jdbcBridge` [Block]. JDBC bridge configuration.
+//   - `host` (String). Host of jdbc bridge.
+//   - `port` (Number). Port of jdbc bridge. Default value: 9019.
+//   - `kafka` [Block]. Kafka connection configuration.
+//   - `autoOffsetReset` (String). Action to take when there is no initial offset in offset store or the desired offset is out of range: 'smallest','earliest' - automatically reset the offset to the smallest offset, 'largest','latest' - automatically reset the offset to the largest offset, 'error' - trigger an error (ERR__AUTO_OFFSET_RESET) which is retrieved by consuming messages and checking 'message->err'.
+//   - `debug` (String). A comma-separated list of debug contexts to enable.
+//   - `enableSslCertificateVerification` (Bool). Enable verification of SSL certificates.
+//   - `maxPollIntervalMs` (Number). Maximum allowed time between calls to consume messages (e.g., `rd_kafka_consumer_poll()` for high-level consumers. If this interval is exceeded the consumer is considered failed and the group will rebalance in order to reassign the partitions to another consumer group member.
+//   - `saslMechanism` (String). SASL mechanism used in kafka authentication.
+//   - `saslPassword` (String). User password on kafka server.
+//   - `saslUsername` (String). Username on kafka server.
+//   - `securityProtocol` (String). Security protocol used to connect to kafka server.
+//   - `sessionTimeoutMs` (Number). Client group session and failure detection timeout. The consumer sends periodic heartbeats (heartbeat.interval.ms) to indicate its liveness to the broker. If no hearts are received by the broker for a group member within the session timeout, the broker will remove the consumer from the group and trigger a rebalance.
+//   - `kafkaTopic` [Block]. Kafka topic connection configuration.
+//   - `name` (String). Kafka topic name.
+//   - `settings` [Block]. Kafka connection settings.
+//   - `autoOffsetReset` (String). Action to take when there is no initial offset in offset store or the desired offset is out of range: 'smallest','earliest' - automatically reset the offset to the smallest offset, 'largest','latest' - automatically reset the offset to the largest offset, 'error' - trigger an error (ERR__AUTO_OFFSET_RESET) which is retrieved by consuming messages and checking 'message->err'.
+//   - `debug` (String). A comma-separated list of debug contexts to enable.
+//   - `enableSslCertificateVerification` (Bool). Enable verification of SSL certificates.
+//   - `maxPollIntervalMs` (Number). Maximum allowed time between calls to consume messages (e.g., `rd_kafka_consumer_poll()` for high-level consumers. If this interval is exceeded the consumer is considered failed and the group will rebalance in order to reassign the partitions to another consumer group member.
+//   - `saslMechanism` (String). SASL mechanism used in kafka authentication.
+//   - `saslPassword` (String). User password on kafka server.
+//   - `saslUsername` (String). Username on kafka server.
+//   - `securityProtocol` (String). Security protocol used to connect to kafka server.
+//   - `sessionTimeoutMs` (Number). Client group session and failure detection timeout. The consumer sends periodic heartbeats (heartbeat.interval.ms) to indicate its liveness to the broker. If no hearts are received by the broker for a group member within the session timeout, the broker will remove the consumer from the group and trigger a rebalance.
+//   - `mergeTree` [Block]. MergeTree engine configuration.
+//   - `allowRemoteFsZeroCopyReplication` (Bool). When this setting has a value greater than zero only a single replica starts the merge immediately if merged part on shared storage and allowRemoteFsZeroCopyReplication is enabled.
+//   - `checkSampleColumnIsCorrect` (Bool). Enables the check at table creation, that the data type of a column for sampling or sampling expression is correct. The data type must be one of unsigned integer types: UInt8, UInt16, UInt32, UInt64. Default value: true.
+//   - `cleanupDelayPeriod` (Number). Minimum period to clean old queue logs, blocks hashes and parts.
+//   - `inactivePartsToDelayInsert` (Number). If the number of inactive parts in a single partition in the table at least that many the inactivePartsToDelayInsert value, an INSERT artificially slows down. It is useful when a server fails to clean up parts quickly enough.
+//   - `inactivePartsToThrowInsert` (Number). If the number of inactive parts in a single partition more than the inactivePartsToThrowInsert value, INSERT is interrupted with the `Too many inactive parts (N). Parts cleaning are processing significantly slower than inserts` exception.
+//   - `maxAvgPartSizeForTooManyParts` (Number). The `too many parts` check according to `partsToDelayInsert` and `partsToThrowInsert` will be active only if the average part size (in the relevant partition) is not larger than the specified threshold. If it is larger than the specified threshold, the INSERTs will be neither delayed or rejected. This allows to have hundreds of terabytes in a single table on a single server if the parts are successfully merged to larger parts. This does not affect the thresholds on inactive parts or total parts.
+//   - `maxBytesToMergeAtMaxSpaceInPool` (Number). The maximum total parts size (in bytes) to be merged into one part, if there are enough resources available. maxBytesToMergeAtMaxSpaceInPool -- roughly corresponds to the maximum possible part size created by an automatic background merge.
+//   - `maxBytesToMergeAtMinSpaceInPool` (Number). Max bytes to merge at min space in pool: Maximum total size of a data part to merge when the number of free threads in the background pool is minimum.
+//   - `maxCleanupDelayPeriod` (Number). Maximum period to clean old queue logs, blocks hashes and parts. Default value: 300 seconds.
+//   - `maxMergeSelectingSleepMs` (Number). Maximum sleep time for merge selecting, a lower setting will trigger selecting tasks in backgroundSchedulePool frequently which result in large amount of requests to zookeeper in large-scale clusters. Default value: 60000 milliseconds (60 seconds).
+//   - `maxNumberOfMergesWithTtlInPool` (Number). When there is more than specified number of merges with TTL entries in pool, do not assign new merge with TTL.
+//   - `maxPartsInTotal` (Number). Maximum number of parts in all partitions.
+//   - `maxReplicatedMergesInQueue` (Number). Max replicated merges in queue: Maximum number of merge tasks that can be in the ReplicatedMergeTree queue at the same time.
+//   - `mergeMaxBlockSize` (Number). The number of rows that are read from the merged parts into memory. Default value: 8192.
+//   - `mergeSelectingSleepMs` (Number). Sleep time for merge selecting when no part is selected. A lower setting triggers selecting tasks in backgroundSchedulePool frequently, which results in a large number of requests to ClickHouse Keeper in large-scale clusters.
+//   - `mergeWithRecompressionTtlTimeout` (Number). Minimum delay in seconds before repeating a merge with recompression TTL. Default value: 14400 seconds (4 hours).
+//   - `mergeWithTtlTimeout` (Number). Minimum delay in seconds before repeating a merge with delete TTL. Default value: 14400 seconds (4 hours).
+//   - `minAgeToForceMergeOnPartitionOnly` (Bool). Whether minAgeToForceMergeSeconds should be applied only on the entire partition and not on subset.
+//   - `minAgeToForceMergeSeconds` (Number). Merge parts if every part in the range is older than the value of `minAgeToForceMergeSeconds`.
+//   - `minBytesForWidePart` (Number). Minimum number of bytes in a data part that can be stored in Wide format. You can set one, both or none of these settings.
+//   - `minRowsForWidePart` (Number). Minimum number of rows in a data part that can be stored in Wide format. You can set one, both or none of these settings.
+//   - `numberOfFreeEntriesInPoolToExecuteMutation` (Number). When there is less than specified number of free entries in pool, do not execute part mutations. This is to leave free threads for regular merges and avoid `Too many parts`. Default value: 20.
+//   - `numberOfFreeEntriesInPoolToLowerMaxSizeOfMerge` (Number). Number of free entries in pool to lower max size of merge: Threshold value of free entries in the pool. If the number of entries in the pool falls below this value, ClickHouse reduces the maximum size of a data part to merge. This helps handle small merges faster, rather than filling the pool with lengthy merges.
+//   - `partsToDelayInsert` (Number). Parts to delay insert: Number of active data parts in a table, on exceeding which ClickHouse starts artificially reduce the rate of inserting data into the table
+//   - `partsToThrowInsert` (Number). Parts to throw insert: Threshold value of active data parts in a table, on exceeding which ClickHouse throws the 'Too many parts ...' exception.
+//   - `replicatedDeduplicationWindow` (Number). Replicated deduplication window: Number of recent hash blocks that ZooKeeper will store (the old ones will be deleted).
+//   - `replicatedDeduplicationWindowSeconds` (Number). Replicated deduplication window seconds: Time during which ZooKeeper stores the hash blocks (the old ones wil be deleted).
+//   - `ttlOnlyDropParts` (Bool). Enables zero-copy replication when a replica is located on a remote filesystem.
+//   - `queryCache` [Block]. Query cache configuration.
+//   - `maxEntries` (Number). The maximum number of SELECT query results stored in the cache. Default value: 1024.
+//   - `maxEntrySizeInBytes` (Number). The maximum size in bytes SELECT query results may have to be saved in the cache. Default value: 1048576 (1 MiB).
+//   - `maxEntrySizeInRows` (Number). The maximum number of rows SELECT query results may have to be saved in the cache. Default value: 30000000 (30 mil).
+//   - `maxSizeInBytes` (Number). The maximum cache size in bytes. 0 means the query cache is disabled. Default value: 1073741824 (1 GiB).
+//   - `queryMaskingRules` [Block]. Query masking rules configuration.
+//   - `name` (String). Name for the rule.
+//   - `regexp` (String). RE2 compatible regular expression.
+//   - `replace` (String). Substitution string for sensitive data. Default value: six asterisks.
+//   - `rabbitmq` [Block]. RabbitMQ connection configuration.
+//   - `password` (String). RabbitMQ user password.
+//   - `username` (String). RabbitMQ username.
+//   - `vhost` (String). RabbitMQ vhost. Default: `\`.
+//   - `resources` [Block]. Resources allocated to hosts of the ClickHouse subcluster.
+//   - `diskSize` (Number). Volume of the storage available to a ClickHouse host, in gigabytes.
+//   - `diskTypeId` (String). Type of the storage of ClickHouse hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
+//   - `resourcePresetId` (String). The ID of the preset for computational resources available to a ClickHouse host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
+//
+// - `cloudStorage` [Block]. Cloud Storage settings.
+//   - `dataCacheEnabled` (Bool). Enables temporary storage in the cluster repository of data requested from the object repository.
+//   - `dataCacheMaxSize` (Number). Defines the maximum amount of memory (in bytes) allocated in the cluster storage for temporary storage of data requested from the object storage.
+//   - `enabled` (Bool). Whether to use Yandex Object Storage for storing ClickHouse data. Can be either `true` or `false`.
+//   - `moveFactor` (Number). Sets the minimum free space ratio in the cluster storage. If the free space is lower than this value, the data is transferred to Yandex Object Storage. Acceptable values are 0 to 1, inclusive.
+//   - `preferNotToMerge` (Bool). Disables merging of data parts in `Yandex Object Storage`.
+//
+// - `database` [Block]. A database of the ClickHouse cluster.
+//   - `name` (String). The name of the database.
+//
+// - `formatSchema` [Block]. A set of `protobuf` or `capnproto` format schemas.
+//   - `name` (String). The name of the format schema.
+//   - `type` (String). Type of the format schema.
+//   - `uri` (String). Format schema file URL. You can only use format schemas stored in Yandex Object Storage.
+//
+// - `host` [Block]. A host of the ClickHouse cluster.
+//   - `assignPublicIp` (Bool). Sets whether the host should get a public IP address on creation. Can be either `true` or `false`.
+//   - `fqdn` (String). The fully qualified domain name of the host.
+//   - `shardName` (String). The name of the shard to which the host belongs.
+//   - `subnetId` (String). The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
+//   - `type` (String). The type of the host to be deployed. Can be either `CLICKHOUSE` or `ZOOKEEPER`.
+//   - `zone` (String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+//
+// - `maintenanceWindow` [Block].
+//   - `day` (String). Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
+//   - `hour` (Number). Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.
+//   - `type` (String). Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+//
+// - `mlModel` [Block]. A group of machine learning models.
+//   - `name` (String). The name of the ml model.
+//   - `type` (String). Type of the model.
+//   - `uri` (String). Model file URL. You can only use models stored in Yandex Object Storage.
+//
+// - `shard` [Block]. A shard of the ClickHouse cluster.
+//   - `name` (String). The name of shard.
+//   - `weight` (Number). The weight of shard.
+//   - `resources` [Block]. Resources allocated to host of the shard. The resources specified for the shard takes precedence over the resources specified for the cluster.
+//   - `diskSize` (Number). Volume of the storage available to a ClickHouse host, in gigabytes.
+//   - `diskTypeId` (String). Type of the storage of ClickHouse hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
+//   - `resourcePresetId` (String). The ID of the preset for computational resources available to a ClickHouse host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
+//
+// - `shardGroup` [Block]. A group of clickhouse shards.
+//   - `description` (String). Description of the shard group.
+//   - `name` (String). The name of the shard group, used as cluster name in Distributed tables.
+//   - `shardNames` (List Of String). List of shards names that belong to the shard group.
+//
+// - `user` [Block]. A user of the ClickHouse cluster.
+//   - `connectionManager` (Map Of String). Connection Manager connection configuration. Filled in by the server automatically.
+//   - `generatePassword` (Bool). Generate password using Connection Manager. Allowed values: `true` or `false`. It's used only during user creation and is ignored during updating.
+//
+// > **Must specify either password or generate_password**.
+//
+//   - `name` (String). The name of the user.
+//   - `password` (String). The password of the user.
+//   - `permission` [Block]. Set of permissions granted to the user.
+//   - `databaseName` (String). The name of the database that the permission grants access to.
+//   - `quota` [Block]. Set of user quotas.
+//   - `errors` (Number). The number of queries that threw exception.
+//   - `executionTime` (Number). The total query execution time, in milliseconds (wall time).
+//   - `intervalDuration` (Number). Duration of interval for quota in milliseconds.
+//   - `queries` (Number). The total number of queries.
+//   - `readRows` (Number). The total number of source rows read from tables for running the query, on all remote servers.
+//   - `resultRows` (Number). The total number of rows given as the result.
+//   - `settings` [Block]. Custom settings for user.
+//   - `addHttpCorsHeader` (Bool). Include CORS headers in HTTP responses.
+//   - `allowDdl` (Bool). Allows or denies DDL queries.
+//   - `allowIntrospectionFunctions` (Bool). Enables introspections functions for query profiling.
+//   - `allowSuspiciousLowCardinalityTypes` (Bool). Allows specifying LowCardinality modifier for types of small fixed size (8 or less) in CREATE TABLE statements. Enabling this may increase merge times and memory consumption.
+//   - `anyJoinDistinctRightTableKeys` (Bool). Enables legacy ClickHouse server behavior in ANY INNER|LEFT JOIN operations.
+//   - `asyncInsert` (Bool). Enables asynchronous inserts. Disabled by default.
+//   - `asyncInsertBusyTimeout` (Number). The maximum timeout in milliseconds since the first INSERT query before inserting collected data. If the parameter is set to 0, the timeout is disabled. Default value: 200.
+//   - `asyncInsertMaxDataSize` (Number). The maximum size of the unparsed data in bytes collected per query before being inserted. If the parameter is set to 0, asynchronous insertions are disabled. Default value: 100000.
+//   - `asyncInsertStaleTimeout` (Number). The maximum timeout in milliseconds since the last INSERT query before dumping collected data. If enabled, the settings prolongs the asyncInsertBusyTimeout with every INSERT query as long as asyncInsertMaxDataSize is not exceeded.
+//   - `asyncInsertThreads` (Number). The maximum number of threads for background data parsing and insertion. If the parameter is set to 0, asynchronous insertions are disabled. Default value: 16.
+//   - `asyncInsertUseAdaptiveBusyTimeout` (Bool). If it is set to true, use adaptive busy timeout for asynchronous inserts.
+//   - `cancelHttpReadonlyQueriesOnClientClose` (Bool). Cancels HTTP read-only queries (e.g. SELECT) when a client closes the connection without waiting for the response. Default value: false.
+//   - `compile` (Bool). Enable compilation of queries.
+//   - `compileExpressions` (Bool). Turn on expression compilation.
+//   - `connectTimeout` (Number). Connect timeout in milliseconds on the socket used for communicating with the client.
+//   - `connectTimeoutWithFailover` (Number). The timeout in milliseconds for connecting to a remote server for a Distributed table engine, if the ‘shard’ and ‘replica’ sections are used in the cluster definition. If unsuccessful, several attempts are made to connect to various replicas. Default value: 50.
+//   - `countDistinctImplementation` (String). Specifies which of the uniq* functions should be used to perform the COUNT(DISTINCT …) construction.
+//   - `dataTypeDefaultNullable` (Bool). Allows data types without explicit modifiers NULL or NOT NULL in column definition will be Nullable.
+//   - `dateTimeInputFormat` (String). Allows choosing a parser of the text representation of date and time, one of: `bestEffort`, `basic`, `bestEffortUs`. Default value: `basic`. Cloud default value: `bestEffort`.
+//   - `dateTimeOutputFormat` (String). Allows choosing different output formats of the text representation of date and time, one of: `simple`, `iso`, `unixTimestamp`. Default value: `simple`.
+//   - `deduplicateBlocksInDependentMaterializedViews` (Bool). Enables or disables the deduplication check for materialized views that receive data from `Replicated` tables.
+//   - `distinctOverflowMode` (String). Sets behavior on overflow when using DISTINCT. Possible values:
+//
+// * `throw` - abort query execution, return an error.
+// * `break` - stop query execution, return partial result.
+//
+//   - `distributedAggregationMemoryEfficient` (Bool). Determine the behavior of distributed subqueries.
+//   - `distributedDdlTaskTimeout` (Number). Timeout for DDL queries, in milliseconds.
+//   - `distributedProductMode` (String). Changes the behavior of distributed subqueries.
+//   - `doNotMergeAcrossPartitionsSelectFinal` (Bool). Enable or disable independent processing of partitions for **SELECT** queries with **FINAL**.
+//   - `emptyResultForAggregationByEmptySet` (Bool). Allows to return empty result.
+//   - `enableAnalyzer` (Bool). Enable new query analyzer.
+//   - `enableHttpCompression` (Bool). Enables or disables data compression in the response to an HTTP request.
+//   - `enableReadsFromQueryCache` (Bool). If turned on, results of SELECT queries are retrieved from the query cache.
+//   - `enableWritesToQueryCache` (Bool). If turned on, results of SELECT queries are stored in the query cache.
+//   - `fallbackToStaleReplicasForDistributedQueries` (Bool). Forces a query to an out-of-date replica if updated data is not available.
+//   - `flattenNested` (Bool). Sets the data format of a nested columns.
+//   - `forceIndexByDate` (Bool). Disables query execution if the index can’t be used by date.
+//   - `forcePrimaryKey` (Bool). Disables query execution if indexing by the primary key is not possible.
+//   - `formatAvroSchemaRegistryUrl` (String). Avro schema registry URL.
+//   - `formatRegexp` (String). Regular expression (for Regexp format).
+//   - `formatRegexpSkipUnmatched` (Bool). Skip lines unmatched by regular expression.
+//   - `groupByOverflowMode` (String). Sets behavior on overflow while GROUP BY operation. Possible values:
+//
+// * `throw` - abort query execution, return an error.
+// * `break` - stop query execution, return partial result.
+// * `any` - perform approximate GROUP BY operation by continuing aggregation for the keys that got into the set, but don’t add new keys to the set.
+//
+//   - `groupByTwoLevelThreshold` (Number). Sets the threshold of the number of keys, after that the two-level aggregation should be used.
+//   - `groupByTwoLevelThresholdBytes` (Number). Sets the threshold of the number of bytes, after that the two-level aggregation should be used.
+//   - `hedgedConnectionTimeoutMs` (Number). Connection timeout for establishing connection with replica for Hedged requests. Default value: 50 milliseconds.
+//   - `httpConnectionTimeout` (Number). Timeout for HTTP connection in milliseconds.
+//   - `httpHeadersProgressInterval` (Number). Sets minimal interval between notifications about request process in HTTP header X-ClickHouse-Progress.
+//   - `httpMaxFieldNameSize` (Number). Maximum length of field name in HTTP header.
+//   - `httpMaxFieldValueSize` (Number). Maximum length of field value in HTTP header.
+//   - `httpReceiveTimeout` (Number). Timeout for HTTP connection in milliseconds.
+//   - `httpSendTimeout` (Number). Timeout for HTTP connection in milliseconds.
+//   - `idleConnectionTimeout` (Number). Timeout to close idle TCP connections after specified number of seconds. Default value: 3600 seconds.
+//   - `ignoreMaterializedViewsWithDroppedTargetTable` (Bool). Ignore materialized views with dropped target table during pushing to views.
+//   - `inputFormatDefaultsForOmittedFields` (Bool). When performing INSERT queries, replace omitted input column values with default values of the respective columns.
+//   - `inputFormatImportNestedJson` (Bool). Enables or disables the insertion of JSON data with nested objects.
+//   - `inputFormatNullAsDefault` (Bool). Enables or disables the initialization of NULL fields with default values, if data type of these fields is not nullable.
+//   - `inputFormatParallelParsing` (Bool). Enables or disables order-preserving parallel parsing of data formats. Supported only for TSV, TKSV, CSV and JSONEachRow formats.
+//   - `inputFormatValuesInterpretExpressions` (Bool). Enables or disables the full SQL parser if the fast stream parser can’t parse the data.
+//   - `inputFormatWithNamesUseHeader` (Bool). Enables or disables checking the column order when inserting data.
+//   - `insertKeeperMaxRetries` (Number). The setting sets the maximum number of retries for ClickHouse Keeper (or ZooKeeper) requests during insert into replicated MergeTree. Only Keeper requests which failed due to network error, Keeper session timeout, or request timeout are considered for retries.
+//   - `insertNullAsDefault` (Bool). Enables the insertion of default values instead of NULL into columns with not nullable data type. Default value: true.
+//   - `insertQuorum` (Number). Enables the quorum writes.
+//   - `insertQuorumParallel` (Bool). Enables or disables parallelism for quorum INSERT queries.
+//   - `insertQuorumTimeout` (Number). Write to a quorum timeout in milliseconds.
+//   - `joinAlgorithm` (List Of String). Specifies which JOIN algorithm is used. Possible values:
+//
+// * `hash` - hash join algorithm is used. The most generic implementation that supports all combinations of kind and strictness and multiple join keys that are combined with OR in the JOIN ON section.
+// * `parallelHash` - a variation of hash join that splits the data into buckets and builds several hash tables instead of one concurrently to speed up this process.
+// * `partialMerge` - a variation of the sort-merge algorithm, where only the right table is fully sorted.
+// * `direct` - this algorithm can be applied when the storage for the right table supports key-value requests.
+// * `auto` - when set to auto, hash join is tried first, and the algorithm is switched on the fly to another algorithm if the memory limit is violated.
+// * `fullSortingMerge` - sort-merge algorithm with full sorting joined tables before joining.
+// * `preferPartialMerge` - clickHouse always tries to use partialMerge join if possible, otherwise, it uses hash. Deprecated, same as partial_merge,hash.
+//
+//   - `joinOverflowMode` (String). Sets behavior on overflow in JOIN. Possible values:
+//
+// * `throw` - abort query execution, return an error.
+// * `break` - stop query execution, return partial result.
+//
+//   - `joinUseNulls` (Bool). Sets the type of JOIN behavior. When merging tables, empty cells may appear. ClickHouse fills them differently based on this setting.
+//   - `joinedSubqueryRequiresAlias` (Bool). Require aliases for subselects and table functions in FROM that more than one table is present.
+//   - `loadBalancing` (String). Specifies the algorithm of replicas selection that is used for distributed query processing, one of: random, nearest_hostname, in_order, first_or_random, round_robin. Default value: random.
+//   - `localFilesystemReadMethod` (String). Method of reading data from local filesystem. Possible values:
+//
+// * `read` - abort query execution, return an error.
+// * `pread` - abort query execution, return an error.
+// * `preadThreadpool` - stop query execution, return partial result. If the parameter is set to 0 (default), no hops is allowed.
+//
+//   - `logProcessorsProfiles` (Bool). Enabled or disable logging of processors level profiling data to the the system.processors_profile_log table.
+//   - `logQueriesProbability` (Number). Log queries with the specified probability.
+//   - `logQueryThreads` (Bool). Setting up query threads logging. Query threads log into the system.query_thread_log table. This setting has effect only when logQueries is true. Queries’ threads run by ClickHouse with this setup are logged according to the rules in the queryThreadLog server configuration parameter. Default value: `true`.
+//   - `logQueryViews` (Bool). Enables or disables query views logging to the the system.query_views_log table.
+//   - `lowCardinalityAllowInNativeFormat` (Bool). Allows or restricts using the LowCardinality data type with the Native format.
+//   - `maxAstDepth` (Number). Maximum abstract syntax tree depth.
+//   - `maxAstElements` (Number). Maximum abstract syntax tree elements.
+//   - `maxBlockSize` (Number). A recommendation for what size of the block (in a count of rows) to load from tables.
+//   - `maxBytesBeforeExternalGroupBy` (Number). Limit in bytes for using memory for GROUP BY before using swap on disk.
+//   - `maxBytesBeforeExternalSort` (Number). This setting is equivalent of the maxBytesBeforeExternalGroupBy setting, except for it is for sort operation (ORDER BY), not aggregation.
+//   - `maxBytesInDistinct` (Number). Limits the maximum size of a hash table in bytes (uncompressed data) when using DISTINCT.
+//   - `maxBytesInJoin` (Number). Limit on maximum size of the hash table for JOIN, in bytes.
+//   - `maxBytesInSet` (Number). Limit on the number of bytes in the set resulting from the execution of the IN section.
+//   - `maxBytesToRead` (Number). Limits the maximum number of bytes (uncompressed data) that can be read from a table when running a query.
+//   - `maxBytesToSort` (Number). Limits the maximum number of bytes (uncompressed data) that can be read from a table for sorting.
+//   - `maxBytesToTransfer` (Number). Limits the maximum number of bytes (uncompressed data) that can be passed to a remote server or saved in a temporary table when using GLOBAL IN.
+//   - `maxColumnsToRead` (Number). Limits the maximum number of columns that can be read from a table in a single query.
+//   - `maxConcurrentQueriesForUser` (Number). The maximum number of concurrent requests per user. Default value: 0 (no limit).
+//   - `maxExecutionTime` (Number). Limits the maximum query execution time in milliseconds.
+//   - `maxExpandedAstElements` (Number). Maximum abstract syntax tree depth after after expansion of aliases.
+//   - `maxFinalThreads` (Number). Sets the maximum number of parallel threads for the SELECT query data read phase with the FINAL modifier.
+//   - `maxHttpGetRedirects` (Number). Limits the maximum number of HTTP GET redirect hops for URL-engine tables.
+//   - `maxInsertBlockSize` (Number). The size of blocks (in a count of rows) to form for insertion into a table.
+//   - `maxInsertThreads` (Number). The maximum number of threads to execute the INSERT SELECT query. Default value: 0.
+//   - `maxMemoryUsage` (Number). Limits the maximum memory usage (in bytes) for processing queries on a single server.
+//   - `maxMemoryUsageForUser` (Number). Limits the maximum memory usage (in bytes) for processing of user's queries on a single server.
+//   - `maxNetworkBandwidth` (Number). Limits the speed of the data exchange over the network in bytes per second.
+//   - `maxNetworkBandwidthForUser` (Number). Limits the speed of the data exchange over the network in bytes per second.
+//   - `maxParserDepth` (Number). Limits maximum recursion depth in the recursive descent parser. Allows controlling the stack size. Zero means unlimited.
+//   - `maxQuerySize` (Number). The maximum part of a query that can be taken to RAM for parsing with the SQL parser.
+//   - `maxReadBufferSize` (Number). The maximum size of the buffer to read from the filesystem.
+//   - `maxReplicaDelayForDistributedQueries` (Number). Disables lagging replicas for distributed queries.
+//   - `maxResultBytes` (Number). Limits the number of bytes in the result.
+//   - `maxResultRows` (Number). Limits the number of rows in the result.
+//   - `maxRowsInDistinct` (Number). Limits the maximum number of different rows when using DISTINCT.
+//   - `maxRowsInJoin` (Number). Limit on maximum size of the hash table for JOIN, in rows.
+//   - `maxRowsInSet` (Number). Limit on the number of rows in the set resulting from the execution of the IN section.
+//   - `maxRowsToGroupBy` (Number). Limits the maximum number of unique keys received from aggregation function.
+//   - `maxRowsToRead` (Number). Limits the maximum number of rows that can be read from a table when running a query.
+//   - `maxRowsToSort` (Number). Limits the maximum number of rows that can be read from a table for sorting.
+//   - `maxRowsToTransfer` (Number). Limits the maximum number of rows that can be passed to a remote server or saved in a temporary table when using GLOBAL IN.
+//   - `maxTemporaryColumns` (Number). Limits the maximum number of temporary columns that must be kept in RAM at the same time when running a query, including constant columns.
+//   - `maxTemporaryDataOnDiskSizeForQuery` (Number). The maximum amount of data consumed by temporary files on disk in bytes for all concurrently running queries. Zero means unlimited.
+//   - `maxTemporaryDataOnDiskSizeForUser` (Number). The maximum amount of data consumed by temporary files on disk in bytes for all concurrently running user queries. Zero means unlimited.
+//   - `maxTemporaryNonConstColumns` (Number). Limits the maximum number of temporary columns that must be kept in RAM at the same time when running a query, excluding constant columns.
+//   - `maxThreads` (Number). The maximum number of query processing threads, excluding threads for retrieving data from remote servers.
+//   - `memoryOvercommitRatioDenominator` (Number). It represents soft memory limit in case when hard limit is reached on user level. This value is used to compute overcommit ratio for the query. Zero means skip the query.
+//   - `memoryOvercommitRatioDenominatorForUser` (Number). It represents soft memory limit in case when hard limit is reached on global level. This value is used to compute overcommit ratio for the query. Zero means skip the query.
+//   - `memoryProfilerSampleProbability` (Number). Collect random allocations and deallocations and write them into system.trace_log with 'MemorySample' trace_type. The probability is for every alloc/free regardless to the size of the allocation. Possible values: from 0 to 1. Default: 0.
+//   - `memoryProfilerStep` (Number). Memory profiler step (in bytes). If the next query step requires more memory than this parameter specifies, the memory profiler collects the allocating stack trace. Values lower than a few megabytes slow down query processing. Default value: 4194304 (4 MB). Zero means disabled memory profiler.
+//   - `memoryUsageOvercommitMaxWaitMicroseconds` (Number). Maximum time thread will wait for memory to be freed in the case of memory overcommit on a user level. If the timeout is reached and memory is not freed, an exception is thrown.
+//   - `mergeTreeMaxBytesToUseCache` (Number). If ClickHouse should read more than mergeTreeMaxBytesToUseCache bytes in one query, it doesn’t use the cache of uncompressed blocks.
+//   - `mergeTreeMaxRowsToUseCache` (Number). If ClickHouse should read more than mergeTreeMaxRowsToUseCache rows in one query, it doesn’t use the cache of uncompressed blocks.
+//   - `mergeTreeMinBytesForConcurrentRead` (Number). If the number of bytes to read from one file of a MergeTree-engine table exceeds merge_tree_min_bytes_for_concurrent_read, then ClickHouse tries to concurrently read from this file in several threads.
+//   - `mergeTreeMinRowsForConcurrentRead` (Number). If the number of rows to be read from a file of a MergeTree table exceeds mergeTreeMinRowsForConcurrentRead then ClickHouse tries to perform a concurrent reading from this file on several threads.
+//   - `minBytesToUseDirectIo` (Number). The minimum data volume required for using direct I/O access to the storage disk.
+//   - `minCountToCompile` (Number). How many times to potentially use a compiled chunk of code before running compilation.
+//   - `minCountToCompileExpression` (Number). A query waits for expression compilation process to complete prior to continuing execution.
+//   - `minExecutionSpeed` (Number). Minimal execution speed in rows per second.
+//   - `minExecutionSpeedBytes` (Number). Minimal execution speed in bytes per second.
+//   - `minInsertBlockSizeBytes` (Number). Sets the minimum number of bytes in the block which can be inserted into a table by an INSERT query.
+//   - `minInsertBlockSizeRows` (Number). Sets the minimum number of rows in the block which can be inserted into a table by an INSERT query.
+//   - `outputFormatJsonQuote64bitIntegers` (Bool). If the value is true, integers appear in quotes when using JSON* Int64 and UInt64 formats (for compatibility with most JavaScript implementations); otherwise, integers are output without the quotes.
+//   - `outputFormatJsonQuoteDenormals` (Bool). Enables +nan, -nan, +inf, -inf outputs in JSON output format.
+//   - `preferLocalhostReplica` (Bool). Enables/disables preferable using the localhost replica when processing distributed queries. Default value: true.
+//   - `priority` (Number). Query priority.
+//   - `queryCacheMaxEntries` (Number). The maximum number of query results the current user may store in the query cache. 0 means unlimited.
+//   - `queryCacheMaxSizeInBytes` (Number). The maximum amount of memory (in bytes) the current user may allocate in the query cache. 0 means unlimited.
+//   - `queryCacheMinQueryDuration` (Number). Minimum duration in milliseconds a query needs to run for its result to be stored in the query cache.
+//   - `queryCacheMinQueryRuns` (Number). Minimum number of times a SELECT query must run before its result is stored in the query cache.
+//   - `queryCacheShareBetweenUsers` (Bool). If turned on, the result of SELECT queries cached in the query cache can be read by other users. It is not recommended to enable this setting due to security reasons.
+//   - `queryCacheTag` (String). A string which acts as a label for query cache entries. The same queries with different tags are considered different by the query cache.
+//   - `queryCacheTtl` (Number). After this time in seconds entries in the query cache become stale.
+//   - `quotaMode` (String). Quota accounting mode.
+//   - `readOverflowMode` (String). Sets behavior on overflow while read. Possible values:
+//
+// * `throw` - abort query execution, return an error.
+// * `break` - stop query execution, return partial result.
+//
+//   - `readonly` (Number). Restricts permissions for reading data, write data and change settings queries.
+//   - `receiveTimeout` (Number). Receive timeout in milliseconds on the socket used for communicating with the client.
+//   - `remoteFilesystemReadMethod` (String). Method of reading data from remote filesystem, one of: `read`, `threadpool`.
+//   - `replicationAlterPartitionsSync` (Number). For ALTER ... ATTACH|DETACH|DROP queries, you can use the replicationAlterPartitionsSync setting to set up waiting.
+//   - `resultOverflowMode` (String). Sets behavior on overflow in result. Possible values:
+//
+// * `throw` - abort query execution, return an error.
+// * `break` - stop query execution, return partial result.
+//
+//   - `s3UseAdaptiveTimeouts` (Bool). Enables or disables adaptive timeouts for S3 requests.
+//   - `selectSequentialConsistency` (Bool). Enables or disables sequential consistency for SELECT queries.
+//   - `sendProgressInHttpHeaders` (Bool). Enables or disables `X-ClickHouse-Progress` HTTP response headers in clickhouse-server responses.
+//   - `sendTimeout` (Number). Send timeout in milliseconds on the socket used for communicating with the client.
+//   - `setOverflowMode` (String). Sets behavior on overflow in the set resulting. Possible values:
+//   - `throw` - abort query execution, return an error.
+//
+// * `break` - stop query execution, return partial result.
+//
+//   - `skipUnavailableShards` (Bool). Enables or disables silently skipping of unavailable shards.
+//   - `sortOverflowMode` (String). Sets behavior on overflow while sort. Possible values:
+//
+// * `throw` - abort query execution, return an error.
+// * `break` - stop query execution, return partial result.
+//
+//   - `timeoutBeforeCheckingExecutionSpeed` (Number). Timeout (in seconds) between checks of execution speed. It is checked that execution speed is not less that specified in minExecutionSpeed parameter. Must be at least 1000.
+//   - `timeoutOverflowMode` (String).  Sets behavior on overflow. Possible values:
+//
+// * `throw` - abort query execution, return an error.
+// * `break` - stop query execution, return partial result.
+//
+//   - `transferOverflowMode` (String). Sets behavior on overflow. Possible values:
+//
+// * `throw` - abort query execution, return an error.
+// * `break` - stop query execution, return partial result.
+//
+//   - `transformNullIn` (Bool). Enables equality of NULL values for IN operator.
+//   - `useHedgedRequests` (Bool). Enables hedged requests logic for remote queries. It allows to establish many connections with different replicas for query. New connection is enabled in case existent connection(s) with replica(s) were not established within hedgedConnectionTimeout or no data was received within receive_data_timeout. Query uses the first connection which send non empty progress packet (or data packet, if allow_changing_replica_until_first_data_packet); other connections are cancelled. Queries with maxParallelReplicas > 1 are supported. Default value: true.
+//   - `useQueryCache` (Bool). If turned on, SELECT queries may utilize the query cache.
+//   - `useUncompressedCache` (Bool). Whether to use a cache of uncompressed blocks.
+//   - `waitForAsyncInsert` (Bool). Enables waiting for processing of asynchronous insertion. If enabled, server returns OK only after the data is inserted.
+//   - `waitForAsyncInsertTimeout` (Number). The timeout (in seconds) for waiting for processing of asynchronous insertion. Value must be at least 1000 (1 second).
+//
+// - `zookeeper` [Block]. Configuration of the ZooKeeper subcluster.
+//   - `resources` [Block]. Resources allocated to hosts of the ZooKeeper subcluster.
+//   - `diskSize` (Number). Volume of the storage available to a ZooKeeper host, in gigabytes.
+//   - `diskTypeId` (String). Type of the storage of ZooKeeper hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
+//   - `resourcePresetId` (String). The ID of the preset for computational resources available to a ZooKeeper host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
 func LookupMdbClickhouseCluster(ctx *pulumi.Context, args *LookupMdbClickhouseClusterArgs, opts ...pulumi.InvokeOption) (*LookupMdbClickhouseClusterResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMdbClickhouseClusterResult

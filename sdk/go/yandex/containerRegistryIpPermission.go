@@ -8,10 +8,75 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Creates a new Container Registry IP Permission. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/operations/registry/registry-access)
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Container Registry and new IP Permissions for it.
+//			myRegistry, err := yandex.NewContainerRegistry(ctx, "myRegistry", &yandex.ContainerRegistryArgs{
+//				FolderId: pulumi.String("test_folder_id"),
+//				Labels: pulumi.StringMap{
+//					"my-label": pulumi.String("my-label-value"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewContainerRegistryIpPermission(ctx, "myIpPermission", &yandex.ContainerRegistryIpPermissionArgs{
+//				RegistryId: myRegistry.ContainerRegistryId,
+//				Pushes: pulumi.StringArray{
+//					pulumi.String("10.1.0.0/16"),
+//					pulumi.String("10.2.0.0/16"),
+//					pulumi.String("10.3.0.0/16"),
+//				},
+//				Pulls: pulumi.StringArray{
+//					pulumi.String("10.1.0.0/16"),
+//					pulumi.String("10.5.0/16"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `id` (String).
+// - `pull` (Set Of String). List of configured CIDRs, from which `pull` is allowed.
+// - `push` (Set Of String). List of configured CIDRs, from which `push` is allowed.
+// - `registryId` (**Required**)(String). The ID of the registry that ip restrictions applied to.
+// - `timeouts` [Block].
+//   - `default` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_container_registry_ip_permission.<resource Name> <registry_id>
+//
+// ```sh
+// $ pulumi import yandex:index/containerRegistryIpPermission:ContainerRegistryIpPermission my_ip_permission crps9**********k9psn
+// ```
 type ContainerRegistryIpPermission struct {
 	pulumi.CustomResourceState
 

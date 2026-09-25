@@ -8,10 +8,72 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of OsLogin Settings within an existing Yandex Cloud Organization.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new OrganizationManager OS Login Settings.
+//			_, err := yandex.NewOrganizationmanagerOsLoginSettings(ctx, "mySettings", &yandex.OrganizationmanagerOsLoginSettingsArgs{
+//				OrganizationId: pulumi.String("sdf4*********3fr"),
+//				SshCertificateSettings: &yandex.OrganizationmanagerOsLoginSettingsSshCertificateSettingsArgs{
+//					Enabled: pulumi.Bool(true),
+//				},
+//				UserSshKeySettings: &yandex.OrganizationmanagerOsLoginSettingsUserSshKeySettingsArgs{
+//					AllowManageOwnKeys: pulumi.Bool(true),
+//					Enabled:            pulumi.Bool(true),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `id` (String).
+// - `organizationId` (**Required**)(String). The organization to manage it's OsLogin Settings.
+// - `sshCertificateSettings` [Block]. SSH Certificate settings.
+//   - `enabled` (Bool). Enables or disables usage of SSH certificates signed by trusted Certification Authority (CA).
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// - `userSshKeySettings` [Block]. Users SSH key settings.
+//   - `allowManageOwnKeys` (Bool). If set to true subject is allowed to manage own ssh keys without having to be assigned specific permissions.
+//   - `enabled` (Bool). Enables or disables usage of ssh keys assigned to a specific subject.
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_organizationmanager_os_login_settings.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/organizationmanagerOsLoginSettings:OrganizationmanagerOsLoginSettings my_settings ...
+// ```
 type OrganizationmanagerOsLoginSettings struct {
 	pulumi.CustomResourceState
 

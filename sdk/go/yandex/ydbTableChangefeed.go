@@ -8,10 +8,79 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Yandex Database [table changefeed](https://ydb.tech/en/docs/concepts/cdc), or Change Data Capture (CDC) resource, keeps you informed about changes in a given table. When you add, update, or delete a table row, the CDC mechanism generates a change record where it specifies the primary key of the row and writes it to the topic partition corresponding to this key. A [topic](https://ydb.tech/en/docs/concepts/topic) is an entity for storing unstructured messages and delivering them to multiple subscribers. Basically, a topic is a named set of messages.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new YDB Table Change feed.
+//			_, err := yandex.NewYdbTableChangefeed(ctx, "ydbChangefeed", &yandex.YdbTableChangefeedArgs{
+//				TableId: pulumi.Any(yandex_ydb_table.Test_table_2.Id),
+//				Mode:    pulumi.String("NEW_IMAGE"),
+//				Format:  pulumi.String("JSON"),
+//				Consumers: yandex.YdbTableChangefeedConsumerArray{
+//					&yandex.YdbTableChangefeedConsumerArgs{
+//						Name: pulumi.String("test_consumer"),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `connectionString` (String). Connection string, conflicts with `tableId`.
+// - `format` (**Required**)(String). Changefeed format.
+// - `id` (String).
+// - `mode` (**Required**)(String). [Changefeed mode](https://ydb.tech/en/docs/yql/reference/syntax/alter_table#changefeed-options).
+// - `name` (**Required**)(String). Changefeed name.
+// - `retentionPeriod` (String). Time of data retention in the topic, [ISO 8601](https://ru.wikipedia.org/wiki/ISO_8601) format.
+// - `tableId` (String). Terraform resource ID of the table.
+// - `tablePath` (String). Table path.
+// - `virtualTimestamps` (Bool). Use [virtual timestamps](https://ydb.tech/en/docs/concepts/cdc#virtual-timestamps).
+// - `consumer` [Block]. Changefeed [consumers](https://ydb.tech/en/docs/concepts/topic#consumer) - named entities for reading data from the topic.
+//   - `important` (Bool).
+//   - `name` (**Required**)(String). Consumer name. It is used in the SDK or CLI to [read data](https://ydb.tech/en/docs/best_practices/cdc#read) from the topic.
+//   - `startingMessageTimestampMs` (Number). Timestamp in the UNIX timestamp format, from which the consumer will start reading data.
+//   - `supportedCodecs` (List Of String). Supported data encodings.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `default` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_ydb_table_changefeed.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/ydbTableChangefeed:YdbTableChangefeed ydb_changefeed ...
+// ```
 type YdbTableChangefeed struct {
 	pulumi.CustomResourceState
 

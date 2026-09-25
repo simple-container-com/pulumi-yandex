@@ -7,10 +7,105 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Cloud Function. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://yandex.cloud/docs/functions).
+// This data source is used to define [Yandex Cloud Function](https://yandex.cloud/docs/functions/concepts/function) that can be used by other resources.
+//
+// > Either `functionId` or `name` must be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetFunction(ctx, &yandex.LookupFunctionArgs{
+//				FunctionId: pulumi.StringRef("d4e45**********pqvd3"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `asyncInvocation` (*Read-Only*) (List Of Object).
+//   - `retriesCount` .
+//   - `serviceAccountId` .
+//   - `ymqFailureTarget` .
+//   - `arn` .
+//   - `serviceAccountId` .
+//   - `ymqSuccessTarget` .
+//   - `arn` .
+//   - `serviceAccountId` .
+//
+// - `concurrency` (Number). The maximum number of requests processed by a function instance at the same time.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `entrypoint` (*Read-Only*) (String). Entrypoint for Yandex Cloud Function.
+// - `environment` (*Read-Only*) (Map Of String). A set of key/value environment variables for Yandex Cloud Function. Each key must begin with a letter (A-Z, a-z).
+// - `executionTimeout` (*Read-Only*) (String). Execution timeout in seconds for Yandex Cloud Function.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `functionId` (String). Yandex Cloud Function id used to define function.
+// - `id` (String).
+// - `imageSize` (*Read-Only*) (Number). Image size for Yandex Cloud Function.
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `logOptions` (*Read-Only*) (List Of Object).
+//   - `disabled` .
+//   - `folderId` .
+//   - `logGroupId` .
+//   - `minLevel` .
+//
+// - `memory` (*Read-Only*) (Number). Memory in megabytes (**aligned to 128MB**) for Yandex Cloud Function.
+// - `name` (String). The resource name.
+// - `runtime` (*Read-Only*) (String). Runtime for Yandex Cloud Function.
+// - `serviceAccountId` (*Read-Only*) (String). [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+// - `tags` (*Read-Only*) (Set Of String). Tags for Yandex Cloud Function. Tag `$latest` isn't returned.
+// - `tmpfsSize` (*Read-Only*) (Number). Tmpfs size for Yandex Cloud Function.
+// - `version` (*Read-Only*) (String). Version of Yandex Cloud Function.
+// - `connectivity` [Block].
+//   - `networkId` (**Required**)(String).
+//
+// - `metadataOptions` [Block].
+//   - `awsV1HttpEndpoint` (Number).
+//   - `gceHttpEndpoint` (Number).
+//
+// - `mounts` [Block].
+//   - `mode` (String).
+//   - `name` (**Required**)(String).
+//   - `ephemeralDisk` [Block].
+//   - `blockSizeKb` (Number).
+//   - `sizeGb` (**Required**)(Number).
+//   - `objectStorage` [Block].
+//   - `bucket` (**Required**)(String).
+//   - `prefix` (String).
+//
+// - `secrets` [Block].
+//   - `environmentVariable` (**Required**)(String).
+//   - `id` (**Required**)(String).
+//   - `key` (**Required**)(String).
+//   - `versionId` (**Required**)(String).
+//
+// - `storageMounts` [Block].
+//   - `bucket` (**Required**)(String).
+//   - `mountPointName` (**Required**)(String).
+//   - `prefix` (String).
+//   - `readOnly` (Bool).
 func LookupFunction(ctx *pulumi.Context, args *LookupFunctionArgs, opts ...pulumi.InvokeOption) (*LookupFunctionResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupFunctionResult

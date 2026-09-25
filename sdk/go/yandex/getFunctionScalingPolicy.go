@@ -7,10 +7,48 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Cloud Function Scaling Policy. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://yandex.cloud/docs/functions/).
+//
+// This data source is used to define [Yandex Cloud Function Scaling Policy](https://yandex.cloud/docs/functions/) that can be used by other resources.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetFunctionScalingPolicy(ctx, &yandex.LookupFunctionScalingPolicyArgs{
+//				FunctionId: "d4e45**********pqvd3",
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `functionId` (**Required**)(String). Yandex Cloud Function id used to define function.
+// - `id` (String).
+// - `policy` [Block].
+//   - `tag` (*Read-Only*) (String).
+//   - `zoneInstancesLimit` (Number).
+//   - `zoneRequestsLimit` (Number).
 func LookupFunctionScalingPolicy(ctx *pulumi.Context, args *LookupFunctionScalingPolicyArgs, opts ...pulumi.InvokeOption) (*LookupFunctionScalingPolicyResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupFunctionScalingPolicyResult

@@ -7,10 +7,190 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Application Load Balancer Backend Group. For more information, see [official documentation](https://yandex.cloud/docs/application-load-balancer/quickstart).
+//
+// This data source is used to define [Application Load Balancer Backend Groups](https://yandex.cloud/docs/application-load-balancer/concepts/backend-group) that can be used by other resources.
+//
+// > One of `backendGroupId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetAlbBackendGroup(ctx, &yandex.LookupAlbBackendGroupArgs{
+//				BackendGroupId: pulumi.StringRef(yandex_alb_backend_group.My_backend_group.Id),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `backendGroupId` (String). Backend Group ID.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `grpcBackend` [Block].
+//   - `name` (*Read-Only*) (String).
+//   - `port` (Number).
+//   - `targetGroupIds` (*Read-Only*) (List Of String).
+//   - `weight` (Number).
+//   - `healthcheck` [Block].
+//   - `healthcheckPort` (Number).
+//   - `healthyThreshold` (Number).
+//   - `interval` (*Read-Only*) (String).
+//   - `intervalJitterPercent` (Number).
+//   - `timeout` (*Read-Only*) (String).
+//   - `unhealthyThreshold` (Number).
+//   - `grpcHealthcheck` [Block].
+//   - `serviceName` (String).
+//   - `httpHealthcheck` [Block].
+//   - `expectedStatuses` (*Read-Only*) (List Of Number).
+//   - `host` (String).
+//   - `http2` (Bool).
+//   - `path` (*Read-Only*) (String).
+//   - `streamHealthcheck` [Block].
+//   - `receive` (String).
+//   - `send` (String).
+//   - `tls` [Block]. TLS settings for the health check.
+//   - `sni` (String). Server name indication (SNI) to be sent to the backend.
+//   - `clientCertificate` [Block]. Client certificate to present during TLS handshake.
+//   - `certificateId` (String). ID of the client certificate.
+//   - `validationContext` [Block]. Validation context for the TLS connection.
+//   - `trustedCaBytes` (String). PEM-encoded trusted CA certificate bytes.
+//   - `trustedCaId` (String). ID of the trusted CA certificate.
+//   - `loadBalancingConfig` [Block].
+//   - `localityAwareRoutingPercent` (Number).
+//   - `mode` (String).
+//   - `panicThreshold` (Number).
+//   - `strictLocality` (Bool).
+//   - `tls` [Block]. TLS settings for the backend connection.
+//   - `sni` (String). Server name indication (SNI) to be sent to the backend.
+//   - `clientCertificate` [Block]. Client certificate to present during TLS handshake.
+//   - `certificateId` (String). ID of the client certificate.
+//   - `validationContext` [Block]. Validation context for the TLS connection.
+//   - `trustedCaBytes` (String). PEM-encoded trusted CA certificate bytes.
+//   - `trustedCaId` (String). ID of the trusted CA certificate.
+//
+// - `httpBackend` [Block]. HTTP backend specification that will be used by the ALB Backend Group
+//   - `http2` (Bool). Enables HTTP2 for upstream requests. If not set, HTTP 1.1 will be used by default.
+//   - `name` (*Read-Only*) (String). Name of the backend.
+//   - `port` (Number). Port for incoming traffic.
+//   - `storageBucket` (String). Name of bucket which should be used as a backend.
+//   - `targetGroupIds` (List Of String). References target groups for the backend.
+//   - `weight` (Number). Weight of the backend.
+//   - `healthcheck` [Block].
+//   - `healthcheckPort` (Number).
+//   - `healthyThreshold` (Number).
+//   - `interval` (*Read-Only*) (String).
+//   - `intervalJitterPercent` (Number).
+//   - `timeout` (*Read-Only*) (String).
+//   - `unhealthyThreshold` (Number).
+//   - `grpcHealthcheck` [Block].
+//   - `serviceName` (String).
+//   - `httpHealthcheck` [Block].
+//   - `expectedStatuses` (*Read-Only*) (List Of Number).
+//   - `host` (String).
+//   - `http2` (Bool).
+//   - `path` (*Read-Only*) (String).
+//   - `streamHealthcheck` [Block].
+//   - `receive` (String).
+//   - `send` (String).
+//   - `tls` [Block]. TLS settings for the health check.
+//   - `sni` (String). Server name indication (SNI) to be sent to the backend.
+//   - `clientCertificate` [Block]. Client certificate to present during TLS handshake.
+//   - `certificateId` (String). ID of the client certificate.
+//   - `validationContext` [Block]. Validation context for the TLS connection.
+//   - `trustedCaBytes` (String). PEM-encoded trusted CA certificate bytes.
+//   - `trustedCaId` (String). ID of the trusted CA certificate.
+//   - `loadBalancingConfig` [Block].
+//   - `localityAwareRoutingPercent` (Number).
+//   - `mode` (String).
+//   - `panicThreshold` (Number).
+//   - `strictLocality` (Bool).
+//   - `tls` [Block]. TLS settings for the backend connection.
+//   - `sni` (String). Server name indication (SNI) to be sent to the backend.
+//   - `clientCertificate` [Block]. Client certificate to present during TLS handshake.
+//   - `certificateId` (String). ID of the client certificate.
+//   - `validationContext` [Block]. Validation context for the TLS connection.
+//   - `trustedCaBytes` (String). PEM-encoded trusted CA certificate bytes.
+//   - `trustedCaId` (String). ID of the trusted CA certificate.
+//
+// - `sessionAffinity` [Block].
+//   - `connection` [Block]. IP address affinity
+//   - `sourceIp` (Bool). Use source IP address
+//   - `cookie` [Block]. Cookie affinity
+//   - `name` (*Read-Only*) (String). Name of the HTTP cookie
+//   - `path` (String). Path of the HTTP cookie
+//   - `ttl` (String). TTL for the cookie (if not set, session cookie will be used)
+//   - `header` [Block]. Request header affinity
+//   - `headerName` (String). The name of the request header that will be used
+//
+// - `streamBackend` [Block].
+//   - `enableProxyProtocol` (Bool).
+//   - `keepConnectionsOnHostHealthFailure` (Bool).
+//   - `name` (*Read-Only*) (String).
+//   - `port` (Number).
+//   - `targetGroupIds` (*Read-Only*) (List Of String).
+//   - `weight` (Number).
+//   - `healthcheck` [Block].
+//   - `healthcheckPort` (Number).
+//   - `healthyThreshold` (Number).
+//   - `interval` (*Read-Only*) (String).
+//   - `intervalJitterPercent` (Number).
+//   - `timeout` (*Read-Only*) (String).
+//   - `unhealthyThreshold` (Number).
+//   - `grpcHealthcheck` [Block].
+//   - `serviceName` (String).
+//   - `httpHealthcheck` [Block].
+//   - `expectedStatuses` (*Read-Only*) (List Of Number).
+//   - `host` (String).
+//   - `http2` (Bool).
+//   - `path` (*Read-Only*) (String).
+//   - `streamHealthcheck` [Block].
+//   - `receive` (String).
+//   - `send` (String).
+//   - `tls` [Block]. TLS settings for the health check.
+//   - `sni` (String). Server name indication (SNI) to be sent to the backend.
+//   - `clientCertificate` [Block]. Client certificate to present during TLS handshake.
+//   - `certificateId` (String). ID of the client certificate.
+//   - `validationContext` [Block]. Validation context for the TLS connection.
+//   - `trustedCaBytes` (String). PEM-encoded trusted CA certificate bytes.
+//   - `trustedCaId` (String). ID of the trusted CA certificate.
+//   - `loadBalancingConfig` [Block].
+//   - `localityAwareRoutingPercent` (Number).
+//   - `mode` (String).
+//   - `panicThreshold` (Number).
+//   - `strictLocality` (Bool).
+//   - `tls` [Block]. TLS settings for the backend connection.
+//   - `sni` (String). Server name indication (SNI) to be sent to the backend.
+//   - `clientCertificate` [Block]. Client certificate to present during TLS handshake.
+//   - `certificateId` (String). ID of the client certificate.
+//   - `validationContext` [Block]. Validation context for the TLS connection.
+//   - `trustedCaBytes` (String). PEM-encoded trusted CA certificate bytes.
+//   - `trustedCaId` (String). ID of the trusted CA certificate.
 func LookupAlbBackendGroup(ctx *pulumi.Context, args *LookupAlbBackendGroupArgs, opts ...pulumi.InvokeOption) (*LookupAlbBackendGroupResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupAlbBackendGroupResult

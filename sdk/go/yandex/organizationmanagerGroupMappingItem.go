@@ -8,10 +8,67 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud Organization Manager Group Mapping Items](https://yandex.cloud/docs/organization/concepts/add-federation#group-mapping)
+//
+//	> Group mapping items depends on group mapping. If you create group mapping via terraform use `dependsOn` meta-argument to avoid errors (see example below)
+//
+// .
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new OrganizationManager Group Mapping Item.
+//			_, err := yandex.NewOrganizationmanagerGroupMappingItem(ctx, "groupMappingItem", &yandex.OrganizationmanagerGroupMappingItemArgs{
+//				FederationId:    pulumi.String("my-federation_id"),
+//				InternalGroupId: pulumi.String("my_internal_group_id"),
+//				ExternalGroupId: pulumi.String("my_external_group_id"),
+//			}, pulumi.DependsOn([]pulumi.Resource{
+//				yandex_organizationmanager_group_mapping.Group_mapping,
+//			}))
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `externalGroupId` (**Required**)(String). ID of the external group
+// - `federationId` (**Required**)(String). ID of the SAML Federation
+// - `id` (String).
+// - `internalGroupId` (**Required**)(String). ID of the internal group
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_organizationmanager_group_mapping_item.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/organizationmanagerGroupMappingItem:OrganizationmanagerGroupMappingItem group_mapping_item .../.../...
+// ```
 type OrganizationmanagerGroupMappingItem struct {
 	pulumi.CustomResourceState
 

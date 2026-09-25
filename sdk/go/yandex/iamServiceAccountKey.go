@@ -8,10 +8,59 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud IAM service account authorized keys](https://yandex.cloud/docs/iam/concepts/authorization/key). Generated pair of keys is used to create a [JSON Web Token](https://tools.ietf.org/html/rfc7519) which is necessary for requesting an [IAM Token](https://yandex.cloud/docs/iam/concepts/authorization/iam-token) for a [service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new IAM Service Account Key.
+//			_, err := yandex.NewIamServiceAccountKey(ctx, "sa-auth-key", &yandex.IamServiceAccountKeyArgs{
+//				Description:      pulumi.String("key for service account"),
+//				KeyAlgorithm:     pulumi.String("RSA_4096"),
+//				PgpKey:           pulumi.String("keybase:keybaseusername"),
+//				ServiceAccountId: pulumi.String("aje5a**********qspd3"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `encryptedPrivateKey` (*Read-Only*) (String). The encrypted private key, base64 encoded. This is only populated when `pgpKey` is supplied.
+// - `format` (String). The output format of the keys. `PEM_FILE` is the default format.
+// - `id` (String).
+// - `keyAlgorithm` (String). The algorithm used to generate the key. `RSA_2048` is the default algorithm. Valid values are listed in the [API reference](https://yandex.cloud/docs/iam/api-ref/Key).
+// - `keyFingerprint` (*Read-Only*) (String). The fingerprint of the PGP key used to encrypt the private key. This is only populated when `pgpKey` is supplied.
+// - `outputToLockboxVersionId` (*Read-Only*) (String). ID of the Lockbox secret version that contains the value of `secretKey`. This is only populated when `outputToLockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when `outputToLockbox` is removed.
+// - `pgpKey` (String). An optional PGP key to encrypt the resulting private key material. May either be a base64-encoded public key or a keybase username in the form `keybase:keybaseusername`.
+// - `privateKey` (*Read-Only*) (String). The private key. This is only populated when neither `pgpKey` nor `outputToLockbox` are provided.
+// - `publicKey` (*Read-Only*) (String). The public key.
+// - `serviceAccountId` (**Required**)(String). ID of the service account to create a pair for.
+// - `outputToLockbox` [Block]. option to create a Lockbox secret version from sensitive outputs
+//   - `entryForPrivateKey` (**Required**)(String). entry that will store the value of privateKey
+//   - `secretId` (**Required**)(String). ID of the Lockbox secret where to store the sensible values.
 type IamServiceAccountKey struct {
 	pulumi.CustomResourceState
 

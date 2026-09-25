@@ -8,10 +8,57 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manage a YDB Table Index.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `columns` (**Required**)(List Of String).
+// - `connectionString` (String).
+// - `cover` (List Of String).
+// - `id` (String).
+// - `name` (**Required**)(String).
+// - `tableId` (String).
+// - `tablePath` (String).
+// - `type` (**Required**)(String).
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `default` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_ydb_table_index.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/ydbTableIndex:YdbTableIndex test_table_index ...
+// ```
 type YdbTableIndex struct {
 	pulumi.CustomResourceState
 

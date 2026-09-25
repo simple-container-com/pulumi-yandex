@@ -7,10 +7,77 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex VPC Security Group Rule. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/security-groups).
+//
+// This data source used to define Security Group Rule that can be used by other resources.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetVpcSecurityGroup(ctx, &yandex.LookupVpcSecurityGroupArgs{
+//				Name: pulumi.StringRef("my-group1"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `egress` (*Read-Only*) (Set Of Object). A list of egress rules.
+//   - `description` .
+//   - `fromPort` .
+//   - `id` .
+//   - `labels` .
+//   - `port` .
+//   - `predefinedTarget` .
+//   - `protocol` .
+//   - `securityGroupId` .
+//   - `toPort` .
+//   - `v4CidrBlocks` .
+//   - `v6CidrBlocks` .
+//
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `ingress` (*Read-Only*) (Set Of Object). A list of ingress rules.
+//   - `description` .
+//   - `fromPort` .
+//   - `id` .
+//   - `labels` .
+//   - `port` .
+//   - `predefinedTarget` .
+//   - `protocol` .
+//   - `securityGroupId` .
+//   - `toPort` .
+//   - `v4CidrBlocks` .
+//   - `v6CidrBlocks` .
+//
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `networkId` (*Read-Only*) (String). ID of the network this security group belongs to.
+// - `securityGroupId` (String). ID of Security Group that owns the rule.
+// - `status` (*Read-Only*) (String). Status of this security group.
 func LookupVpcSecurityGroup(ctx *pulumi.Context, args *LookupVpcSecurityGroupArgs, opts ...pulumi.InvokeOption) (*LookupVpcSecurityGroupResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupVpcSecurityGroupResult

@@ -8,10 +8,532 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a MySQL cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.5.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB MySQL Cluster.
+//			_, err = yandex.NewMdbMysqlCluster(ctx, "myCluster", &yandex.MdbMysqlClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Version:     pulumi.String("8.0"),
+//				Resources: &yandex.MdbMysqlClusterResourcesArgs{
+//					ResourcePresetId: pulumi.String("s2.micro"),
+//					DiskTypeId:       pulumi.String("network-ssd"),
+//					DiskSize:         pulumi.Int(16),
+//				},
+//				MysqlConfig: pulumi.StringMap{
+//					"sql_mode":                      pulumi.String("ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"),
+//					"max_connections":               pulumi.String("100"),
+//					"default_authentication_plugin": pulumi.String("MYSQL_NATIVE_PASSWORD"),
+//					"innodb_print_all_deadlocks":    pulumi.String("true"),
+//				},
+//				Hosts: yandex.MdbMysqlClusterHostArray{
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-b"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.1.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			bar, err := yandex.NewVpcSubnet(ctx, "bar", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.2.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB High Availability MySQL Cluster.
+//			_, err = yandex.NewMdbMysqlCluster(ctx, "myCluster", &yandex.MdbMysqlClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Version:     pulumi.String("8.0"),
+//				Resources: &yandex.MdbMysqlClusterResourcesArgs{
+//					ResourcePresetId: pulumi.String("s2.micro"),
+//					DiskTypeId:       pulumi.String("network-ssd"),
+//					DiskSize:         pulumi.Int(16),
+//				},
+//				MaintenanceWindow: &yandex.MdbMysqlClusterMaintenanceWindowArgs{
+//					Type: pulumi.String("WEEKLY"),
+//					Day:  pulumi.String("SAT"),
+//					Hour: pulumi.Int(12),
+//				},
+//				Hosts: yandex.MdbMysqlClusterHostArray{
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-b"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						SubnetId: bar.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-b"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.1.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			bar, err := yandex.NewVpcSubnet(ctx, "bar", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.2.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB HA MySQL Cluster with cascade replicas.
+//			_, err = yandex.NewMdbMysqlCluster(ctx, "myCluster", &yandex.MdbMysqlClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Version:     pulumi.String("8.0"),
+//				Resources: &yandex.MdbMysqlClusterResourcesArgs{
+//					ResourcePresetId: pulumi.String("s2.micro"),
+//					DiskTypeId:       pulumi.String("network-ssd"),
+//					DiskSize:         pulumi.Int(16),
+//				},
+//				MaintenanceWindow: &yandex.MdbMysqlClusterMaintenanceWindowArgs{
+//					Type: pulumi.String("WEEKLY"),
+//					Day:  pulumi.String("SAT"),
+//					Hour: pulumi.Int(12),
+//				},
+//				Hosts: yandex.MdbMysqlClusterHostArray{
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-b"),
+//						Name:     pulumi.String("na-1"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						Name:     pulumi.String("na-2"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:                  pulumi.String("ru-central1-b"),
+//						Name:                  pulumi.String("nb-1"),
+//						ReplicationSourceName: pulumi.String("na-1"),
+//						SubnetId:              bar.ID().ToIDOutput().ToStringOutput(),
+//					},
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:                  pulumi.String("ru-central1-d"),
+//						Name:                  pulumi.String("nb-2"),
+//						ReplicationSourceName: pulumi.String("nb-1"),
+//						SubnetId:              bar.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-b"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.1.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			bar, err := yandex.NewVpcSubnet(ctx, "bar", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.2.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB MySQL Cluster with different backup priorities.
+//			_, err = yandex.NewMdbMysqlCluster(ctx, "myCluster", &yandex.MdbMysqlClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Version:     pulumi.String("8.0"),
+//				Resources: &yandex.MdbMysqlClusterResourcesArgs{
+//					ResourcePresetId: pulumi.String("s2.micro"),
+//					DiskTypeId:       pulumi.String("network-ssd"),
+//					DiskSize:         pulumi.Int(16),
+//				},
+//				MaintenanceWindow: &yandex.MdbMysqlClusterMaintenanceWindowArgs{
+//					Type: pulumi.String("WEEKLY"),
+//					Day:  pulumi.String("SAT"),
+//					Hour: pulumi.Int(12),
+//				},
+//				Hosts: yandex.MdbMysqlClusterHostArray{
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-b"),
+//						Name:     pulumi.String("na-1"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:           pulumi.String("ru-central1-d"),
+//						Name:           pulumi.String("nb-1"),
+//						BackupPriority: pulumi.Int(5),
+//						SubnetId:       bar.ID().ToIDOutput().ToStringOutput(),
+//					},
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:           pulumi.String("ru-central1-d"),
+//						Name:           pulumi.String("nb-2"),
+//						BackupPriority: pulumi.Int(10),
+//						SubnetId:       bar.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-b"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.1.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			bar, err := yandex.NewVpcSubnet(ctx, "bar", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.2.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB MySQL Cluster with different host priorities.
+//			_, err = yandex.NewMdbMysqlCluster(ctx, "myCluster", &yandex.MdbMysqlClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Version:     pulumi.String("8.0"),
+//				Resources: &yandex.MdbMysqlClusterResourcesArgs{
+//					ResourcePresetId: pulumi.String("s2.micro"),
+//					DiskTypeId:       pulumi.String("network-ssd"),
+//					DiskSize:         pulumi.Int(16),
+//				},
+//				MaintenanceWindow: &yandex.MdbMysqlClusterMaintenanceWindowArgs{
+//					Type: pulumi.String("WEEKLY"),
+//					Day:  pulumi.String("SAT"),
+//					Hour: pulumi.Int(12),
+//				},
+//				Hosts: yandex.MdbMysqlClusterHostArray{
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-b"),
+//						Name:     pulumi.String("na-1"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						Name:     pulumi.String("nb-1"),
+//						Priority: pulumi.Int(5),
+//						SubnetId: bar.ID().ToIDOutput().ToStringOutput(),
+//					},
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						Name:     pulumi.String("nb-2"),
+//						Priority: pulumi.Int(10),
+//						SubnetId: bar.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-b"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.5.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB MySQL Cluster with user's params.
+//			_, err = yandex.NewMdbMysqlCluster(ctx, "myCluster", &yandex.MdbMysqlClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Version:     pulumi.String("8.0"),
+//				Resources: &yandex.MdbMysqlClusterResourcesArgs{
+//					ResourcePresetId: pulumi.String("s2.micro"),
+//					DiskTypeId:       pulumi.String("network-ssd"),
+//					DiskSize:         pulumi.Int(16),
+//				},
+//				MaintenanceWindow: &yandex.MdbMysqlClusterMaintenanceWindowArgs{
+//					Type: pulumi.String("ANYTIME"),
+//				},
+//				Hosts: yandex.MdbMysqlClusterHostArray{
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-b"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+//   - `allowRegenerationHost` (Bool). Deprecated field. You can safely remove this option. There is no need to recreate host if assignPublicIp is changed.
+//     Regenerate hosts after changing the assignPublicIp parameter.
+//   - `backupRetainPeriodDays` (Number). The period in days during which backups are stored.
+//   - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+//   - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+//   - `description` (String). The resource description.
+//   - `diskEncryptionKeyId` (String). ID of the KMS key for cluster disk encryption. Restoring without an encryption key will disable encryption if any exists.
+//   - `environment` (**Required**)(String). Deployment environment of the MySQL cluster.
+//   - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+//   - `health` (*Read-Only*) (String). Aggregated health of the cluster.
+//   - `hostGroupIds` (Set Of String). A list of host group IDs to place VMs of the cluster on.
+//   - `id` (String).
+//   - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+//   - `mysqlConfig` (Map Of String). MySQL cluster configuration. For detailed information specific to your MySQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/mysql/v1/config).
+//   - `name` (**Required**)(String). The resource name.
+//   - `networkId` (**Required**)(String). The `VPC Network ID` of subnets which resource attached to.
+//   - `securityGroupIds` (Set Of String). The list of security groups applied to resource or their components.
+//   - `status` (*Read-Only*) (String). Status of the cluster.
+//   - `version` (**Required**)(String). Version of the MySQL cluster. (allowed versions are: 5.7, 8.0, 8.4).
+//   - `access` [Block]. Access policy to the MySQL cluster.
+//   - `dataLens` (Bool). Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
+//   - `dataTransfer` (Bool). Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer).
+//   - `webSql` (Bool). Allows access for [SQL queries in the management console](https://yandex.cloud/docs/managed-mysql/operations/web-sql-query).
+//   - `yandexQuery` (Bool). Allow access for [YandexQuery](https://yandex.cloud/services/query).
+//   - `backupWindowStart` [Block]. Time to start the daily backup, in the UTC.
+//   - `hours` (Number). The hour at which backup will be started (UTC).
+//   - `minutes` (Number). The minute at which backup will be started (UTC).
+//   - `database` [Block]. To manage databases, please switch to using a separate resource type `yandexMdbMysqlDatabases`.
+//   - `name` (**Required**)(String). The name of the database.
+//   - `diskSizeAutoscaling` [Block]. Cluster disk size autoscaling settings.
+//   - `diskSizeLimit` (**Required**)(Number). The overall maximum for disk size (GB) that limits all autoscaling iterations.
+//   - `emergencyUsageThreshold` (Number). Immediate autoscaling disk usage (percent).
+//   - `plannedUsageThreshold` (Number). Maintenance window autoscaling disk usage (percent).
+//   - `host` [Block]. A host of the MySQL cluster.
+//   - `assignPublicIp` (Bool). Sets whether the host should get a public IP address. It can be changed on the fly only when `name` is set.
+//   - `backupPriority` (Number). Host backup priority. Value is between 0 and 100, default is 0.
+//   - `fqdn` (*Read-Only*) (String). The fully qualified domain name of the host.
+//   - `name` (String). Host state name. It should be set for all hosts or unset for all hosts. This field can be used by another host, to select which host will be its replication source. Please refer to `replicationSourceName` parameter.
+//   - `priority` (Number). Host master promotion priority. Value is between 0 and 100, default is 0.
+//   - `replicationSource` (*Read-Only*) (String). Host replication source (fqdn), when replicationSource is empty then host is in HA group.
+//   - `replicationSourceName` (String). Host replication source name points to host's `name` from which this host should replicate. When not set then host in HA group. It works only when `name` is set.
+//   - `subnetId` (String). The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
+//   - `zone` (**Required**)(String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+//   - `maintenanceWindow` [Block]. Maintenance policy of the MySQL cluster.
+//   - `day` (String). Day of the week (in `DDD` format). Allowed values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`
+//   - `hour` (Number). Hour of the day in UTC (in `HH` format). Allowed value is between 1 and 24.
+//   - `type` (**Required**)(String). Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+//   - `performanceDiagnostics` [Block]. Cluster performance diagnostics settings. [YC Documentation](https://yandex.cloud/docs/managed-mysql/api-ref/grpc/cluster_service#PerformanceDiagnostics).
+//   - `enabled` (Bool). Enable performance diagnostics.
+//   - `sessionsSamplingInterval` (**Required**)(Number). Interval (in seconds) for myStatActivity sampling Acceptable values are 1 to 86400, inclusive.
+//   - `statementsSamplingInterval` (**Required**)(Number). Interval (in seconds) for myStatStatements sampling Acceptable values are 1 to 86400, inclusive.
+//   - `resources` [Block]. Resources allocated to hosts of the MySQL cluster.
+//   - `diskSize` (**Required**)(Number). Volume of the storage available to a MySQL host, in gigabytes.
+//   - `diskTypeId` (**Required**)(String). Type of the storage of MySQL hosts.
+//   - `resourcePresetId` (**Required**)(String). The ID of the preset for computational resources available to a MySQL host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/concepts/instance-types).
+//   - `restore` [Block]. The cluster will be created from the specified backup or source cluster.
+//   - `backupId` (String). Backup ID. The cluster will be created from the specified backup. [How to get a list of MySQL backups](https://yandex.cloud/docs/managed-mysql/operations/cluster-backups). Should not be used together with `sourceClusterId`.
+//   - `sourceClusterId` (String). ID of the source cluster to restore from. The latest backup suitable for `time` will be used for the restore. `time` is required. Should not be used together with `backupId`.
+//   - `time` (String). Timestamp of the moment to which the MySQL cluster should be restored. (Format: `2006-01-02T15:04:05` - UTC). Required when `sourceClusterId` is used.
+//   - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//   - `user` [Block]. To manage users, please switch to using a separate resource type `MdbMysqlUser`.
+//   - `authenticationPlugin` (String). Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH`).
+//   - `globalPermissions` (Set Of String). List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS`, `FLUSH_OPTIMIZER_COSTS`, `SHOW_ROUTINE`, `MDB_ADMIN` for clear list use empty list. If the attribute is not specified there will be no changes.
+//   - `name` (**Required**)(String). The name of the user.
+//   - `password` (**Required**)(String). The password of the user.
+//   - `connectionLimits` [Block]. User's connection limits. If not specified there will be no changes. Default value is -1. When these parameters are set to -1, backend default values will be actually used.
+//   - `maxConnectionsPerHour` (Number). Max connections per hour.
+//   - `maxQuestionsPerHour` (Number). Max questions per hour.
+//   - `maxUpdatesPerHour` (Number). Max updates per hour.
+//   - `maxUserConnections` (Number). Max user connections.
+//   - `permission` [Block]. Set of permissions granted to the user.
+//   - `databaseName` (**Required**)(String). The name of the database that the permission grants access to.
+//   - `roles` (List Of String). List user's roles in the database. Allowed roles: `ALL`,`ALTER`,`ALTER_ROUTINE`,`CREATE`,`CREATE_ROUTINE`,`CREATE_TEMPORARY_TABLES`, `CREATE_VIEW`,`DELETE`,`DROP`,`EVENT`,`EXECUTE`,`INDEX`,`INSERT`,`LOCK_TABLES`,`SELECT`,`SHOW_VIEW`,`TRIGGER`,`UPDATE`,`REFERENCES`.
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_mdb_mysql_cluster.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/mdbMysqlCluster:MdbMysqlCluster my_cluster ...
+// ```
 type MdbMysqlCluster struct {
 	pulumi.CustomResourceState
 
@@ -64,7 +586,7 @@ type MdbMysqlCluster struct {
 	PerformanceDiagnostics MdbMysqlClusterPerformanceDiagnosticsOutput `pulumi:"performanceDiagnostics"`
 	// Resources allocated to hosts of the MySQL cluster.
 	Resources MdbMysqlClusterResourcesOutput `pulumi:"resources"`
-	// The cluster will be created from the specified backup.
+	// The cluster will be created from the specified backup or source cluster.
 	Restore MdbMysqlClusterRestorePtrOutput `pulumi:"restore"`
 	// The list of security groups applied to resource or their components.
 	SecurityGroupIds pulumi.StringArrayOutput `pulumi:"securityGroupIds"`
@@ -172,7 +694,7 @@ type mdbMysqlClusterState struct {
 	PerformanceDiagnostics *MdbMysqlClusterPerformanceDiagnostics `pulumi:"performanceDiagnostics"`
 	// Resources allocated to hosts of the MySQL cluster.
 	Resources *MdbMysqlClusterResources `pulumi:"resources"`
-	// The cluster will be created from the specified backup.
+	// The cluster will be created from the specified backup or source cluster.
 	Restore *MdbMysqlClusterRestore `pulumi:"restore"`
 	// The list of security groups applied to resource or their components.
 	SecurityGroupIds []string `pulumi:"securityGroupIds"`
@@ -236,7 +758,7 @@ type MdbMysqlClusterState struct {
 	PerformanceDiagnostics MdbMysqlClusterPerformanceDiagnosticsPtrInput
 	// Resources allocated to hosts of the MySQL cluster.
 	Resources MdbMysqlClusterResourcesPtrInput
-	// The cluster will be created from the specified backup.
+	// The cluster will be created from the specified backup or source cluster.
 	Restore MdbMysqlClusterRestorePtrInput
 	// The list of security groups applied to resource or their components.
 	SecurityGroupIds pulumi.StringArrayInput
@@ -300,7 +822,7 @@ type mdbMysqlClusterArgs struct {
 	PerformanceDiagnostics *MdbMysqlClusterPerformanceDiagnostics `pulumi:"performanceDiagnostics"`
 	// Resources allocated to hosts of the MySQL cluster.
 	Resources MdbMysqlClusterResources `pulumi:"resources"`
-	// The cluster will be created from the specified backup.
+	// The cluster will be created from the specified backup or source cluster.
 	Restore *MdbMysqlClusterRestore `pulumi:"restore"`
 	// The list of security groups applied to resource or their components.
 	SecurityGroupIds []string `pulumi:"securityGroupIds"`
@@ -359,7 +881,7 @@ type MdbMysqlClusterArgs struct {
 	PerformanceDiagnostics MdbMysqlClusterPerformanceDiagnosticsPtrInput
 	// Resources allocated to hosts of the MySQL cluster.
 	Resources MdbMysqlClusterResourcesInput
-	// The cluster will be created from the specified backup.
+	// The cluster will be created from the specified backup or source cluster.
 	Restore MdbMysqlClusterRestorePtrInput
 	// The list of security groups applied to resource or their components.
 	SecurityGroupIds pulumi.StringArrayInput
@@ -573,7 +1095,7 @@ func (o MdbMysqlClusterOutput) Resources() MdbMysqlClusterResourcesOutput {
 	return o.ApplyT(func(v *MdbMysqlCluster) MdbMysqlClusterResourcesOutput { return v.Resources }).(MdbMysqlClusterResourcesOutput)
 }
 
-// The cluster will be created from the specified backup.
+// The cluster will be created from the specified backup or source cluster.
 func (o MdbMysqlClusterOutput) Restore() MdbMysqlClusterRestorePtrOutput {
 	return o.ApplyT(func(v *MdbMysqlCluster) MdbMysqlClusterRestorePtrOutput { return v.Restore }).(MdbMysqlClusterRestorePtrOutput)
 }

@@ -7,10 +7,67 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex VPC Private Endpoint. For more information, see [Yandex Cloud VPC](https://yandex.cloud/docs/vpc/concepts/index).
+//
+// This data source is used to define [VPC Private Endpoint](https://yandex.cloud/docs/vpc/concepts/private-endpoint) that can be used by other resources.
+//
+// > One of `privateEndpointId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			pe, err := yandex.GetVpcPrivateEndpoint(ctx, &yandex.LookupVpcPrivateEndpointArgs{
+//				PrivateEndpointId: pulumi.StringRef("my-private-endpoint-id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("dnsRecordFqdn", pe.DnsRecords[0].Name)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `dnsOptions` (*Read-Only*) (List Of Object).
+//   - `privateDnsRecordsEnabled` .
+//
+// - `dnsRecords` (*Read-Only*) (List Of Object).
+//   - `name` .
+//
+// - `endpointAddress` (*Read-Only*) (List Of Object).
+//   - `address` .
+//   - `addressId` .
+//   - `subnetId` .
+//
+// - `folderId` (*Read-Only*) (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `networkId` (*Read-Only*) (String). ID of the network which private endpoint belongs to.
+// - `privateEndpointId` (String). ID of the private endpoint.
+// - `serviceName` (String). Name of the cloud service to access through the private endpoint (e.g. `yandex.cloud.storage`).
+// - `status` (*Read-Only*) (String). Status of the private endpoint.
+// - `objectStorage` [Block]. Private endpoint for Object Storage.
 func LookupVpcPrivateEndpoint(ctx *pulumi.Context, args *LookupVpcPrivateEndpointArgs, opts ...pulumi.InvokeOption) (*LookupVpcPrivateEndpointResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupVpcPrivateEndpointResult
@@ -26,6 +83,7 @@ type LookupVpcPrivateEndpointArgs struct {
 	Name              *string                              `pulumi:"name"`
 	ObjectStorages    []GetVpcPrivateEndpointObjectStorage `pulumi:"objectStorages"`
 	PrivateEndpointId *string                              `pulumi:"privateEndpointId"`
+	ServiceName       *string                              `pulumi:"serviceName"`
 }
 
 // A collection of values returned by getVpcPrivateEndpoint.
@@ -33,6 +91,7 @@ type LookupVpcPrivateEndpointResult struct {
 	CreatedAt         string                                 `pulumi:"createdAt"`
 	Description       string                                 `pulumi:"description"`
 	DnsOptions        []GetVpcPrivateEndpointDnsOption       `pulumi:"dnsOptions"`
+	DnsRecords        []GetVpcPrivateEndpointDnsRecord       `pulumi:"dnsRecords"`
 	EndpointAddresses []GetVpcPrivateEndpointEndpointAddress `pulumi:"endpointAddresses"`
 	FolderId          string                                 `pulumi:"folderId"`
 	// The provider-assigned unique ID for this managed resource.
@@ -42,6 +101,7 @@ type LookupVpcPrivateEndpointResult struct {
 	NetworkId         string                               `pulumi:"networkId"`
 	ObjectStorages    []GetVpcPrivateEndpointObjectStorage `pulumi:"objectStorages"`
 	PrivateEndpointId string                               `pulumi:"privateEndpointId"`
+	ServiceName       *string                              `pulumi:"serviceName"`
 	Status            string                               `pulumi:"status"`
 }
 
@@ -59,6 +119,7 @@ type LookupVpcPrivateEndpointOutputArgs struct {
 	Name              pulumi.StringPtrInput                        `pulumi:"name"`
 	ObjectStorages    GetVpcPrivateEndpointObjectStorageArrayInput `pulumi:"objectStorages"`
 	PrivateEndpointId pulumi.StringPtrInput                        `pulumi:"privateEndpointId"`
+	ServiceName       pulumi.StringPtrInput                        `pulumi:"serviceName"`
 }
 
 func (LookupVpcPrivateEndpointOutputArgs) ElementType() reflect.Type {
@@ -90,6 +151,10 @@ func (o LookupVpcPrivateEndpointResultOutput) Description() pulumi.StringOutput 
 
 func (o LookupVpcPrivateEndpointResultOutput) DnsOptions() GetVpcPrivateEndpointDnsOptionArrayOutput {
 	return o.ApplyT(func(v LookupVpcPrivateEndpointResult) []GetVpcPrivateEndpointDnsOption { return v.DnsOptions }).(GetVpcPrivateEndpointDnsOptionArrayOutput)
+}
+
+func (o LookupVpcPrivateEndpointResultOutput) DnsRecords() GetVpcPrivateEndpointDnsRecordArrayOutput {
+	return o.ApplyT(func(v LookupVpcPrivateEndpointResult) []GetVpcPrivateEndpointDnsRecord { return v.DnsRecords }).(GetVpcPrivateEndpointDnsRecordArrayOutput)
 }
 
 func (o LookupVpcPrivateEndpointResultOutput) EndpointAddresses() GetVpcPrivateEndpointEndpointAddressArrayOutput {
@@ -125,6 +190,10 @@ func (o LookupVpcPrivateEndpointResultOutput) ObjectStorages() GetVpcPrivateEndp
 
 func (o LookupVpcPrivateEndpointResultOutput) PrivateEndpointId() pulumi.StringOutput {
 	return o.ApplyT(func(v LookupVpcPrivateEndpointResult) string { return v.PrivateEndpointId }).(pulumi.StringOutput)
+}
+
+func (o LookupVpcPrivateEndpointResultOutput) ServiceName() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v LookupVpcPrivateEndpointResult) *string { return v.ServiceName }).(pulumi.StringPtrOutput)
 }
 
 func (o LookupVpcPrivateEndpointResultOutput) Status() pulumi.StringOutput {

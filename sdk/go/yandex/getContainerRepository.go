@@ -7,13 +7,52 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
-func GetContainerRepository(ctx *pulumi.Context, args *GetContainerRepositoryArgs, opts ...pulumi.InvokeOption) (*GetContainerRepositoryResult, error) {
+// Get information about a Yandex Container Repository. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/repository).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetContainerRepository(ctx, &yandex.LookupContainerRepositoryArgs{
+//				Name: pulumi.StringRef("some_repository_name"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.GetContainerRepository(ctx, &yandex.LookupContainerRepositoryArgs{
+//				RepositoryId: pulumi.StringRef("some_repository_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `id` (String).
+// - `name` (String). A name of the repository. The name of the repository should start with id of a container registry and match the name of the images that will be pushed in the repository.
+// - `repositoryId` (String). The ID of a specific repository.
+func LookupContainerRepository(ctx *pulumi.Context, args *LookupContainerRepositoryArgs, opts ...pulumi.InvokeOption) (*LookupContainerRepositoryResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
-	var rv GetContainerRepositoryResult
+	var rv LookupContainerRepositoryResult
 	err := ctx.Invoke("yandex:index/getContainerRepository:getContainerRepository", args, &rv, opts...)
 	if err != nil {
 		return nil, err
@@ -22,66 +61,66 @@ func GetContainerRepository(ctx *pulumi.Context, args *GetContainerRepositoryArg
 }
 
 // A collection of arguments for invoking getContainerRepository.
-type GetContainerRepositoryArgs struct {
+type LookupContainerRepositoryArgs struct {
 	Name         *string `pulumi:"name"`
 	RepositoryId *string `pulumi:"repositoryId"`
 }
 
 // A collection of values returned by getContainerRepository.
-type GetContainerRepositoryResult struct {
+type LookupContainerRepositoryResult struct {
 	// The provider-assigned unique ID for this managed resource.
 	Id           string `pulumi:"id"`
 	Name         string `pulumi:"name"`
 	RepositoryId string `pulumi:"repositoryId"`
 }
 
-func GetContainerRepositoryOutput(ctx *pulumi.Context, args GetContainerRepositoryOutputArgs, opts ...pulumi.InvokeOption) GetContainerRepositoryResultOutput {
+func LookupContainerRepositoryOutput(ctx *pulumi.Context, args LookupContainerRepositoryOutputArgs, opts ...pulumi.InvokeOption) LookupContainerRepositoryResultOutput {
 	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetContainerRepositoryResultOutput, error) {
-			args := v.(GetContainerRepositoryArgs)
+		ApplyT(func(v interface{}) (LookupContainerRepositoryResultOutput, error) {
+			args := v.(LookupContainerRepositoryArgs)
 			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("yandex:index/getContainerRepository:getContainerRepository", args, GetContainerRepositoryResultOutput{}, options).(GetContainerRepositoryResultOutput), nil
-		}).(GetContainerRepositoryResultOutput)
+			return ctx.InvokeOutput("yandex:index/getContainerRepository:getContainerRepository", args, LookupContainerRepositoryResultOutput{}, options).(LookupContainerRepositoryResultOutput), nil
+		}).(LookupContainerRepositoryResultOutput)
 }
 
 // A collection of arguments for invoking getContainerRepository.
-type GetContainerRepositoryOutputArgs struct {
+type LookupContainerRepositoryOutputArgs struct {
 	Name         pulumi.StringPtrInput `pulumi:"name"`
 	RepositoryId pulumi.StringPtrInput `pulumi:"repositoryId"`
 }
 
-func (GetContainerRepositoryOutputArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetContainerRepositoryArgs)(nil)).Elem()
+func (LookupContainerRepositoryOutputArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupContainerRepositoryArgs)(nil)).Elem()
 }
 
 // A collection of values returned by getContainerRepository.
-type GetContainerRepositoryResultOutput struct{ *pulumi.OutputState }
+type LookupContainerRepositoryResultOutput struct{ *pulumi.OutputState }
 
-func (GetContainerRepositoryResultOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetContainerRepositoryResult)(nil)).Elem()
+func (LookupContainerRepositoryResultOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupContainerRepositoryResult)(nil)).Elem()
 }
 
-func (o GetContainerRepositoryResultOutput) ToGetContainerRepositoryResultOutput() GetContainerRepositoryResultOutput {
+func (o LookupContainerRepositoryResultOutput) ToLookupContainerRepositoryResultOutput() LookupContainerRepositoryResultOutput {
 	return o
 }
 
-func (o GetContainerRepositoryResultOutput) ToGetContainerRepositoryResultOutputWithContext(ctx context.Context) GetContainerRepositoryResultOutput {
+func (o LookupContainerRepositoryResultOutput) ToLookupContainerRepositoryResultOutputWithContext(ctx context.Context) LookupContainerRepositoryResultOutput {
 	return o
 }
 
 // The provider-assigned unique ID for this managed resource.
-func (o GetContainerRepositoryResultOutput) Id() pulumi.StringOutput {
-	return o.ApplyT(func(v GetContainerRepositoryResult) string { return v.Id }).(pulumi.StringOutput)
+func (o LookupContainerRepositoryResultOutput) Id() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupContainerRepositoryResult) string { return v.Id }).(pulumi.StringOutput)
 }
 
-func (o GetContainerRepositoryResultOutput) Name() pulumi.StringOutput {
-	return o.ApplyT(func(v GetContainerRepositoryResult) string { return v.Name }).(pulumi.StringOutput)
+func (o LookupContainerRepositoryResultOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupContainerRepositoryResult) string { return v.Name }).(pulumi.StringOutput)
 }
 
-func (o GetContainerRepositoryResultOutput) RepositoryId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetContainerRepositoryResult) string { return v.RepositoryId }).(pulumi.StringOutput)
+func (o LookupContainerRepositoryResultOutput) RepositoryId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupContainerRepositoryResult) string { return v.RepositoryId }).(pulumi.StringOutput)
 }
 
 func init() {
-	pulumi.RegisterOutputType(GetContainerRepositoryResultOutput{})
+	pulumi.RegisterOutputType(LookupContainerRepositoryResultOutput{})
 }

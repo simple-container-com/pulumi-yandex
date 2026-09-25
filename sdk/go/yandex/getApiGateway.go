@@ -7,10 +7,73 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Cloud API Gateway. For more information, see the official documentation [Yandex Cloud API Gateway](https://yandex.cloud/docs/api-gateway/).
+//
+// > Either `apiGatewayId` or `name` must be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetApiGateway(ctx, &yandex.LookupApiGatewayArgs{
+//				Name: pulumi.StringRef("my-api-gateway"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `apiGatewayId` (String). Yandex Cloud API Gateway id used to define api gateway.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `domain` (*Read-Only*) (String). Default domain for the Yandex Cloud API Gateway. Generated at creation time.
+// - `executionTimeout` (String). Execution timeout in seconds for the Yandex Cloud API Gateway.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `logGroupId` (*Read-Only*) (String). ID of the log group for the Yandex Cloud API Gateway.
+// - `logOptions` (*Read-Only*) (List Of Object).
+//   - `disabled` .
+//   - `folderId` .
+//   - `logGroupId` .
+//   - `minLevel` .
+//
+// - `name` (String). The resource name.
+// - `status` (*Read-Only*) (String). Status of the Yandex Cloud API Gateway.
+// - `userDomains` (*Read-Only*) (Set Of String). > **DEPRECATED** Use `customDomains` instead. Set of user domains attached to Yandex Cloud API Gateway.
+//
+// - `variables` (Map Of String). A set of values for variables in gateway specification.
+// - `canary` [Block].
+//   - `variables` (Map Of String).
+//   - `weight` (Number).
+//
+// - `connectivity` [Block].
+//   - `networkId` (**Required**)(String).
+//
+// - `customDomains` [Block].
+//   - `certificateId` (**Required**)(String).
+//   - `domainId` (String).
+//   - `fqdn` (**Required**)(String).
 func LookupApiGateway(ctx *pulumi.Context, args *LookupApiGatewayArgs, opts ...pulumi.InvokeOption) (*LookupApiGatewayResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupApiGatewayResult

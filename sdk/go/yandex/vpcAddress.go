@@ -7,10 +7,165 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a address within the Yandex Cloud. You can only create a reserved (static) address via this resource. An ephemeral address could be obtained via implicit creation at a compute instance creation only. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/address).
+//
+// * How-to Guides
+//   - [Cloud Networking](https://yandex.cloud/docs/vpc/)
+//   - [VPC Addressing](https://yandex.cloud/docs/vpc/concepts/address)
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new VPC regular IPv4 Address.
+//			_, err := yandex.NewVpcAddress(ctx, "addr", &yandex.VpcAddressArgs{
+//				ExternalIpv4Address: &yandex.VpcAddressExternalIpv4AddressArgs{
+//					ZoneId: pulumi.String("ru-central1-a"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new VPC IPv4 Address with DDoS Protection.
+//			_, err := yandex.NewVpcAddress(ctx, "vpnaddr", &yandex.VpcAddressArgs{
+//				ExternalIpv4Address: &yandex.VpcAddressExternalIpv4AddressArgs{
+//					DdosProtectionProvider: pulumi.String("qrator"),
+//					ZoneId:                 pulumi.String("ru-central1-a"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources for VPC Address
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-a"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.5.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new VPC internal IPv4 Address.
+//			// The address can be used in compute_instance, vpc_private_endpoint or lb_network_load_balancer resources.
+//			_, err = yandex.NewVpcAddress(ctx, "internalAddr", &yandex.VpcAddressArgs{
+//				InternalIpv4Address: &yandex.VpcAddressInternalIpv4AddressArgs{
+//					SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `reserved` (*Read-Only*) (Bool). `false` means that address is ephemeral.
+// - `used` (*Read-Only*) (Bool). `true` if address is used.
+// - `dnsRecord` [Block]. DNS record specification of address.
+//   - `dnsZoneId` (**Required**)(String). DNS zone id to create record at.
+//   - `fqdn` (**Required**)(String). FQDN for record to address.
+//   - `ptr` (Bool). If PTR record is needed.
+//   - `ttl` (Number). TTL of DNS record.
+//
+// - `externalIpv4Address` [Block]. Specification of IPv4 address.
+//
+// > Either one `address` or `zoneId` arguments can be specified.
+//
+// > Either one `ddosProtectionProvider` or `outgoingSmtpCapability` arguments can be specified.
+//
+// > Change any argument in `externalIpv4Address` will cause an address recreate.
+//
+//   - `address` (*Read-Only*) (String). Allocated IP address.
+//   - `ddosProtectionProvider` (String). Enable DDOS protection. Possible values are: `qrator`
+//   - `outgoingSmtpCapability` (String). Wanted outgoing smtp capability.
+//   - `zoneId` (String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+//
+// - `internalIpv4Address` [Block]. Specification of internal IPv4 address.
+//
+// > Change any argument in `internalIpv4Address` will cause an address recreate.
+//
+//   - `address` (String). Allocated IP address. If not specified, an address will be automatically allocated from the subnet.
+//   - `subnetId` (**Required**)(String). Subnet ID from which the address will be allocated.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_vpc_address.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/vpcAddress:VpcAddress addr ...
+// ```
 type VpcAddress struct {
 	pulumi.CustomResourceState
 
@@ -32,6 +187,10 @@ type VpcAddress struct {
 	ExternalIpv4Address VpcAddressExternalIpv4AddressPtrOutput `pulumi:"externalIpv4Address"`
 	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 	FolderId pulumi.StringOutput `pulumi:"folderId"`
+	// Specification of internal IPv4 address.
+	//
+	// > Change any argument in `internalIpv4Address` will cause an address recreate.
+	InternalIpv4Address VpcAddressInternalIpv4AddressPtrOutput `pulumi:"internalIpv4Address"`
 	// A set of key/value label pairs which assigned to resource.
 	Labels pulumi.StringMapOutput `pulumi:"labels"`
 	// The resource name.
@@ -90,6 +249,10 @@ type vpcAddressState struct {
 	ExternalIpv4Address *VpcAddressExternalIpv4Address `pulumi:"externalIpv4Address"`
 	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 	FolderId *string `pulumi:"folderId"`
+	// Specification of internal IPv4 address.
+	//
+	// > Change any argument in `internalIpv4Address` will cause an address recreate.
+	InternalIpv4Address *VpcAddressInternalIpv4Address `pulumi:"internalIpv4Address"`
 	// A set of key/value label pairs which assigned to resource.
 	Labels map[string]string `pulumi:"labels"`
 	// The resource name.
@@ -119,6 +282,10 @@ type VpcAddressState struct {
 	ExternalIpv4Address VpcAddressExternalIpv4AddressPtrInput
 	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 	FolderId pulumi.StringPtrInput
+	// Specification of internal IPv4 address.
+	//
+	// > Change any argument in `internalIpv4Address` will cause an address recreate.
+	InternalIpv4Address VpcAddressInternalIpv4AddressPtrInput
 	// A set of key/value label pairs which assigned to resource.
 	Labels pulumi.StringMapInput
 	// The resource name.
@@ -150,6 +317,10 @@ type vpcAddressArgs struct {
 	ExternalIpv4Address *VpcAddressExternalIpv4Address `pulumi:"externalIpv4Address"`
 	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 	FolderId *string `pulumi:"folderId"`
+	// Specification of internal IPv4 address.
+	//
+	// > Change any argument in `internalIpv4Address` will cause an address recreate.
+	InternalIpv4Address *VpcAddressInternalIpv4Address `pulumi:"internalIpv4Address"`
 	// A set of key/value label pairs which assigned to resource.
 	Labels map[string]string `pulumi:"labels"`
 	// The resource name.
@@ -174,6 +345,10 @@ type VpcAddressArgs struct {
 	ExternalIpv4Address VpcAddressExternalIpv4AddressPtrInput
 	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 	FolderId pulumi.StringPtrInput
+	// Specification of internal IPv4 address.
+	//
+	// > Change any argument in `internalIpv4Address` will cause an address recreate.
+	InternalIpv4Address VpcAddressInternalIpv4AddressPtrInput
 	// A set of key/value label pairs which assigned to resource.
 	Labels pulumi.StringMapInput
 	// The resource name.
@@ -301,6 +476,13 @@ func (o VpcAddressOutput) ExternalIpv4Address() VpcAddressExternalIpv4AddressPtr
 // The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 func (o VpcAddressOutput) FolderId() pulumi.StringOutput {
 	return o.ApplyT(func(v *VpcAddress) pulumi.StringOutput { return v.FolderId }).(pulumi.StringOutput)
+}
+
+// Specification of internal IPv4 address.
+//
+// > Change any argument in `internalIpv4Address` will cause an address recreate.
+func (o VpcAddressOutput) InternalIpv4Address() VpcAddressInternalIpv4AddressPtrOutput {
+	return o.ApplyT(func(v *VpcAddress) VpcAddressInternalIpv4AddressPtrOutput { return v.InternalIpv4Address }).(VpcAddressInternalIpv4AddressPtrOutput)
 }
 
 // A set of key/value label pairs which assigned to resource.

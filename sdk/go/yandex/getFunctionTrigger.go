@@ -7,10 +7,141 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Cloud Function Trigger. For more information about Yandex Cloud Functions, see [Yandex Cloud Functions](https://yandex.cloud/docs/functions/).
+//
+// This data source is used to define [Yandex Cloud Functions Trigger](https://yandex.cloud/docs/functions/concepts/trigger) that can be used by other resources.
+//
+// > Either `triggerId` or `name` must be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetFunctionTrigger(ctx, &yandex.LookupFunctionTriggerArgs{
+//				TriggerId: pulumi.StringRef("a1scn**********3ur32"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `container` (*Read-Only*) (List Of Object). [Yandex Cloud Serverless Container](https://yandex.cloud/docs/serverless-containers/concepts/container) settings definition for Yandex Cloud Functions Trigger.
+//   - `id` .
+//   - `path` .
+//   - `retryAttempts` .
+//   - `retryInterval` .
+//   - `serviceAccountId` .
+//
+// - `containerRegistry` (*Read-Only*) (List Of Object). [Container Registry](https://yandex.cloud/docs/functions/concepts/trigger/cr-trigger) settings definition for Yandex Cloud Functions Trigger, if present.
+//   - `batchCutoff` .
+//   - `batchSize` .
+//   - `createImage` .
+//   - `createImageTag` .
+//   - `deleteImage` .
+//   - `deleteImageTag` .
+//   - `imageName` .
+//   - `registryId` .
+//   - `tag` .
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `dataStreams` (*Read-Only*) (List Of Object). [Data Streams](https://yandex.cloud/docs/functions/concepts/trigger/data-streams-trigger) settings definition for Yandex Cloud Functions Trigger, if present.
+//   - `batchCutoff` .
+//   - `batchSize` .
+//   - `database` .
+//   - `serviceAccountId` .
+//   - `streamName` .
+//   - `suffix` .
+//
+// - `description` (*Read-Only*) (String). The resource description.
+// - `dlq` (*Read-Only*) (List Of Object). Dead Letter Queue (DLQ) settings definition for Yandex Cloud Functions Trigger.
+//   - `queueId` .
+//   - `serviceAccountId` .
+//
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `function` (*Read-Only*) (List Of Object). [Yandex Cloud Function](https://yandex.cloud/docs/functions/concepts/function) settings definition for Yandex Cloud Functions Trigger.
+//   - `id` .
+//   - `retryAttempts` .
+//   - `retryInterval` .
+//   - `serviceAccountId` .
+//   - `tag` .
+//
+// - `id` (String).
+// - `iot` (*Read-Only*) (List Of Object). [IoT](https://yandex.cloud/docs/functions/concepts/trigger/iot-core-trigger) settings definition for Yandex Cloud Functions Trigger, if present. Only one section `iot` or `messageQueue`.
+//   - `batchCutoff` .
+//   - `batchSize` .
+//   - `deviceId` .
+//   - `registryId` .
+//   - `topic` .
+//
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `logGroup` (*Read-Only*) (List Of Object). Deprecated Logging settings definition for Yandex Cloud Functions Trigger. Please, use logging instead.
+//   - `batchCutoff` .
+//   - `batchSize` .
+//   - `logGroupIds` .
+//
+// - `logging` (*Read-Only*) (List Of Object). [Logging](https://yandex.cloud/docs/functions/concepts/trigger/cloud-logging-trigger) settings definition for Yandex Cloud Functions Trigger, if present.
+//   - `batchCutoff` .
+//   - `batchSize` .
+//   - `groupId` .
+//   - `levels` .
+//   - `resourceIds` .
+//   - `resourceTypes` .
+//   - `streamNames` .
+//
+// - `mail` (*Read-Only*) (List Of Object). [Mail](https://yandex.cloud/docs/functions/concepts/trigger/mail-trigger) settings definition for Yandex Cloud Functions Trigger, if present.
+//   - `attachmentsBucketId` .
+//   - `batchCutoff` .
+//   - `batchSize` .
+//   - `serviceAccountId` .
+//
+// - `messageQueue` (*Read-Only*) (List Of Object). [Message Queue](https://yandex.cloud/docs/functions/concepts/trigger/ymq-trigger) settings definition for Yandex Cloud Functions Trigger, if present.
+//   - `batchCutoff` .
+//   - `batchSize` .
+//   - `queueId` .
+//   - `serviceAccountId` .
+//   - `visibilityTimeout` .
+//
+// - `name` (String). The resource name.
+// - `objectStorage` (*Read-Only*) (List Of Object). [Object Storage](https://yandex.cloud/docs/functions/concepts/trigger/os-trigger) settings definition for Yandex Cloud Functions Trigger, if present.
+//   - `batchCutoff` .
+//   - `batchSize` .
+//   - `bucketId` .
+//   - `create` .
+//   - `delete` .
+//   - `prefix` .
+//   - `suffix` .
+//   - `update` .
+//
+// - `timer` (*Read-Only*) (List Of Object). [Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present.
+//   - `cronExpression` .
+//   - `payload` .
+//
+// - `triggerId` (String). Yandex Cloud Functions Trigger id used to define trigger.
+// - `workflow` (*Read-Only*) (List Of Object). Workflows settings definition for Yandex Cloud Functions Trigger.
+//   - `id` .
+//   - `retryAttempts` .
+//   - `retryInterval` .
+//   - `serviceAccountId` .
 func LookupFunctionTrigger(ctx *pulumi.Context, args *LookupFunctionTriggerArgs, opts ...pulumi.InvokeOption) (*LookupFunctionTriggerResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupFunctionTriggerResult
@@ -50,6 +181,7 @@ type LookupFunctionTriggerResult struct {
 	ObjectStorages []GetFunctionTriggerObjectStorage `pulumi:"objectStorages"`
 	Timers         []GetFunctionTriggerTimer         `pulumi:"timers"`
 	TriggerId      *string                           `pulumi:"triggerId"`
+	Workflows      []GetFunctionTriggerWorkflow      `pulumi:"workflows"`
 }
 
 func LookupFunctionTriggerOutput(ctx *pulumi.Context, args LookupFunctionTriggerOutputArgs, opts ...pulumi.InvokeOption) LookupFunctionTriggerResultOutput {
@@ -164,6 +296,10 @@ func (o LookupFunctionTriggerResultOutput) Timers() GetFunctionTriggerTimerArray
 
 func (o LookupFunctionTriggerResultOutput) TriggerId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v LookupFunctionTriggerResult) *string { return v.TriggerId }).(pulumi.StringPtrOutput)
+}
+
+func (o LookupFunctionTriggerResultOutput) Workflows() GetFunctionTriggerWorkflowArrayOutput {
+	return o.ApplyT(func(v LookupFunctionTriggerResult) []GetFunctionTriggerWorkflow { return v.Workflows }).(GetFunctionTriggerWorkflowArrayOutput)
 }
 
 func init() {

@@ -8,10 +8,258 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a Greenplum cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-greenplum/).
+//
+// Please read [Pricing for Managed Service for Greenplum](https://yandex.cloud/docs/managed-greenplum/) before using Greenplum cluster.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-a"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.5.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			test_sg_x, err := yandex.NewVpcSecurityGroup(ctx, "test-sg-x", &yandex.VpcSecurityGroupArgs{
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Ingresses: yandex.VpcSecurityGroupIngressArray{
+//					&yandex.VpcSecurityGroupIngressArgs{
+//						Protocol:    pulumi.String("ANY"),
+//						Description: pulumi.String("Allow incoming traffic from members of the same security group"),
+//						FromPort:    pulumi.Int(0),
+//						ToPort:      pulumi.Int(65535),
+//						V4CidrBlocks: pulumi.StringArray{
+//							pulumi.String("0.0.0.0/0"),
+//						},
+//					},
+//				},
+//				Egresses: yandex.VpcSecurityGroupEgressArray{
+//					&yandex.VpcSecurityGroupEgressArgs{
+//						Protocol:    pulumi.String("ANY"),
+//						Description: pulumi.String("Allow outgoing traffic to members of the same security group"),
+//						FromPort:    pulumi.Int(0),
+//						ToPort:      pulumi.Int(65535),
+//						V4CidrBlocks: pulumi.StringArray{
+//							pulumi.String("0.0.0.0/0"),
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB Greenplum Cluster.
+//			_, err = yandex.NewMdbGreenplumCluster(ctx, "myCluster", &yandex.MdbGreenplumClusterArgs{
+//				Description:      pulumi.String("test greenplum cluster"),
+//				Environment:      pulumi.String("PRESTABLE"),
+//				NetworkId:        fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Zone:             pulumi.String("ru-central1-a"),
+//				SubnetId:         fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//				AssignPublicIp:   pulumi.Bool(true),
+//				Version:          pulumi.String("6.29"),
+//				MasterHostCount:  pulumi.Int(2),
+//				SegmentHostCount: pulumi.Int(5),
+//				SegmentInHost:    pulumi.Int(1),
+//				MasterSubcluster: &yandex.MdbGreenplumClusterMasterSubclusterArgs{
+//					Resources: &yandex.MdbGreenplumClusterMasterSubclusterResourcesArgs{
+//						ResourcePresetId: pulumi.String("s2.micro"),
+//						DiskSize:         pulumi.Int(24),
+//						DiskTypeId:       pulumi.String("network-ssd"),
+//					},
+//				},
+//				SegmentSubcluster: &yandex.MdbGreenplumClusterSegmentSubclusterArgs{
+//					Resources: &yandex.MdbGreenplumClusterSegmentSubclusterResourcesArgs{
+//						ResourcePresetId: pulumi.String("s2.micro"),
+//						DiskSize:         pulumi.Int(24),
+//						DiskTypeId:       pulumi.String("network-ssd"),
+//					},
+//				},
+//				Access: &yandex.MdbGreenplumClusterAccessArgs{
+//					WebSql: pulumi.Bool(true),
+//				},
+//				GreenplumConfig: pulumi.StringMap{
+//					"max_connections":                      pulumi.String("395"),
+//					"max_slot_wal_keep_size":               pulumi.String("1048576"),
+//					"gp_workfile_limit_per_segment":        pulumi.String("0"),
+//					"gp_workfile_limit_per_query":          pulumi.String("0"),
+//					"gp_workfile_limit_files_per_query":    pulumi.String("100000"),
+//					"max_prepared_transactions":            pulumi.String("500"),
+//					"gp_workfile_compression":              pulumi.String("false"),
+//					"max_statement_mem":                    pulumi.String("2147483648"),
+//					"log_statement":                        pulumi.String("2"),
+//					"gp_add_column_inherits_table_setting": pulumi.String("true"),
+//					"gp_enable_global_deadlock_detector":   pulumi.String("true"),
+//					"gp_global_deadlock_detector_period":   pulumi.String("120"),
+//				},
+//				UserName:     pulumi.String("admin_user"),
+//				UserPassword: pulumi.String("your_super_secret_password"),
+//				SecurityGroupIds: pulumi.StringArray{
+//					test_sg_x.ID().ToIDOutput().ToStringOutput(),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `assignPublicIp` (**Required**)(Bool). Sets whether the master hosts should get a public IP address on creation. Changing this parameter for an existing host is not supported at the moment.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `diskEncryptionKeyId` (String). ID of the KMS key used for cluster disk encryption. Encryption can` t be disabled for an existing cluster. If the source cluster is encrypted and you leave this field empty when restoring, the restored cluster will be created without encryption. This parameter only works when both master and segment hosts use  `local-ssd` disks. Changing this value requires recreating the cluster. The key is preserved in Terraform state but cannot currently be read from the API, including during import.
+// - `environment` (**Required**)(String). Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `greenplumConfig` (Map Of String). Greenplum cluster config. Detail info in `Greenplum cluster settings` block.
+// - `health` (*Read-Only*) (String). Aggregated health of the cluster.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `masterHostCount` (**Required**)(Number). Number of hosts in master subcluster (1 or 2).
+// - `masterHostGroupIds` (Set Of String). A list of IDs of the host groups to place master subclusters' VMs of the cluster on.
+// - `masterHosts` (*Read-Only*) (List Of Object). Info about hosts in master subcluster.
+//   - `assignPublicIp` .
+//   - `fqdn` .
+//
+// - `name` (**Required**)(String). The resource name.
+// - `networkId` (**Required**)(String). The `VPC Network ID` of subnets which resource attached to.
+// - `securityGroupIds` (Set Of String). The list of security groups applied to resource or their components.
+// - `segmentHostCount` (**Required**)(Number). Number of hosts in segment subcluster (from 1 to 32).
+// - `segmentHostGroupIds` (Set Of String). A list of IDs of the host groups to place segment subclusters' VMs of the cluster on.
+// - `segmentHosts` (*Read-Only*) (List Of Object). Info about hosts in segment subcluster.
+//   - `fqdn` .
+//
+// - `segmentInHost` (**Required**)(Number). Number of segments on segment host (not more then 1 + RAM/8).
+// - `serviceAccountId` (String). ID of service account to use with Yandex Cloud resources (e.g. S3, Cloud Logging).
+// - `status` (*Read-Only*) (String). Status of the cluster.
+// - `subnetId` (**Required**)(String). The ID of the subnet, to which the hosts belongs. The subnet must be a part of the network to which the cluster belongs.
+// - `userName` (**Required**)(String). Greenplum cluster admin user name.
+// - `userPassword` (String). Greenplum cluster admin password.
+// - `userPasswordWo` (String). Greenplum cluster admin password. This attribute is write-only and is not stored in state. Requires `userPasswordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+// - `userPasswordWoVersion` (Number). A version number for the write-only password. Increment this to trigger a password update.
+// - `version` (**Required**)(String). Version of the Greenplum cluster.
+// - `zone` (**Required**)(String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+// - `access` [Block]. Access policy to the Greenplum cluster.
+//   - `dataLens` (Bool). Allow access for [Yandex DataLens](https://yandex.cloud/services/datalens).
+//   - `dataTransfer` (Bool). Allow access for [DataTransfer](https://yandex.cloud/services/data-transfer)
+//   - `webSql` (Bool). Allows access for [SQL queries in the management console](https://yandex.cloud/docs/managed-mysql/operations/web-sql-query).
+//   - `yandexQuery` (Bool). Allow access for [Yandex Query](https://yandex.cloud/services/query)
+//
+// - `backgroundActivities` [Block]. Background activities settings.
+//   - `analyzeAndVacuum` [Block]. Block to configure 'ANALYZE' and 'VACUUM' daily operations.
+//   - `analyzeTimeout` (Number). Maximum duration of the `ANALYZE` operation, in seconds. The default value is `36000`. As soon as this period expires, the `ANALYZE` operation will be forced to terminate.
+//   - `startTime` (String). Time of day in 'HH:MM' format when scripts should run.
+//   - `vacuumTimeout` (Number). Maximum duration of the `VACUUM` operation, in seconds. The default value is `36000`. As soon as this period expires, the `VACUUM` operation will be forced to terminate.
+//   - `queryKillerIdle` [Block]. Block to configure script that kills long running queries that are in `idle` state.
+//   - `enable` (Bool). Flag that indicates whether script is enabled.
+//   - `ignoreUsers` (List Of String). List of users to ignore when considering queries to terminate.
+//   - `maxAge` (Number). Maximum duration for this type of queries (in seconds).
+//   - `queryKillerIdleInTransaction` [Block]. Block to configure script that kills long running queries that are in `idle in transaction` state.
+//   - `enable` (Bool). Flag that indicates whether script is enabled.
+//   - `ignoreUsers` (List Of String). List of users to ignore when considering queries to terminate.
+//   - `maxAge` (Number). Maximum duration for this type of queries (in seconds).
+//   - `queryKillerLongRunning` [Block]. Block to configure script that kills long running queries (in any state).
+//   - `enable` (Bool). Flag that indicates whether script is enabled.
+//   - `ignoreUsers` (List Of String). List of users to ignore when considering queries to terminate.
+//   - `maxAge` (Number). Maximum duration for this type of queries (in seconds).
+//
+// - `backupWindowStart` [Block]. Time to start the daily backup, in the UTC timezone.
+//   - `hours` (Number). The hour at which backup will be started (UTC).
+//   - `minutes` (Number). The minute at which backup will be started (UTC).
+//
+// - `cloudStorage` [Block]. Cloud Storage settings of the Greenplum cluster.
+//   - `enable` (Bool). Whether to use cloud storage or not.
+//
+// - `logging` [Block]. Cloud Logging settings.
+//   - `commandCenterEnabled` (Bool). Deliver Yandex Command Center's logs to Cloud Logging.
+//   - `enabled` (Bool). Flag that indicates whether log delivery to Cloud Logging is enabled.
+//   - `folderId` (String). ID of folder to which deliver logs.
+//   - `greenplumEnabled` (Bool). Deliver Greenplum's logs to Cloud Logging.
+//   - `logGroupId` (String). Cloud Logging group ID to send logs to.
+//   - `poolerEnabled` (Bool). Deliver connection pooler's logs to Cloud Logging.
+//
+// - `maintenanceWindow` [Block]. Maintenance policy of the Greenplum cluster.
+//   - `day` (String). Day of the week (in `DDD` format). Allowed values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
+//   - `hour` (Number). Hour of the day in UTC (in `HH` format). Allowed value is between 0 and 23.
+//   - `type` (**Required**)(String). Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+//
+// - `masterSubcluster` [Block]. Settings for master subcluster.
+//   - `resources` [Block]. Resources allocated to hosts for master subcluster of the Greenplum cluster.
+//   - `diskSize` (**Required**)(Number). Volume of the storage available to a host, in gigabytes.
+//   - `diskTypeId` (**Required**)(String). Type of the storage of Greenplum hosts - environment default is used if missing.
+//   - `resourcePresetId` (**Required**)(String). The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/ru/docs/managed-greenplum/concepts/instance-types).
+//
+// - `poolerConfig` [Block]. Configuration of the connection pooler.
+//   - `poolClientIdleTimeout` (Number). Value for `poolClientIdleTimeout` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool_client_idle_timeout).
+//   - `poolIdleInTransactionTimeout` (Number). Value for `poolIdleInTransactionTimeout` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool_idle_in_transaction_timeout).
+//   - `poolSize` (Number). Value for `poolSize` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool_size).
+//   - `poolingMode` (String). Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool).
+//
+// - `pxfConfig` [Block]. Configuration of the PXF daemon.
+//   - `connectionTimeout` (Number). The Tomcat server connection timeout for read operations in seconds. Value is between 5 and 600.
+//   - `maxThreads` (Number). The maximum number of PXF tomcat threads. Value is between 1 and 1024.
+//   - `poolAllowCoreThreadTimeout` (Bool). Identifies whether or not core streaming threads are allowed to time out.
+//   - `poolCoreSize` (Number). The number of core streaming threads. Value is between 1 and 1024.
+//   - `poolMaxSize` (Number). The maximum allowed number of core streaming threads. Value is between 1 and 1024.
+//   - `poolQueueCapacity` (Number). The capacity of the core streaming thread pool queue. Value is positive.
+//   - `uploadTimeout` (Number). The Tomcat server connection timeout for write operations in seconds. Value is between 5 and 600.
+//   - `xms` (Number). Maximum JVM heap size for PXF daemon. Value is between 64 and 16384.
+//   - `xmx` (Number). Initial JVM heap size for PXF daemon. Value is between 64 and 16384.
+//
+// - `restore` [Block]. The cluster will be created from the specified backup.
+//   - `backupId` (**Required**)(String). Backup ID. The cluster will be created from the specified backup.
+//   - `restoreHba` (Bool). Restore HBA settings from the original cluster.
+//   - `restorePxf` (Bool). Restore PXF settings from the original cluster.
+//   - `time` (String). Timestamp of the moment to which the Greenplum cluster should be restored. (Format: `2006-01-02T15:04:05` - UTC). When not set, current time is used.
+//
+// - `segmentSubcluster` [Block]. Settings for segment subcluster.
+//   - `resources` [Block]. Resources allocated to hosts for segment subcluster of the Greenplum cluster.
+//   - `diskSize` (**Required**)(Number). Volume of the storage available to a host, in gigabytes.
+//   - `diskTypeId` (**Required**)(String). Type of the storage of Greenplum hosts - environment default is used if missing.
+//   - `resourcePresetId` (**Required**)(String). The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/ru/docs/managed-greenplum/concepts/instance-types).
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_mdb_greenplum_cluster.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/mdbGreenplumCluster:MdbGreenplumCluster my_cluster ...
+// ```
 type MdbGreenplumCluster struct {
 	pulumi.CustomResourceState
 
@@ -31,6 +279,8 @@ type MdbGreenplumCluster struct {
 	DeletionProtection pulumi.BoolOutput `pulumi:"deletionProtection"`
 	// The resource description.
 	Description pulumi.StringPtrOutput `pulumi:"description"`
+	// ID of the KMS key used for cluster disk encryption. Encryption can` t be disabled for an existing cluster. If the source cluster is encrypted and you leave this field empty when restoring, the restored cluster will be created without encryption. This parameter only works when both master and segment hosts use  `local-ssd` disks. Changing this value requires recreating the cluster. The key is preserved in Terraform state but cannot currently be read from the API, including during import.
+	DiskEncryptionKeyId pulumi.StringPtrOutput `pulumi:"diskEncryptionKeyId"`
 	// Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
 	Environment pulumi.StringOutput `pulumi:"environment"`
 	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
@@ -61,6 +311,8 @@ type MdbGreenplumCluster struct {
 	PoolerConfig MdbGreenplumClusterPoolerConfigOutput `pulumi:"poolerConfig"`
 	// Configuration of the PXF daemon.
 	PxfConfig MdbGreenplumClusterPxfConfigOutput `pulumi:"pxfConfig"`
+	// The cluster will be created from the specified backup.
+	Restore MdbGreenplumClusterRestorePtrOutput `pulumi:"restore"`
 	// The list of security groups applied to resource or their components.
 	SecurityGroupIds pulumi.StringArrayOutput `pulumi:"securityGroupIds"`
 	// Number of hosts in segment subcluster (from 1 to 32).
@@ -81,9 +333,14 @@ type MdbGreenplumCluster struct {
 	SubnetId pulumi.StringOutput `pulumi:"subnetId"`
 	// Greenplum cluster admin user name.
 	UserName pulumi.StringOutput `pulumi:"userName"`
-	// Greenplum cluster admin password name.
-	UserPassword pulumi.StringOutput `pulumi:"userPassword"`
-	// Version of the Greenplum cluster. (`6.28`)
+	// Greenplum cluster admin password.
+	UserPassword pulumi.StringPtrOutput `pulumi:"userPassword"`
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// Greenplum cluster admin password. This attribute is write-only and is not stored in state. Requires `userPasswordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+	UserPasswordWo pulumi.StringPtrOutput `pulumi:"userPasswordWo"`
+	// A version number for the write-only password. Increment this to trigger a password update.
+	UserPasswordWoVersion pulumi.IntPtrOutput `pulumi:"userPasswordWoVersion"`
+	// Version of the Greenplum cluster.
 	Version pulumi.StringOutput `pulumi:"version"`
 	// The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
 	Zone pulumi.StringOutput `pulumi:"zone"`
@@ -126,9 +383,6 @@ func NewMdbGreenplumCluster(ctx *pulumi.Context,
 	if args.UserName == nil {
 		return nil, errors.New("invalid value for required argument 'UserName'")
 	}
-	if args.UserPassword == nil {
-		return nil, errors.New("invalid value for required argument 'UserPassword'")
-	}
 	if args.Version == nil {
 		return nil, errors.New("invalid value for required argument 'Version'")
 	}
@@ -136,10 +390,14 @@ func NewMdbGreenplumCluster(ctx *pulumi.Context,
 		return nil, errors.New("invalid value for required argument 'Zone'")
 	}
 	if args.UserPassword != nil {
-		args.UserPassword = pulumi.ToSecret(args.UserPassword).(pulumi.StringInput)
+		args.UserPassword = pulumi.ToSecret(args.UserPassword).(pulumi.StringPtrInput)
+	}
+	if args.UserPasswordWo != nil {
+		args.UserPasswordWo = pulumi.ToSecret(args.UserPasswordWo).(pulumi.StringPtrInput)
 	}
 	secrets := pulumi.AdditionalSecretOutputs([]string{
 		"userPassword",
+		"userPasswordWo",
 	})
 	opts = append(opts, secrets)
 	opts = internal.PkgResourceDefaultOpts(opts)
@@ -181,6 +439,8 @@ type mdbGreenplumClusterState struct {
 	DeletionProtection *bool `pulumi:"deletionProtection"`
 	// The resource description.
 	Description *string `pulumi:"description"`
+	// ID of the KMS key used for cluster disk encryption. Encryption can` t be disabled for an existing cluster. If the source cluster is encrypted and you leave this field empty when restoring, the restored cluster will be created without encryption. This parameter only works when both master and segment hosts use  `local-ssd` disks. Changing this value requires recreating the cluster. The key is preserved in Terraform state but cannot currently be read from the API, including during import.
+	DiskEncryptionKeyId *string `pulumi:"diskEncryptionKeyId"`
 	// Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
 	Environment *string `pulumi:"environment"`
 	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
@@ -211,6 +471,8 @@ type mdbGreenplumClusterState struct {
 	PoolerConfig *MdbGreenplumClusterPoolerConfig `pulumi:"poolerConfig"`
 	// Configuration of the PXF daemon.
 	PxfConfig *MdbGreenplumClusterPxfConfig `pulumi:"pxfConfig"`
+	// The cluster will be created from the specified backup.
+	Restore *MdbGreenplumClusterRestore `pulumi:"restore"`
 	// The list of security groups applied to resource or their components.
 	SecurityGroupIds []string `pulumi:"securityGroupIds"`
 	// Number of hosts in segment subcluster (from 1 to 32).
@@ -231,9 +493,14 @@ type mdbGreenplumClusterState struct {
 	SubnetId *string `pulumi:"subnetId"`
 	// Greenplum cluster admin user name.
 	UserName *string `pulumi:"userName"`
-	// Greenplum cluster admin password name.
+	// Greenplum cluster admin password.
 	UserPassword *string `pulumi:"userPassword"`
-	// Version of the Greenplum cluster. (`6.28`)
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// Greenplum cluster admin password. This attribute is write-only and is not stored in state. Requires `userPasswordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+	UserPasswordWo *string `pulumi:"userPasswordWo"`
+	// A version number for the write-only password. Increment this to trigger a password update.
+	UserPasswordWoVersion *int `pulumi:"userPasswordWoVersion"`
+	// Version of the Greenplum cluster.
 	Version *string `pulumi:"version"`
 	// The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
 	Zone *string `pulumi:"zone"`
@@ -256,6 +523,8 @@ type MdbGreenplumClusterState struct {
 	DeletionProtection pulumi.BoolPtrInput
 	// The resource description.
 	Description pulumi.StringPtrInput
+	// ID of the KMS key used for cluster disk encryption. Encryption can` t be disabled for an existing cluster. If the source cluster is encrypted and you leave this field empty when restoring, the restored cluster will be created without encryption. This parameter only works when both master and segment hosts use  `local-ssd` disks. Changing this value requires recreating the cluster. The key is preserved in Terraform state but cannot currently be read from the API, including during import.
+	DiskEncryptionKeyId pulumi.StringPtrInput
 	// Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
 	Environment pulumi.StringPtrInput
 	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
@@ -286,6 +555,8 @@ type MdbGreenplumClusterState struct {
 	PoolerConfig MdbGreenplumClusterPoolerConfigPtrInput
 	// Configuration of the PXF daemon.
 	PxfConfig MdbGreenplumClusterPxfConfigPtrInput
+	// The cluster will be created from the specified backup.
+	Restore MdbGreenplumClusterRestorePtrInput
 	// The list of security groups applied to resource or their components.
 	SecurityGroupIds pulumi.StringArrayInput
 	// Number of hosts in segment subcluster (from 1 to 32).
@@ -306,9 +577,14 @@ type MdbGreenplumClusterState struct {
 	SubnetId pulumi.StringPtrInput
 	// Greenplum cluster admin user name.
 	UserName pulumi.StringPtrInput
-	// Greenplum cluster admin password name.
+	// Greenplum cluster admin password.
 	UserPassword pulumi.StringPtrInput
-	// Version of the Greenplum cluster. (`6.28`)
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// Greenplum cluster admin password. This attribute is write-only and is not stored in state. Requires `userPasswordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+	UserPasswordWo pulumi.StringPtrInput
+	// A version number for the write-only password. Increment this to trigger a password update.
+	UserPasswordWoVersion pulumi.IntPtrInput
+	// Version of the Greenplum cluster.
 	Version pulumi.StringPtrInput
 	// The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
 	Zone pulumi.StringPtrInput
@@ -333,6 +609,8 @@ type mdbGreenplumClusterArgs struct {
 	DeletionProtection *bool `pulumi:"deletionProtection"`
 	// The resource description.
 	Description *string `pulumi:"description"`
+	// ID of the KMS key used for cluster disk encryption. Encryption can` t be disabled for an existing cluster. If the source cluster is encrypted and you leave this field empty when restoring, the restored cluster will be created without encryption. This parameter only works when both master and segment hosts use  `local-ssd` disks. Changing this value requires recreating the cluster. The key is preserved in Terraform state but cannot currently be read from the API, including during import.
+	DiskEncryptionKeyId *string `pulumi:"diskEncryptionKeyId"`
 	// Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
 	Environment string `pulumi:"environment"`
 	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
@@ -359,6 +637,8 @@ type mdbGreenplumClusterArgs struct {
 	PoolerConfig *MdbGreenplumClusterPoolerConfig `pulumi:"poolerConfig"`
 	// Configuration of the PXF daemon.
 	PxfConfig *MdbGreenplumClusterPxfConfig `pulumi:"pxfConfig"`
+	// The cluster will be created from the specified backup.
+	Restore *MdbGreenplumClusterRestore `pulumi:"restore"`
 	// The list of security groups applied to resource or their components.
 	SecurityGroupIds []string `pulumi:"securityGroupIds"`
 	// Number of hosts in segment subcluster (from 1 to 32).
@@ -375,9 +655,14 @@ type mdbGreenplumClusterArgs struct {
 	SubnetId string `pulumi:"subnetId"`
 	// Greenplum cluster admin user name.
 	UserName string `pulumi:"userName"`
-	// Greenplum cluster admin password name.
-	UserPassword string `pulumi:"userPassword"`
-	// Version of the Greenplum cluster. (`6.28`)
+	// Greenplum cluster admin password.
+	UserPassword *string `pulumi:"userPassword"`
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// Greenplum cluster admin password. This attribute is write-only and is not stored in state. Requires `userPasswordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+	UserPasswordWo *string `pulumi:"userPasswordWo"`
+	// A version number for the write-only password. Increment this to trigger a password update.
+	UserPasswordWoVersion *int `pulumi:"userPasswordWoVersion"`
+	// Version of the Greenplum cluster.
 	Version string `pulumi:"version"`
 	// The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
 	Zone string `pulumi:"zone"`
@@ -399,6 +684,8 @@ type MdbGreenplumClusterArgs struct {
 	DeletionProtection pulumi.BoolPtrInput
 	// The resource description.
 	Description pulumi.StringPtrInput
+	// ID of the KMS key used for cluster disk encryption. Encryption can` t be disabled for an existing cluster. If the source cluster is encrypted and you leave this field empty when restoring, the restored cluster will be created without encryption. This parameter only works when both master and segment hosts use  `local-ssd` disks. Changing this value requires recreating the cluster. The key is preserved in Terraform state but cannot currently be read from the API, including during import.
+	DiskEncryptionKeyId pulumi.StringPtrInput
 	// Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
 	Environment pulumi.StringInput
 	// The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
@@ -425,6 +712,8 @@ type MdbGreenplumClusterArgs struct {
 	PoolerConfig MdbGreenplumClusterPoolerConfigPtrInput
 	// Configuration of the PXF daemon.
 	PxfConfig MdbGreenplumClusterPxfConfigPtrInput
+	// The cluster will be created from the specified backup.
+	Restore MdbGreenplumClusterRestorePtrInput
 	// The list of security groups applied to resource or their components.
 	SecurityGroupIds pulumi.StringArrayInput
 	// Number of hosts in segment subcluster (from 1 to 32).
@@ -441,9 +730,14 @@ type MdbGreenplumClusterArgs struct {
 	SubnetId pulumi.StringInput
 	// Greenplum cluster admin user name.
 	UserName pulumi.StringInput
-	// Greenplum cluster admin password name.
-	UserPassword pulumi.StringInput
-	// Version of the Greenplum cluster. (`6.28`)
+	// Greenplum cluster admin password.
+	UserPassword pulumi.StringPtrInput
+	// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+	// Greenplum cluster admin password. This attribute is write-only and is not stored in state. Requires `userPasswordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+	UserPasswordWo pulumi.StringPtrInput
+	// A version number for the write-only password. Increment this to trigger a password update.
+	UserPasswordWoVersion pulumi.IntPtrInput
+	// Version of the Greenplum cluster.
 	Version pulumi.StringInput
 	// The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
 	Zone pulumi.StringInput
@@ -578,6 +872,11 @@ func (o MdbGreenplumClusterOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *MdbGreenplumCluster) pulumi.StringPtrOutput { return v.Description }).(pulumi.StringPtrOutput)
 }
 
+// ID of the KMS key used for cluster disk encryption. Encryption can` t be disabled for an existing cluster. If the source cluster is encrypted and you leave this field empty when restoring, the restored cluster will be created without encryption. This parameter only works when both master and segment hosts use  `local-ssd` disks. Changing this value requires recreating the cluster. The key is preserved in Terraform state but cannot currently be read from the API, including during import.
+func (o MdbGreenplumClusterOutput) DiskEncryptionKeyId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *MdbGreenplumCluster) pulumi.StringPtrOutput { return v.DiskEncryptionKeyId }).(pulumi.StringPtrOutput)
+}
+
 // Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
 func (o MdbGreenplumClusterOutput) Environment() pulumi.StringOutput {
 	return o.ApplyT(func(v *MdbGreenplumCluster) pulumi.StringOutput { return v.Environment }).(pulumi.StringOutput)
@@ -653,6 +952,11 @@ func (o MdbGreenplumClusterOutput) PxfConfig() MdbGreenplumClusterPxfConfigOutpu
 	return o.ApplyT(func(v *MdbGreenplumCluster) MdbGreenplumClusterPxfConfigOutput { return v.PxfConfig }).(MdbGreenplumClusterPxfConfigOutput)
 }
 
+// The cluster will be created from the specified backup.
+func (o MdbGreenplumClusterOutput) Restore() MdbGreenplumClusterRestorePtrOutput {
+	return o.ApplyT(func(v *MdbGreenplumCluster) MdbGreenplumClusterRestorePtrOutput { return v.Restore }).(MdbGreenplumClusterRestorePtrOutput)
+}
+
 // The list of security groups applied to resource or their components.
 func (o MdbGreenplumClusterOutput) SecurityGroupIds() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *MdbGreenplumCluster) pulumi.StringArrayOutput { return v.SecurityGroupIds }).(pulumi.StringArrayOutput)
@@ -703,12 +1007,23 @@ func (o MdbGreenplumClusterOutput) UserName() pulumi.StringOutput {
 	return o.ApplyT(func(v *MdbGreenplumCluster) pulumi.StringOutput { return v.UserName }).(pulumi.StringOutput)
 }
 
-// Greenplum cluster admin password name.
-func (o MdbGreenplumClusterOutput) UserPassword() pulumi.StringOutput {
-	return o.ApplyT(func(v *MdbGreenplumCluster) pulumi.StringOutput { return v.UserPassword }).(pulumi.StringOutput)
+// Greenplum cluster admin password.
+func (o MdbGreenplumClusterOutput) UserPassword() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *MdbGreenplumCluster) pulumi.StringPtrOutput { return v.UserPassword }).(pulumi.StringPtrOutput)
 }
 
-// Version of the Greenplum cluster. (`6.28`)
+// **NOTE:** This field is write-only and its value will not be updated in state as part of read operations.
+// Greenplum cluster admin password. This attribute is write-only and is not stored in state. Requires `userPasswordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+func (o MdbGreenplumClusterOutput) UserPasswordWo() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *MdbGreenplumCluster) pulumi.StringPtrOutput { return v.UserPasswordWo }).(pulumi.StringPtrOutput)
+}
+
+// A version number for the write-only password. Increment this to trigger a password update.
+func (o MdbGreenplumClusterOutput) UserPasswordWoVersion() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *MdbGreenplumCluster) pulumi.IntPtrOutput { return v.UserPasswordWoVersion }).(pulumi.IntPtrOutput)
+}
+
+// Version of the Greenplum cluster.
 func (o MdbGreenplumClusterOutput) Version() pulumi.StringOutput {
 	return o.ApplyT(func(v *MdbGreenplumCluster) pulumi.StringOutput { return v.Version }).(pulumi.StringOutput)
 }

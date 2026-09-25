@@ -8,10 +8,121 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a PostgreSQL database within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.5.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			myCluster, err := yandex.NewMdbPostgresqlCluster(ctx, "myCluster", &yandex.MdbPostgresqlClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Config: &yandex.MdbPostgresqlClusterConfigArgs{
+//					Version: pulumi.String("15"),
+//					Resources: &yandex.MdbPostgresqlClusterConfigResourcesArgs{
+//						ResourcePresetId: pulumi.String("s2.micro"),
+//						DiskTypeId:       pulumi.String("network-ssd"),
+//						DiskSize:         pulumi.Int(16),
+//					},
+//				},
+//				Hosts: yandex.MdbPostgresqlClusterHostArray{
+//					&yandex.MdbPostgresqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			myUser, err := yandex.NewMdbPostgresqlUser(ctx, "myUser", &yandex.MdbPostgresqlUserArgs{
+//				ClusterId: myCluster.ID().ToIDOutput().ToStringOutput(),
+//				Password:  pulumi.String("password"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB PostgreSQL Database.
+//			_, err = yandex.NewMdbPostgresqlDatabase(ctx, "myDb", &yandex.MdbPostgresqlDatabaseArgs{
+//				ClusterId: myCluster.ID().ToIDOutput().ToStringOutput(),
+//				Owner:     myUser.Name,
+//				LcCollate: pulumi.String("en_US.UTF-8"),
+//				LcType:    pulumi.String("en_US.UTF-8"),
+//				Extensions: yandex.MdbPostgresqlDatabaseExtensionArray{
+//					&yandex.MdbPostgresqlDatabaseExtensionArgs{
+//						Name: pulumi.String("uuid-ossp"),
+//					},
+//					&yandex.MdbPostgresqlDatabaseExtensionArgs{
+//						Name: pulumi.String("xml2"),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `clusterId` (**Required**)(String). The ID of the PostgreSQL cluster.
+// - `deletionProtection` (String). The `true` value means that resource is protected from accidental deletion.
+// - `id` (String).
+// - `lcCollate` (String). POSIX locale for string sorting order. Forbidden to change in an existing database.
+// - `lcType` (String). POSIX locale for character classification. Forbidden to change in an existing database.
+// - `name` (**Required**)(String). The name of the PostgreSQL database.
+// - `owner` (**Required**)(String). Name of the user assigned as the owner of the database. Changing this value transfers ownership of the database to another user.
+// - `templateDb` (String). Name of the template database.
+// - `extension` [Block]. Set of database extensions.
+//   - `name` (**Required**)(String). Name of the database extension. For more information on available extensions see [the official documentation](https://yandex.cloud/docs/managed-postgresql/operations/cluster-extensions).
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_mdb_postgresql_database.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/mdbPostgresqlDatabase:MdbPostgresqlDatabase my_db ...
+// ```
 type MdbPostgresqlDatabase struct {
 	pulumi.CustomResourceState
 
@@ -27,7 +138,7 @@ type MdbPostgresqlDatabase struct {
 	LcType pulumi.StringPtrOutput `pulumi:"lcType"`
 	// The name of the PostgreSQL database.
 	Name pulumi.StringOutput `pulumi:"name"`
-	// Name of the user assigned as the owner of the database. Forbidden to change in an existing database.
+	// Name of the user assigned as the owner of the database. Changing this value transfers ownership of the database to another user.
 	Owner pulumi.StringOutput `pulumi:"owner"`
 	// Name of the template database.
 	TemplateDb pulumi.StringPtrOutput `pulumi:"templateDb"`
@@ -81,7 +192,7 @@ type mdbPostgresqlDatabaseState struct {
 	LcType *string `pulumi:"lcType"`
 	// The name of the PostgreSQL database.
 	Name *string `pulumi:"name"`
-	// Name of the user assigned as the owner of the database. Forbidden to change in an existing database.
+	// Name of the user assigned as the owner of the database. Changing this value transfers ownership of the database to another user.
 	Owner *string `pulumi:"owner"`
 	// Name of the template database.
 	TemplateDb *string `pulumi:"templateDb"`
@@ -100,7 +211,7 @@ type MdbPostgresqlDatabaseState struct {
 	LcType pulumi.StringPtrInput
 	// The name of the PostgreSQL database.
 	Name pulumi.StringPtrInput
-	// Name of the user assigned as the owner of the database. Forbidden to change in an existing database.
+	// Name of the user assigned as the owner of the database. Changing this value transfers ownership of the database to another user.
 	Owner pulumi.StringPtrInput
 	// Name of the template database.
 	TemplateDb pulumi.StringPtrInput
@@ -123,7 +234,7 @@ type mdbPostgresqlDatabaseArgs struct {
 	LcType *string `pulumi:"lcType"`
 	// The name of the PostgreSQL database.
 	Name *string `pulumi:"name"`
-	// Name of the user assigned as the owner of the database. Forbidden to change in an existing database.
+	// Name of the user assigned as the owner of the database. Changing this value transfers ownership of the database to another user.
 	Owner string `pulumi:"owner"`
 	// Name of the template database.
 	TemplateDb *string `pulumi:"templateDb"`
@@ -143,7 +254,7 @@ type MdbPostgresqlDatabaseArgs struct {
 	LcType pulumi.StringPtrInput
 	// The name of the PostgreSQL database.
 	Name pulumi.StringPtrInput
-	// Name of the user assigned as the owner of the database. Forbidden to change in an existing database.
+	// Name of the user assigned as the owner of the database. Changing this value transfers ownership of the database to another user.
 	Owner pulumi.StringInput
 	// Name of the template database.
 	TemplateDb pulumi.StringPtrInput
@@ -266,7 +377,7 @@ func (o MdbPostgresqlDatabaseOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *MdbPostgresqlDatabase) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
 
-// Name of the user assigned as the owner of the database. Forbidden to change in an existing database.
+// Name of the user assigned as the owner of the database. Changing this value transfers ownership of the database to another user.
 func (o MdbPostgresqlDatabaseOutput) Owner() pulumi.StringOutput {
 	return o.ApplyT(func(v *MdbPostgresqlDatabase) pulumi.StringOutput { return v.Owner }).(pulumi.StringOutput)
 }

@@ -7,10 +7,65 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Application Load Balancer HTTP Router. For more information, see [Yandex Cloud Application Load Balancer](https://yandex.cloud/docs/application-load-balancer/quickstart).
+//
+// This data source is used to define [Application Load Balancer HTTP Router](https://yandex.cloud/docs/application-load-balancer/concepts/http-router) that can be used by other resources.
+//
+// > One of `httpRouterId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetAlbHttpRouter(ctx, &yandex.LookupAlbHttpRouterArgs{
+//				HttpRouterId: pulumi.StringRef("my-http-router-id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `httpRouterId` (String). HTTP Router ID.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `routeOptions` (*Read-Only*) (List Of Object).
+//   - `rbac` .
+//   - `action` .
+//   - `principals` .
+//   - `andPrincipals` .
+//   - `any` .
+//   - `header` .
+//   - `name` .
+//   - `value` .
+//   - `exact` .
+//   - `prefix` .
+//   - `regex` .
+//   - `remoteIp` .
+//   - `securityProfileId` .
 func LookupAlbHttpRouter(ctx *pulumi.Context, args *LookupAlbHttpRouterArgs, opts ...pulumi.InvokeOption) (*LookupAlbHttpRouterResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupAlbHttpRouterResult

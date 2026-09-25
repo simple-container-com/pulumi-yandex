@@ -8,10 +8,103 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manage a YDB Topic. For more information, see [the official documentation](https://yandex.cloud/docs/ydb/concepts/#ydb).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			databaseName, err := yandex.NewYdbDatabaseServerless(ctx, "databaseName", &yandex.YdbDatabaseServerlessArgs{
+//				LocationId: pulumi.String("ru-central1"),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new YDB Topic.
+//			_, err = yandex.NewYdbTopic(ctx, "myTopic", &yandex.YdbTopicArgs{
+//				DatabaseEndpoint: databaseName.YdbFullEndpoint,
+//				SupportedCodecs: pulumi.StringArray{
+//					pulumi.String("raw"),
+//					pulumi.String("gzip"),
+//				},
+//				PartitionsCount:   pulumi.Int(1),
+//				RetentionPeriodMs: 2000000,
+//				Consumers: yandex.YdbTopicConsumerArray{
+//					&yandex.YdbTopicConsumerArgs{
+//						Name: pulumi.String("consumer-name"),
+//						SupportedCodecs: pulumi.StringArray{
+//							pulumi.String("raw"),
+//							pulumi.String("gzip"),
+//						},
+//						StartingMessageTimestampMs: pulumi.Int(0),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `databaseEndpoint` (**Required**)(String). YDB database endpoint.
+// - `description` (String). Topic description.
+// - `id` (String).
+// - `maxPartitionsCount` (Number). Number of max active partitions. Default value `1`.
+// - `meteringMode` (String). Resource metering mode (`reservedCapacity` - based on the allocated resources or `requestUnits` - based on actual usage). This option applies to topics in serverless databases.
+// - `name` (**Required**)(String). Topic name.
+// - `partitionWriteSpeedKbps` (Number). Maximum allowed write speed per partition. If a write speed for a given partition exceeds this value, the write speed will be capped. Default value: `1024 (1MB)`.
+// - `partitionsCount` (Number). Number of min partitions. Default value `1`.
+// - `retentionPeriodHours` (Number). Data retention time. Default value `86400000`.
+// - `retentionStorageMb` (Number).
+// - `supportedCodecs` (Set Of String). Supported data encodings. Can be one of `gzip`, `raw` or `zstd`.
+// - `autoPartitioningSettings` [Block].
+//   - `autoPartitioningStrategy` (String). The auto partitioning strategy to use
+//   - `autoPartitioningWriteSpeedStrategy` [Block].
+//   - `downUtilizationPercent` (Number). The down utilization percentage threshold
+//   - `stabilizationWindow` (Number). The stabilization window in seconds
+//   - `upUtilizationPercent` (Number). The up utilization percentage threshold
+//
+// - `consumer` [Block]. Topic Readers.
+//   - `important` (Bool). Defines an important consumer. No data will be deleted from the topic until all the important consumers read them. Default value `false`.
+//   - `name` (**Required**)(String). Reader's name.
+//   - `startingMessageTimestampMs` (Number). Timestamp in UNIX timestamp format from which the reader will start reading data. Default value `0`.
+//   - `supportedCodecs` (Set Of String). Supported data encodings. Can be one of `gzip`, `raw` or `zstd`.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `default` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_ydb_topic.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/ydbTopic:YdbTopic my_topic ...
+// ```
 type YdbTopic struct {
 	pulumi.CustomResourceState
 

@@ -7,10 +7,264 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Creates a backend group in the specified folder and adds the specified backends to it. For more information, see [the official documentation](https://yandex.cloud/docs/application-load-balancer/concepts/backend-group).
+//
+// > Only one type of backends `httpBackend` or `grpcBackend` or `streamBackend` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new ALB Backend Group.
+//			_, err := yandex.NewAlbBackendGroup(ctx, "myAlbBg", &yandex.AlbBackendGroupArgs{
+//				HttpBackends: yandex.AlbBackendGroupHttpBackendArray{
+//					&yandex.AlbBackendGroupHttpBackendArgs{
+//						Healthcheck: &yandex.AlbBackendGroupHttpBackendHealthcheckArgs{
+//							HttpHealthcheck: &yandex.AlbBackendGroupHttpBackendHealthcheckHttpHealthcheckArgs{
+//								Path: pulumi.String("/"),
+//							},
+//							Interval: pulumi.String("1s"),
+//							Timeout:  pulumi.String("1s"),
+//						},
+//						Http2: pulumi.Bool(true),
+//						LoadBalancingConfig: &yandex.AlbBackendGroupHttpBackendLoadBalancingConfigArgs{
+//							PanicThreshold: pulumi.Int(50),
+//						},
+//						Name: pulumi.String("test-http-backend"),
+//						Port: pulumi.Int(8080),
+//						TargetGroupIds: pulumi.StringArray{
+//							yandex_alb_target_group.TestTargetGroup.Id,
+//						},
+//						Tls: &yandex.AlbBackendGroupHttpBackendTlsArgs{
+//							Sni: pulumi.String("backend-domain.internal"),
+//						},
+//						Weight: pulumi.Int(1),
+//					},
+//				},
+//				SessionAffinity: &yandex.AlbBackendGroupSessionAffinityArgs{
+//					Connection: &yandex.AlbBackendGroupSessionAffinityConnectionArgs{
+//						SourceIp: pulumi.Bool("127.0.0.1"),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `grpcBackend` [Block]. gRPC backend specification that will be used by the ALB Backend Group.
+//   - `name` (**Required**)(String). Name of the backend.
+//   - `port` (Number). Port for incoming traffic.
+//   - `targetGroupIds` (**Required**)(List Of String). References target groups for the backend.
+//   - `weight` (Number). Weight of the backend. Traffic will be split between backends of the same BackendGroup according to their weights.
+//   - `healthcheck` [Block]. Healthcheck specification that will be used by this backend.
+//
+// > Only one of `streamHealthcheck` or `httpHealthcheck` or `grpcHealthcheck` should be specified.
+//
+//   - `healthcheckPort` (Number). Optional alternative port for health checking.
+//   - `healthyThreshold` (Number). Number of consecutive successful health checks required to promote endpoint into the healthy state. 0 means 1. Note that during startup, only a single successful health check is required to mark a host healthy.
+//   - `interval` (**Required**)(String). Interval between health checks.
+//   - `intervalJitterPercent` (Number). An optional jitter amount as a percentage of interval. If specified, during every interval value of (interval_ms * intervalJitterPercent / 100) will be added to the wait time.
+//   - `timeout` (**Required**)(String). Time to wait for a health check response.
+//   - `unhealthyThreshold` (Number). Number of consecutive failed health checks required to demote endpoint into the unhealthy state. 0 means 1. Note that for HTTP health checks, a single 503 immediately makes endpoint unhealthy.
+//   - `grpcHealthcheck` [Block]. gRPC Healthcheck specification that will be used by this healthcheck.
+//   - `serviceName` (String). Service name for `grpc.health.v1.HealthCheckRequest` message.
+//   - `httpHealthcheck` [Block]. HTTP Healthcheck specification that will be used by this healthcheck.
+//   - `expectedStatuses` (List Of Number). A list of HTTP response statuses considered healthy.
+//   - `host` (String). `Host` HTTP header value.
+//   - `http2` (Bool). If set, health checks will use HTTP2.
+//   - `path` (**Required**)(String). HTTP path.
+//   - `streamHealthcheck` [Block]. Stream Healthcheck specification that will be used by this healthcheck.
+//   - `receive` (String). Data that must be contained in the messages received from targets for a successful health check. If not specified, no messages are expected from targets, and those that are received are not checked.
+//   - `send` (String). Message sent to targets during TCP data transfer. If not specified, no data is sent to the target.
+//   - `tls` [Block]. TLS transport settings for health checks. Used to establish mTLS connections with the backend.
+//
+// > Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
+//
+//   - `sni` (String). SNI string for TLS connections.
+//   - `clientCertificate` [Block]. Client certificate specification. Used to establish mTLS connections with the backend.
+//   - `certificateId` (**Required**)(String). Certificate ID in the Certificate Manager to use as a client certificate for connections to the backend.
+//   - `validationContext` [Block]. Validation context for backend TLS connections.
+//   - `trustedCaBytes` (String). PEM-encoded trusted CA certificate chain.
+//   - `trustedCaId` (String). Trusted CA certificate ID in the Certificate Manager.
+//   - `loadBalancingConfig` [Block]. Load Balancing Config specification that will be used by this backend.
+//   - `localityAwareRoutingPercent` (Number). Percent of traffic to be sent to the same availability zone. The rest will be equally divided between other zones.
+//   - `mode` (String). Load balancing mode for the backend. Possible values: `ROUND_ROBIN`, `RANDOM`, `LEAST_REQUEST`, `MAGLEV_HASH`.
+//   - `panicThreshold` (Number). If percentage of healthy hosts in the backend is lower than panic_threshold, traffic will be routed to all backends no matter what the health status is. This helps to avoid healthy backends overloading when everything is bad. Zero means no panic threshold.
+//   - `strictLocality` (Bool). If set, will route requests only to the same availability zone. Balancer won't know about endpoints in other zones.
+//   - `tls` [Block]. TLS specification that will be used by this backend.
+//
+// > Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
+//
+//   - `sni` (String). [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) string for TLS connections.
+//   - `clientCertificate` [Block]. Client certificate specification. Used to establish mTLS connections with the backend.
+//   - `certificateId` (**Required**)(String). Certificate ID in the Certificate Manager to use as a client certificate for connections to the backend.
+//   - `validationContext` [Block]. Validation context
+//   - `trustedCaBytes` (String). PEM-encoded trusted CA certificate chain.
+//   - `trustedCaId` (String). Trusted CA certificate ID in the Certificate Manager.
+//
+// - `httpBackend` [Block]. HTTP backend specification that will be used by the ALB Backend Group.
+//
+// > Only one of `targetGroupIds` or `storageBucket` should be specified.
+//
+//   - `http2` (Bool). Enables HTTP2 for upstream requests. If not set, HTTP 1.1 will be used by default.
+//   - `name` (**Required**)(String). Name of the backend.
+//   - `port` (Number). Port for incoming traffic.
+//   - `storageBucket` (String). Name of bucket which should be used as a backend.
+//   - `targetGroupIds` (List Of String). References target groups for the backend.
+//   - `weight` (Number). Weight of the backend. Traffic will be split between backends of the same BackendGroup according to their weights.
+//   - `healthcheck` [Block]. Healthcheck specification that will be used by this backend.
+//
+// > Only one of `streamHealthcheck` or `httpHealthcheck` or `grpcHealthcheck` should be specified.
+//
+//   - `healthcheckPort` (Number). Optional alternative port for health checking.
+//   - `healthyThreshold` (Number). Number of consecutive successful health checks required to promote endpoint into the healthy state. 0 means 1. Note that during startup, only a single successful health check is required to mark a host healthy.
+//   - `interval` (**Required**)(String). Interval between health checks.
+//   - `intervalJitterPercent` (Number). An optional jitter amount as a percentage of interval. If specified, during every interval value of (interval_ms * intervalJitterPercent / 100) will be added to the wait time.
+//   - `timeout` (**Required**)(String). Time to wait for a health check response.
+//   - `unhealthyThreshold` (Number). Number of consecutive failed health checks required to demote endpoint into the unhealthy state. 0 means 1. Note that for HTTP health checks, a single 503 immediately makes endpoint unhealthy.
+//   - `grpcHealthcheck` [Block]. gRPC Healthcheck specification that will be used by this healthcheck.
+//   - `serviceName` (String). Service name for `grpc.health.v1.HealthCheckRequest` message.
+//   - `httpHealthcheck` [Block]. HTTP Healthcheck specification that will be used by this healthcheck.
+//   - `expectedStatuses` (List Of Number). A list of HTTP response statuses considered healthy.
+//   - `host` (String). `Host` HTTP header value.
+//   - `http2` (Bool). If set, health checks will use HTTP2.
+//   - `path` (**Required**)(String). HTTP path.
+//   - `streamHealthcheck` [Block]. Stream Healthcheck specification that will be used by this healthcheck.
+//   - `receive` (String). Data that must be contained in the messages received from targets for a successful health check. If not specified, no messages are expected from targets, and those that are received are not checked.
+//   - `send` (String). Message sent to targets during TCP data transfer. If not specified, no data is sent to the target.
+//   - `tls` [Block]. TLS transport settings for health checks. Used to establish mTLS connections with the backend.
+//
+// > Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
+//
+//   - `sni` (String). SNI string for TLS connections.
+//   - `clientCertificate` [Block]. Client certificate specification. Used to establish mTLS connections with the backend.
+//   - `certificateId` (**Required**)(String). Certificate ID in the Certificate Manager to use as a client certificate for connections to the backend.
+//   - `validationContext` [Block]. Validation context for backend TLS connections.
+//   - `trustedCaBytes` (String). PEM-encoded trusted CA certificate chain.
+//   - `trustedCaId` (String). Trusted CA certificate ID in the Certificate Manager.
+//   - `loadBalancingConfig` [Block]. Load Balancing Config specification that will be used by this backend.
+//   - `localityAwareRoutingPercent` (Number). Percent of traffic to be sent to the same availability zone. The rest will be equally divided between other zones.
+//   - `mode` (String). Load balancing mode for the backend. Possible values: `ROUND_ROBIN`, `RANDOM`, `LEAST_REQUEST`, `MAGLEV_HASH`.
+//   - `panicThreshold` (Number). If percentage of healthy hosts in the backend is lower than panic_threshold, traffic will be routed to all backends no matter what the health status is. This helps to avoid healthy backends overloading when everything is bad. Zero means no panic threshold.
+//   - `strictLocality` (Bool). If set, will route requests only to the same availability zone. Balancer won't know about endpoints in other zones.
+//   - `tls` [Block]. TLS specification that will be used by this backend.
+//
+// > Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
+//
+//   - `sni` (String). [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) string for TLS connections.
+//   - `clientCertificate` [Block]. Client certificate specification. Used to establish mTLS connections with the backend.
+//   - `certificateId` (**Required**)(String). Certificate ID in the Certificate Manager to use as a client certificate for connections to the backend.
+//   - `validationContext` [Block]. Validation context
+//   - `trustedCaBytes` (String). PEM-encoded trusted CA certificate chain.
+//   - `trustedCaId` (String). Trusted CA certificate ID in the Certificate Manager.
+//
+// - `sessionAffinity` [Block]. Session affinity mode determines how incoming requests are grouped into one session.
+//
+// > Only one type(`connection` or `cookie` or `header`) of session affinity should be specified.
+//
+//   - `connection` [Block]. Requests received from the same IP are combined into a session. Stream backend groups only support session affinity by client IP address.
+//   - `sourceIp` (Bool). Source IP address to use with affinity.
+//   - `cookie` [Block]. Requests with the same cookie value and the specified file name are combined into a session. Allowed only for `HTTP` and `gRPC` backend groups.
+//   - `name` (**Required**)(String). Name of the HTTP cookie to use with affinity.
+//   - `path` (String). Path of the HTTP cookie to use with affinity.
+//   - `ttl` (String). TTL for the cookie (if not set, session cookie will be used).
+//   - `header` [Block]. Requests with the same value of the specified HTTP header, such as with user authentication data, are combined into a session. Allowed only for `HTTP` and `gRPC` backend groups.
+//   - `headerName` (**Required**)(String). The name of the request header that will be used with affinity.
+//
+// - `streamBackend` [Block]. Stream backend specification that will be used by the ALB Backend Group.
+//   - `enableProxyProtocol` (Bool). Enables TCP proxy protocol support for upstream backend
+//   - `keepConnectionsOnHostHealthFailure` (Bool). If set, when a backend host becomes unhealthy (as determined by the configured health checks), keep connections to the failed host.
+//   - `name` (**Required**)(String). Name of the backend.
+//   - `port` (Number). Port for incoming traffic.
+//   - `targetGroupIds` (**Required**)(List Of String). References target groups for the backend.
+//   - `weight` (Number). Weight of the backend. Traffic will be split between backends of the same BackendGroup according to their weights.
+//   - `healthcheck` [Block]. Healthcheck specification that will be used by this backend.
+//
+// > Only one of `streamHealthcheck` or `httpHealthcheck` or `grpcHealthcheck` should be specified.
+//
+//   - `healthcheckPort` (Number). Optional alternative port for health checking.
+//   - `healthyThreshold` (Number). Number of consecutive successful health checks required to promote endpoint into the healthy state. 0 means 1. Note that during startup, only a single successful health check is required to mark a host healthy.
+//   - `interval` (**Required**)(String). Interval between health checks.
+//   - `intervalJitterPercent` (Number). An optional jitter amount as a percentage of interval. If specified, during every interval value of (interval_ms * intervalJitterPercent / 100) will be added to the wait time.
+//   - `timeout` (**Required**)(String). Time to wait for a health check response.
+//   - `unhealthyThreshold` (Number). Number of consecutive failed health checks required to demote endpoint into the unhealthy state. 0 means 1. Note that for HTTP health checks, a single 503 immediately makes endpoint unhealthy.
+//   - `grpcHealthcheck` [Block]. gRPC Healthcheck specification that will be used by this healthcheck.
+//   - `serviceName` (String). Service name for `grpc.health.v1.HealthCheckRequest` message.
+//   - `httpHealthcheck` [Block]. HTTP Healthcheck specification that will be used by this healthcheck.
+//   - `expectedStatuses` (List Of Number). A list of HTTP response statuses considered healthy.
+//   - `host` (String). `Host` HTTP header value.
+//   - `http2` (Bool). If set, health checks will use HTTP2.
+//   - `path` (**Required**)(String). HTTP path.
+//   - `streamHealthcheck` [Block]. Stream Healthcheck specification that will be used by this healthcheck.
+//   - `receive` (String). Data that must be contained in the messages received from targets for a successful health check. If not specified, no messages are expected from targets, and those that are received are not checked.
+//   - `send` (String). Message sent to targets during TCP data transfer. If not specified, no data is sent to the target.
+//   - `tls` [Block]. TLS transport settings for health checks. Used to establish mTLS connections with the backend.
+//
+// > Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
+//
+//   - `sni` (String). SNI string for TLS connections.
+//   - `clientCertificate` [Block]. Client certificate specification. Used to establish mTLS connections with the backend.
+//   - `certificateId` (**Required**)(String). Certificate ID in the Certificate Manager to use as a client certificate for connections to the backend.
+//   - `validationContext` [Block]. Validation context for backend TLS connections.
+//   - `trustedCaBytes` (String). PEM-encoded trusted CA certificate chain.
+//   - `trustedCaId` (String). Trusted CA certificate ID in the Certificate Manager.
+//   - `loadBalancingConfig` [Block]. Load Balancing Config specification that will be used by this backend.
+//   - `localityAwareRoutingPercent` (Number). Percent of traffic to be sent to the same availability zone. The rest will be equally divided between other zones.
+//   - `mode` (String). Load balancing mode for the backend. Possible values: `ROUND_ROBIN`, `RANDOM`, `LEAST_REQUEST`, `MAGLEV_HASH`.
+//   - `panicThreshold` (Number). If percentage of healthy hosts in the backend is lower than panic_threshold, traffic will be routed to all backends no matter what the health status is. This helps to avoid healthy backends overloading when everything is bad. Zero means no panic threshold.
+//   - `strictLocality` (Bool). If set, will route requests only to the same availability zone. Balancer won't know about endpoints in other zones.
+//   - `tls` [Block]. TLS specification that will be used by this backend.
+//
+// > Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.
+//
+//   - `sni` (String). [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) string for TLS connections.
+//   - `clientCertificate` [Block]. Client certificate specification. Used to establish mTLS connections with the backend.
+//   - `certificateId` (**Required**)(String). Certificate ID in the Certificate Manager to use as a client certificate for connections to the backend.
+//   - `validationContext` [Block]. Validation context
+//   - `trustedCaBytes` (String). PEM-encoded trusted CA certificate chain.
+//   - `trustedCaId` (String). Trusted CA certificate ID in the Certificate Manager.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_alb_backend_group.<resource Name> <resource ID>
+//
+// ```sh
+// $ pulumi import yandex:index/albBackendGroup:AlbBackendGroup my_alb_bg ds7io**********9bike
+// ```
 type AlbBackendGroup struct {
 	pulumi.CustomResourceState
 

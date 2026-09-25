@@ -7,10 +7,56 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex VPC route table. For more information, see [Yandex Cloud VPC](https://yandex.cloud/docs/vpc/concepts).
+//
+// This data source is used to define [VPC Route Table](https://yandex.cloud/docs/vpc/concepts/) that can be used by other resources.
+//
+// > One of `routeTableId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetVpcRouteTable(ctx, &yandex.LookupVpcRouteTableArgs{
+//				RouteTableId: pulumi.StringRef("my-rt-id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `networkId` (*Read-Only*) (String). ID of the network this route table belongs to.
+// - `routeTableId` (String). Route table ID.
+// - `staticRoute` (*Read-Only*) (Set Of Object).
+//   - `destinationPrefix` .
+//   - `gatewayId` .
+//   - `nextHopAddress` .
 func LookupVpcRouteTable(ctx *pulumi.Context, args *LookupVpcRouteTableArgs, opts ...pulumi.InvokeOption) (*LookupVpcRouteTableResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupVpcRouteTableResult

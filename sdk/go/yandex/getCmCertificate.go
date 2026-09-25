@@ -7,10 +7,46 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Certificate Manager Certificate. For more information, see [the official documentation](https://yandex.cloud/docs/certificate-manager/concepts/).
+//
+// > One of `certificateId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetCmCertificate(ctx, &yandex.LookupCmCertificateArgs{
+//				CertificateId: pulumi.StringRef("certificate-id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.GetCmCertificate(ctx, &yandex.LookupCmCertificateArgs{
+//				FolderId: pulumi.StringRef("folder-id"),
+//				Name:     pulumi.StringRef("example"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
 func LookupCmCertificate(ctx *pulumi.Context, args *LookupCmCertificateArgs, opts ...pulumi.InvokeOption) (*LookupCmCertificateResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupCmCertificateResult

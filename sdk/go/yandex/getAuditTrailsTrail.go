@@ -7,10 +7,122 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a trail. For information about the trail concept, see [official documentation](https://yandex.cloud/docs/audit-trails/concepts/trail).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetAuditTrailsTrail(ctx, &yandex.LookupAuditTrailsTrailArgs{
+//				TrailId: "cnpqe**********sh835",
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `dataStreamDestination` (*Read-Only*) (List Of Object). Structure describing destination data stream of the trail. Mutually exclusive with `loggingDestination` and `storageDestination`.
+//   - `codec` .
+//   - `databaseId` .
+//   - `streamName` .
+//
+// - `description` (*Read-Only*) (String). The resource description.
+// - `filter` (*Read-Only*) (Set Of Object). Structure is deprecated. Use `filteringPolicy` instead.
+//   - `eventFilters` .
+//   - `categories` .
+//   - `plane` .
+//   - `type` .
+//   - `pathFilter` .
+//   - `anyFilter` .
+//   - `resourceId` .
+//   - `resourceType` .
+//   - `someFilter` .
+//   - `anyFilters` .
+//   - `resourceId` .
+//   - `resourceType` .
+//   - `resourceId` .
+//   - `resourceType` .
+//   - `service` .
+//   - `pathFilter` .
+//   - `anyFilter` .
+//   - `resourceId` .
+//   - `resourceType` .
+//   - `someFilter` .
+//   - `anyFilters` .
+//   - `resourceId` .
+//   - `resourceType` .
+//   - `resourceId` .
+//   - `resourceType` .
+//
+// - `filteringPolicy` (*Read-Only*) (List Of Object). Structure describing event filtering process for the trail. Mutually exclusive with `filter`. At least one of the `managementEventsFilter` or `dataEventsFilter` fields will be filled.
+//   - `dataEventsFilter` .
+//   - `dnsFilter` .
+//   - `includeNonrecursiveQueries` .
+//   - `excludeRule` .
+//   - `condition` .
+//   - `field` .
+//   - `operator` .
+//   - `values` .
+//   - `excludedEvents` .
+//   - `includeRule` .
+//   - `condition` .
+//   - `field` .
+//   - `operator` .
+//   - `values` .
+//   - `includedEvents` .
+//   - `resourceScope` .
+//   - `resourceId` .
+//   - `resourceType` .
+//   - `service` .
+//   - `managementEventsFilter` .
+//   - `excludeRule` .
+//   - `condition` .
+//   - `field` .
+//   - `operator` .
+//   - `values` .
+//   - `includeRule` .
+//   - `condition` .
+//   - `field` .
+//   - `operator` .
+//   - `values` .
+//   - `resourceScope` .
+//   - `resourceId` .
+//   - `resourceType` .
+//
+// - `folderId` (*Read-Only*) (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `loggingDestination` (*Read-Only*) (List Of Object). Structure describing destination log group of the trail. Mutually exclusive with `storageDestination` and `dataStreamDestination`.
+//   - `logGroupId` .
+//
+// - `name` (*Read-Only*) (String). The resource name.
+// - `serviceAccountId` (*Read-Only*) (String). [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+// - `status` (*Read-Only*) (String). Status of this trail.
+// - `storageDestination` (*Read-Only*) (List Of Object). Structure describing destination bucket of the trail. Mutually exclusive with `loggingDestination` and `dataStreamDestination`.
+//   - `bucketName` .
+//   - `objectPrefix` .
+//
+// - `trailId` (**Required**)(String). Trail ID.
 func LookupAuditTrailsTrail(ctx *pulumi.Context, args *LookupAuditTrailsTrailArgs, opts ...pulumi.InvokeOption) (*LookupAuditTrailsTrailResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupAuditTrailsTrailResult

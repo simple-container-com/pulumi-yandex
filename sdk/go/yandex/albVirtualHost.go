@@ -8,10 +8,220 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Creates a virtual host that belongs to specified HTTP router and adds the specified routes to it. For more information, see [the official documentation](https://yandex.cloud/docs/application-load-balancer/concepts/http-router).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new ALB Virtual Host
+//			_, err := yandex.NewAlbVirtualHost(ctx, "my-vhost", &yandex.AlbVirtualHostArgs{
+//				HttpRouterId: pulumi.Any(yandex_alb_http_router.MyRouter.Id),
+//				Routes: yandex.AlbVirtualHostRouteArray{
+//					&yandex.AlbVirtualHostRouteArgs{
+//						Name: pulumi.String("my-route"),
+//						HttpRoute: &yandex.AlbVirtualHostRouteHttpRouteArgs{
+//							HttpRouteAction: &yandex.AlbVirtualHostRouteHttpRouteHttpRouteActionArgs{
+//								BackendGroupId: pulumi.Any(yandex_alb_backend_group.MyBg.Id),
+//								Timeout:        pulumi.String("3s"),
+//							},
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `authority` (Set Of String). A list of domains (host/authority header) that will be matched to this virtual host. Wildcard hosts are supported in the form of '*.foo.com' or '*-bar.foo.com'. If not specified, all domains will be matched.
+// - `httpRouterId` (**Required**)(String). The ID of the HTTP router to which the virtual host belongs.
+// - `id` (String).
+// - `name` (**Required**)(String). The resource name.
+// - `modifyRequestHeaders` [Block]. Apply the following modifications to the Request/Response header.
+//
+// > Only one type of actions `append` or `replace` or `remove` should be specified.
+//
+//   - `append` (String). Append string to the header value.
+//   - `name` (**Required**)(String). Name of the header to modify.
+//   - `remove` (Bool). If set, remove the header.
+//   - `replace` (String). New value for a header. Header values support the following [formatters](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_conn_man/headers#custom-request-response-headers).
+//
+// - `modifyResponseHeaders` [Block]. Apply the following modifications to the Request/Response header.
+//
+// > Only one type of actions `append` or `replace` or `remove` should be specified.
+//
+//   - `append` (String). Append string to the header value.
+//   - `name` (**Required**)(String). Name of the header to modify.
+//   - `remove` (Bool). If set, remove the header.
+//   - `replace` (String). New value for a header. Header values support the following [formatters](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_conn_man/headers#custom-request-response-headers).
+//
+// - `rateLimit` [Block]. Rate limit configuration applied for a whole virtual host
+//   - `allRequests` [Block]. Rate limit configuration applied to all incoming requests
+//   - `perMinute` (Number). Limit value specified with per minute time unit
+//   - `perSecond` (Number). Limit value specified with per second time unit
+//   - `requestsPerIp` [Block]. Rate limit configuration applied separately for each set of requests grouped by client IP address
+//   - `perMinute` (Number). Limit value specified with per minute time unit
+//   - `perSecond` (Number). Limit value specified with per second time unit
+//
+// - `route` [Block]. A Route resource. Routes are matched *in-order*. Be careful when adding them to the end. For instance, having http '/' match first makes all other routes unused.
+//
+// > Exactly one type of routes `httpRoute` or `grpcRoute` should be specified.
+//
+//   - `disableSecurityProfile` (Bool). Disables security profile for the route
+//   - `name` (String). Name of the route.
+//   - `clientCertificateForward` [Block]. Client certificate forwarding settings.
+//   - `httpHeader` (String). HTTP header name to forward client certificate information.
+//   - `issuerHeaderName` (String). Header name for the certificate issuer information.
+//   - `subjectHeaderName` (String). Header name for the certificate subject information.
+//   - `grpcRoute` [Block]. gRPC route resource.
+//
+// > Exactly one type of actions `grpcRouteAction` or `grpcStatusResponseAction` should be specified.
+//
+//   - `grpcMatch` [Block]. Checks `/` prefix by default.
+//   - `fqmn` [Block]. The `path` and `fqmn` blocks.
+//
+// > Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+//
+//   - `exact` (String). Match exactly.
+//   - `prefix` (String). Match prefix.
+//   - `regex` (String). Match regex.
+//   - `grpcRouteAction` [Block]. gRPC route action resource.
+//
+// > Only one type of host rewrite specifiers `hostRewrite` or `autoHostRewrite` should be specified.
+//
+//   - `autoHostRewrite` (Bool). If set, will automatically rewrite host.
+//   - `backendGroupId` (**Required**)(String). Backend group to route requests.
+//   - `hostRewrite` (String). Host rewrite specifier.
+//   - `idleTimeout` (String). Specifies the idle timeout (time without any data transfer for the active request) for the route. It is useful for streaming scenarios - one should set idleTimeout to something meaningful and maxTimeout to the maximum time the stream is allowed to be alive. If not specified, there is no per-route idle timeout.
+//   - `maxTimeout` (String). Lower timeout may be specified by the client (using grpc-timeout header). If not set, default is 60 seconds.
+//   - `rateLimit` [Block]. Rate limit configuration applied for a whole virtual host
+//   - `allRequests` [Block]. Rate limit configuration applied to all incoming requests
+//   - `perMinute` (Number). Limit value specified with per minute time unit
+//   - `perSecond` (Number). Limit value specified with per second time unit
+//   - `requestsPerIp` [Block]. Rate limit configuration applied separately for each set of requests grouped by client IP address
+//   - `perMinute` (Number). Limit value specified with per minute time unit
+//   - `perSecond` (Number). Limit value specified with per second time unit
+//   - `grpcStatusResponseAction` [Block]. gRPC status response action resource.
+//   - `status` (String). The status of the response. Supported values are: ok, invalid_argumet, not_found, permission_denied, unauthenticated, unimplemented, internal, unavailable.
+//   - `httpRoute` [Block]. HTTP route resource.
+//
+// > Exactly one type of actions `httpRouteAction` or `redirectAction` or `directResponseAction` should be specified.
+//
+//   - `directResponseAction` [Block]. Direct response action resource.
+//   - `body` (String). Response body text.
+//   - `status` (Number). HTTP response status. Should be between `100` and `599`.
+//   - `httpMatch` [Block]. Checks `/` prefix by default.
+//   - `httpMethod` (Set Of String). List of methods (strings).
+//   - `path` [Block]. The `path` and `fqmn` blocks.
+//
+// > Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+//
+//   - `exact` (String). Match exactly.
+//   - `prefix` (String). Match prefix.
+//   - `regex` (String). Match regex.
+//   - `httpRouteAction` [Block]. HTTP route action resource.
+//
+// > Only one type of host rewrite specifiers `hostRewrite` or `autoHostRewrite` should be specified.
+//
+//   - `autoHostRewrite` (Bool). If set, will automatically rewrite host.
+//   - `backendGroupId` (**Required**)(String). Backend group to route requests.
+//   - `hostRewrite` (String). Host rewrite specifier.
+//   - `idleTimeout` (String). Specifies the idle timeout (time without any data transfer for the active request) for the route. It is useful for streaming scenarios (i.e. long-polling, server-sent events) - one should set idleTimeout to something meaningful and timeout to the maximum time the stream is allowed to be alive. If not specified, there is no per-route idle timeout.
+//   - `prefixRewrite` (String). If not empty, matched path prefix will be replaced by this value.
+//   - `timeout` (String). Specifies the request timeout (overall time request processing is allowed to take) for the route. If not set, default is 60 seconds.
+//   - `upgradeTypes` (Set Of String). List of upgrade types. Only specified upgrade types will be allowed. For example, `websocket`.
+//   - `rateLimit` [Block]. Rate limit configuration applied for a whole virtual host
+//   - `allRequests` [Block]. Rate limit configuration applied to all incoming requests
+//   - `perMinute` (Number). Limit value specified with per minute time unit
+//   - `perSecond` (Number). Limit value specified with per second time unit
+//   - `requestsPerIp` [Block]. Rate limit configuration applied separately for each set of requests grouped by client IP address
+//   - `perMinute` (Number). Limit value specified with per minute time unit
+//   - `perSecond` (Number). Limit value specified with per second time unit
+//   - `regexRewrite` [Block]. Replacement for path substrings that match the pattern
+//   - `regex` (String). RE2 regular expression
+//   - `substitute` (String). The string which should be used to substitute matched substrings
+//   - `redirectAction` [Block]. Redirect action resource.
+//
+// > Only one type of paths `replacePath` or `replacePrefix` should be specified.
+//
+//   - `removeQuery` (Bool). If set, remove query part.
+//   - `replaceHost` (String). Replaces hostname.
+//   - `replacePath` (String). Replace path.
+//   - `replacePort` (Number). Replaces port.
+//   - `replacePrefix` (String). Replace only matched prefix. Example:<br/> match:{ prefix_match: `/some` } <br/> redirect: { replace_prefix: `/other` } <br/> will redirect `/something` to `/otherthing`.
+//   - `replaceScheme` (String). Replaces scheme. If the original scheme is `http` or `https`, will also remove the 80 or 443 port, if present.
+//   - `responseCode` (String). The HTTP status code to use in the redirect response. Supported values are: `movedPermanently`, `found`, `seeOther`, `temporaryRedirect`, `permanentRedirect`.
+//   - `routeOptions` [Block]. Route options for the virtual host.
+//   - `securityProfileId` (String). SWS profile ID.
+//   - `rbac` [Block]. RBAC configuration.
+//   - `action` (String).
+//   - `principals` [Block].
+//   - `andPrincipals` [Block].
+//   - `any` (Bool).
+//   - `remoteIp` (String).
+//   - `header` [Block].
+//   - `name` (**Required**)(String).
+//   - `value` [Block]. The `path` and `fqmn` blocks.
+//
+// > Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+//
+//   - `exact` (String). Match exactly.
+//   - `prefix` (String). Match prefix.
+//   - `regex` (String). Match regex.
+//
+// - `routeOptions` [Block]. Route options for the virtual host.
+//   - `securityProfileId` (String). SWS profile ID.
+//   - `rbac` [Block]. RBAC configuration.
+//   - `action` (String).
+//   - `principals` [Block].
+//   - `andPrincipals` [Block].
+//   - `any` (Bool).
+//   - `remoteIp` (String).
+//   - `header` [Block].
+//   - `name` (**Required**)(String).
+//   - `value` [Block]. The `path` and `fqmn` blocks.
+//
+// > Exactly one type of string matches `exact`, `prefix` or `regex` should be specified.
+//
+//   - `exact` (String). Match exactly.
+//   - `prefix` (String). Match prefix.
+//   - `regex` (String). Match regex.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_alb_virtual_host.<resource Name> <http_router_id>/<vhost_name>
+//
+// ```sh
+// $ pulumi import yandex:index/albVirtualHost:AlbVirtualHost my_vhost ds7ph**********hm4in/route-7565bde...6ddd6-1
+// ```
 type AlbVirtualHost struct {
 	pulumi.CustomResourceState
 

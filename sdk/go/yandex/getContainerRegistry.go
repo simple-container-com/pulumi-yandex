@@ -7,13 +7,50 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
-func GetContainerRegistry(ctx *pulumi.Context, args *GetContainerRegistryArgs, opts ...pulumi.InvokeOption) (*GetContainerRegistryResult, error) {
+// Get information about a Yandex Container Registry. For more information, see [the official documentation](https://yandex.cloud/docs/container-registry/concepts/registry)
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetContainerRegistry(ctx, &yandex.LookupContainerRegistryArgs{
+//				RegistryId: pulumi.StringRef("some_registry_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `registryId` (String). The ID of a specific registry.
+// - `status` (*Read-Only*) (String). Status of the registry.
+func LookupContainerRegistry(ctx *pulumi.Context, args *LookupContainerRegistryArgs, opts ...pulumi.InvokeOption) (*LookupContainerRegistryResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
-	var rv GetContainerRegistryResult
+	var rv LookupContainerRegistryResult
 	err := ctx.Invoke("yandex:index/getContainerRegistry:getContainerRegistry", args, &rv, opts...)
 	if err != nil {
 		return nil, err
@@ -22,7 +59,7 @@ func GetContainerRegistry(ctx *pulumi.Context, args *GetContainerRegistryArgs, o
 }
 
 // A collection of arguments for invoking getContainerRegistry.
-type GetContainerRegistryArgs struct {
+type LookupContainerRegistryArgs struct {
 	FolderId   *string           `pulumi:"folderId"`
 	Labels     map[string]string `pulumi:"labels"`
 	Name       *string           `pulumi:"name"`
@@ -30,7 +67,7 @@ type GetContainerRegistryArgs struct {
 }
 
 // A collection of values returned by getContainerRegistry.
-type GetContainerRegistryResult struct {
+type LookupContainerRegistryResult struct {
 	CreatedAt string `pulumi:"createdAt"`
 	FolderId  string `pulumi:"folderId"`
 	// The provider-assigned unique ID for this managed resource.
@@ -41,71 +78,71 @@ type GetContainerRegistryResult struct {
 	Status     string            `pulumi:"status"`
 }
 
-func GetContainerRegistryOutput(ctx *pulumi.Context, args GetContainerRegistryOutputArgs, opts ...pulumi.InvokeOption) GetContainerRegistryResultOutput {
+func LookupContainerRegistryOutput(ctx *pulumi.Context, args LookupContainerRegistryOutputArgs, opts ...pulumi.InvokeOption) LookupContainerRegistryResultOutput {
 	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetContainerRegistryResultOutput, error) {
-			args := v.(GetContainerRegistryArgs)
+		ApplyT(func(v interface{}) (LookupContainerRegistryResultOutput, error) {
+			args := v.(LookupContainerRegistryArgs)
 			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("yandex:index/getContainerRegistry:getContainerRegistry", args, GetContainerRegistryResultOutput{}, options).(GetContainerRegistryResultOutput), nil
-		}).(GetContainerRegistryResultOutput)
+			return ctx.InvokeOutput("yandex:index/getContainerRegistry:getContainerRegistry", args, LookupContainerRegistryResultOutput{}, options).(LookupContainerRegistryResultOutput), nil
+		}).(LookupContainerRegistryResultOutput)
 }
 
 // A collection of arguments for invoking getContainerRegistry.
-type GetContainerRegistryOutputArgs struct {
+type LookupContainerRegistryOutputArgs struct {
 	FolderId   pulumi.StringPtrInput `pulumi:"folderId"`
 	Labels     pulumi.StringMapInput `pulumi:"labels"`
 	Name       pulumi.StringPtrInput `pulumi:"name"`
 	RegistryId pulumi.StringPtrInput `pulumi:"registryId"`
 }
 
-func (GetContainerRegistryOutputArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetContainerRegistryArgs)(nil)).Elem()
+func (LookupContainerRegistryOutputArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupContainerRegistryArgs)(nil)).Elem()
 }
 
 // A collection of values returned by getContainerRegistry.
-type GetContainerRegistryResultOutput struct{ *pulumi.OutputState }
+type LookupContainerRegistryResultOutput struct{ *pulumi.OutputState }
 
-func (GetContainerRegistryResultOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetContainerRegistryResult)(nil)).Elem()
+func (LookupContainerRegistryResultOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupContainerRegistryResult)(nil)).Elem()
 }
 
-func (o GetContainerRegistryResultOutput) ToGetContainerRegistryResultOutput() GetContainerRegistryResultOutput {
+func (o LookupContainerRegistryResultOutput) ToLookupContainerRegistryResultOutput() LookupContainerRegistryResultOutput {
 	return o
 }
 
-func (o GetContainerRegistryResultOutput) ToGetContainerRegistryResultOutputWithContext(ctx context.Context) GetContainerRegistryResultOutput {
+func (o LookupContainerRegistryResultOutput) ToLookupContainerRegistryResultOutputWithContext(ctx context.Context) LookupContainerRegistryResultOutput {
 	return o
 }
 
-func (o GetContainerRegistryResultOutput) CreatedAt() pulumi.StringOutput {
-	return o.ApplyT(func(v GetContainerRegistryResult) string { return v.CreatedAt }).(pulumi.StringOutput)
+func (o LookupContainerRegistryResultOutput) CreatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupContainerRegistryResult) string { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-func (o GetContainerRegistryResultOutput) FolderId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetContainerRegistryResult) string { return v.FolderId }).(pulumi.StringOutput)
+func (o LookupContainerRegistryResultOutput) FolderId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupContainerRegistryResult) string { return v.FolderId }).(pulumi.StringOutput)
 }
 
 // The provider-assigned unique ID for this managed resource.
-func (o GetContainerRegistryResultOutput) Id() pulumi.StringOutput {
-	return o.ApplyT(func(v GetContainerRegistryResult) string { return v.Id }).(pulumi.StringOutput)
+func (o LookupContainerRegistryResultOutput) Id() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupContainerRegistryResult) string { return v.Id }).(pulumi.StringOutput)
 }
 
-func (o GetContainerRegistryResultOutput) Labels() pulumi.StringMapOutput {
-	return o.ApplyT(func(v GetContainerRegistryResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
+func (o LookupContainerRegistryResultOutput) Labels() pulumi.StringMapOutput {
+	return o.ApplyT(func(v LookupContainerRegistryResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
 }
 
-func (o GetContainerRegistryResultOutput) Name() pulumi.StringOutput {
-	return o.ApplyT(func(v GetContainerRegistryResult) string { return v.Name }).(pulumi.StringOutput)
+func (o LookupContainerRegistryResultOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupContainerRegistryResult) string { return v.Name }).(pulumi.StringOutput)
 }
 
-func (o GetContainerRegistryResultOutput) RegistryId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetContainerRegistryResult) string { return v.RegistryId }).(pulumi.StringOutput)
+func (o LookupContainerRegistryResultOutput) RegistryId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupContainerRegistryResult) string { return v.RegistryId }).(pulumi.StringOutput)
 }
 
-func (o GetContainerRegistryResultOutput) Status() pulumi.StringOutput {
-	return o.ApplyT(func(v GetContainerRegistryResult) string { return v.Status }).(pulumi.StringOutput)
+func (o LookupContainerRegistryResultOutput) Status() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupContainerRegistryResult) string { return v.Status }).(pulumi.StringOutput)
 }
 
 func init() {
-	pulumi.RegisterOutputType(GetContainerRegistryResultOutput{})
+	pulumi.RegisterOutputType(LookupContainerRegistryResultOutput{})
 }

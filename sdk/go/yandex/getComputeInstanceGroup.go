@@ -7,10 +7,240 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Compute instance group.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+// func main() {
+// pulumi.Run(func(ctx *pulumi.Context) error {
+// myGroup, err := yandex.GetComputeInstanceGroup(ctx, &yandex.LookupComputeInstanceGroupArgs{
+// InstanceGroupId: "some_instance_group_id",
+// }, nil);
+// if err != nil {
+// return err
+// }
+// ctx.Export("instanceExternalIp", pulumi.Array(%!v(PANIC=Format method: fatal: A failure has occurred: unlowered splat expression @ #-functions-%syandex:index-getComputeInstanceGroup:getComputeInstanceGroup.pp:4,11-62)))
+// return nil
+// })
+// }
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `allocationPolicy` (*Read-Only*) (List Of Object).
+//   - `instanceTagsPool` .
+//   - `tags` .
+//   - `zone` .
+//   - `zones` .
+//
+// - `applicationBalancerState` (*Read-Only*) (List Of Object).
+//   - `statusMessage` .
+//   - `targetGroupId` .
+//
+// - `applicationLoadBalancer` (*Read-Only*) (List Of Object).
+//   - `ignoreHealthChecks` .
+//   - `maxOpeningTrafficDuration` .
+//   - `statusMessage` .
+//   - `targetGroupDescription` .
+//   - `targetGroupId` .
+//   - `targetGroupLabels` .
+//   - `targetGroupName` .
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (*Read-Only*) (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `deployPolicy` (*Read-Only*) (List Of Object).
+//   - `maxCreating` .
+//   - `maxDeleting` .
+//   - `maxExpansion` .
+//   - `maxUnavailable` .
+//   - `startupDuration` .
+//   - `strategy` .
+//
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (*Read-Only*) (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `healthCheck` (*Read-Only*) (List Of Object).
+//   - `healthyThreshold` .
+//   - `httpOptions` .
+//   - `path` .
+//   - `port` .
+//   - `interval` .
+//   - `tcpOptions` .
+//   - `port` .
+//   - `timeout` .
+//   - `unhealthyThreshold` .
+//
+// - `id` (String).
+// - `instanceGroupId` (**Required**)(String). The ID of a specific instance group.
+// - `instanceTemplate` (*Read-Only*) (List Of Object).
+//   - `bootDisk` .
+//   - `deviceName` .
+//   - `diskId` .
+//   - `initializeParams` .
+//   - `description` .
+//   - `imageId` .
+//   - `size` .
+//   - `snapshotId` .
+//   - `type` .
+//   - `mode` .
+//   - `name` .
+//   - `description` .
+//   - `filesystem` .
+//   - `deviceName` .
+//   - `filesystemId` .
+//   - `mode` .
+//   - `hostname` .
+//   - `labels` .
+//   - `metadata` .
+//   - `metadataOptions` .
+//   - `awsV1HttpEndpoint` .
+//   - `awsV1HttpToken` .
+//   - `awsV2HttpEndpoint` .
+//   - `awsV2HttpToken` .
+//   - `gceHttpEndpoint` .
+//   - `gceHttpToken` .
+//   - `name` .
+//   - `networkInterface` .
+//   - `dnsRecord` .
+//   - `dnsZoneId` .
+//   - `fqdn` .
+//   - `ptr` .
+//   - `ttl` .
+//   - `ipAddress` .
+//   - `ipv4` .
+//   - `ipv6` .
+//   - `ipv6Address` .
+//   - `ipv6DnsRecord` .
+//   - `dnsZoneId` .
+//   - `fqdn` .
+//   - `ptr` .
+//   - `ttl` .
+//   - `nat` .
+//   - `natDnsRecord` .
+//   - `dnsZoneId` .
+//   - `fqdn` .
+//   - `ptr` .
+//   - `ttl` .
+//   - `natIpAddress` .
+//   - `networkId` .
+//   - `securityGroupIds` .
+//   - `subnetIds` .
+//   - `networkSettings` .
+//   - `type` .
+//   - `placementPolicy` .
+//   - `placementGroupId` .
+//   - `platformId` .
+//   - `reservedInstancePoolId` .
+//   - `resources` .
+//   - `coreFraction` .
+//   - `cores` .
+//   - `gpus` .
+//   - `memory` .
+//   - `schedulingPolicy` .
+//   - `preemptible` .
+//   - `secondaryDisk` .
+//   - `deviceName` .
+//   - `diskId` .
+//   - `initializeParams` .
+//   - `description` .
+//   - `imageId` .
+//   - `size` .
+//   - `snapshotId` .
+//   - `type` .
+//   - `mode` .
+//   - `name` .
+//   - `serviceAccountId` .
+//
+// - `instances` (*Read-Only*) (List Of Object).
+//   - `fqdn` .
+//   - `instanceId` .
+//   - `instanceTag` .
+//   - `name` .
+//   - `networkInterface` .
+//   - `index` .
+//   - `ipAddress` .
+//   - `ipv4` .
+//   - `ipv6` .
+//   - `ipv6Address` .
+//   - `macAddress` .
+//   - `nat` .
+//   - `natIpAddress` .
+//   - `natIpVersion` .
+//   - `subnetId` .
+//   - `status` .
+//   - `statusChangedAt` .
+//   - `statusMessage` .
+//   - `zoneId` .
+//
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `loadBalancer` (*Read-Only*) (List Of Object).
+//   - `ignoreHealthChecks` .
+//   - `maxOpeningTrafficDuration` .
+//   - `statusMessage` .
+//   - `targetGroupDescription` .
+//   - `targetGroupId` .
+//   - `targetGroupLabels` .
+//   - `targetGroupName` .
+//
+// - `loadBalancerState` (*Read-Only*) (List Of Object).
+//   - `statusMessage` .
+//   - `targetGroupId` .
+//
+// - `maxCheckingHealthDuration` (*Read-Only*) (Number). Timeout for waiting for the VM to become healthy. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
+// - `name` (*Read-Only*) (String). The resource name.
+// - `scalePolicy` (*Read-Only*) (List Of Object).
+//   - `autoScale` .
+//   - `autoScaleType` .
+//   - `cpuUtilizationTarget` .
+//   - `customRule` .
+//   - `folderId` .
+//   - `labels` .
+//   - `metricName` .
+//   - `metricType` .
+//   - `ruleType` .
+//   - `service` .
+//   - `target` .
+//   - `initialSize` .
+//   - `maxSize` .
+//   - `measurementDuration` .
+//   - `minZoneSize` .
+//   - `stabilizationDuration` .
+//   - `warmupDuration` .
+//   - `fixedScale` .
+//   - `size` .
+//   - `testAutoScale` .
+//   - `autoScaleType` .
+//   - `cpuUtilizationTarget` .
+//   - `customRule` .
+//   - `folderId` .
+//   - `labels` .
+//   - `metricName` .
+//   - `metricType` .
+//   - `ruleType` .
+//   - `service` .
+//   - `target` .
+//   - `initialSize` .
+//   - `maxSize` .
+//   - `measurementDuration` .
+//   - `minZoneSize` .
+//   - `stabilizationDuration` .
+//   - `warmupDuration` .
+//
+// - `serviceAccountId` (*Read-Only*) (String). [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+// - `status` (*Read-Only*) (String). The status of the instance.
+// - `variables` (*Read-Only*) (Map Of String). A set of key/value variables pairs to assign to the instance group.
 func LookupComputeInstanceGroup(ctx *pulumi.Context, args *LookupComputeInstanceGroupArgs, opts ...pulumi.InvokeOption) (*LookupComputeInstanceGroupResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupComputeInstanceGroupResult

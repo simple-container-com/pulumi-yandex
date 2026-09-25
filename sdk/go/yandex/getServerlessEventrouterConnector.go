@@ -7,10 +7,58 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `busId` (*Read-Only*) (String). ID of the bus that the connector belongs to
+// - `cloudId` (*Read-Only*) (String). ID of the cloud that the connector resides in
+// - `connectorId` (String). ID of the connector
+// - `createdAt` (*Read-Only*) (String). Creation timestamp
+// - `deletionProtection` (*Read-Only*) (Bool). Deletion protection
+// - `description` (*Read-Only*) (String). Description of the connector
+// - `folderId` (*Read-Only*) (String). ID of the folder that the connector resides in
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). Connector labels
+// - `name` (String). Name of the connector
+// - `timer` (*Read-Only*) (List Of Object). Timer source of the connector.
+//   - `cronExpression` .
+//   - `payload` .
+//   - `timezone` .
+//
+// - `yds` (*Read-Only*) (List Of Object). Data Stream source of the connector.
+//   - `consumer` .
+//   - `database` .
+//   - `serviceAccountId` .
+//   - `streamName` .
+//
+// - `ymq` (*Read-Only*) (List Of Object). Message Queue source of the connector.
+//   - `batchSize` .
+//   - `pollingTimeout` .
+//   - `queueArn` .
+//   - `serviceAccountId` .
+//   - `visibilityTimeout` .
 func LookupServerlessEventrouterConnector(ctx *pulumi.Context, args *LookupServerlessEventrouterConnectorArgs, opts ...pulumi.InvokeOption) (*LookupServerlessEventrouterConnectorResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupServerlessEventrouterConnectorResult

@@ -7,13 +7,70 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
-func GetComputeFilesystem(ctx *pulumi.Context, args *GetComputeFilesystemArgs, opts ...pulumi.InvokeOption) (*GetComputeFilesystemResult, error) {
+// Get information about a Yandex Compute filesystem. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/filesystem).
+//
+// > One of `filesystemId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myFs, err := yandex.GetComputeFilesystem(ctx, &yandex.LookupComputeFilesystemArgs{
+//				FilesystemId: pulumi.StringRef("some_fs_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			// You can use "data.yandex_compute_filesystem.my_fs.id" identifier
+//			// as reference to the existing resource.
+//			// ...
+//			_, err = yandex.NewComputeInstance(ctx, "default", &yandex.ComputeInstanceArgs{
+//				Filesystems: yandex.ComputeInstanceFilesystemArray{
+//					&yandex.ComputeInstanceFilesystemArgs{
+//						FilesystemId: pulumi.String(myFs.Id),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `blockSize` (*Read-Only*) (Number). Block size of the filesystem, specified in bytes.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `filesystemId` (String). ID of the filesystem.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `size` (*Read-Only*) (Number). Size of the filesystem, specified in GB.
+// - `status` (*Read-Only*) (String). The status of the filesystem.
+// - `type` (*Read-Only*) (String). Type of filesystem to create. Type `network-hdd` is set by default.
+// - `zone` (*Read-Only*) (String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+func LookupComputeFilesystem(ctx *pulumi.Context, args *LookupComputeFilesystemArgs, opts ...pulumi.InvokeOption) (*LookupComputeFilesystemResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
-	var rv GetComputeFilesystemResult
+	var rv LookupComputeFilesystemResult
 	err := ctx.Invoke("yandex:index/getComputeFilesystem:getComputeFilesystem", args, &rv, opts...)
 	if err != nil {
 		return nil, err
@@ -22,14 +79,14 @@ func GetComputeFilesystem(ctx *pulumi.Context, args *GetComputeFilesystemArgs, o
 }
 
 // A collection of arguments for invoking getComputeFilesystem.
-type GetComputeFilesystemArgs struct {
+type LookupComputeFilesystemArgs struct {
 	FilesystemId *string `pulumi:"filesystemId"`
 	FolderId     *string `pulumi:"folderId"`
 	Name         *string `pulumi:"name"`
 }
 
 // A collection of values returned by getComputeFilesystem.
-type GetComputeFilesystemResult struct {
+type LookupComputeFilesystemResult struct {
 	BlockSize    int    `pulumi:"blockSize"`
 	CreatedAt    string `pulumi:"createdAt"`
 	Description  string `pulumi:"description"`
@@ -45,90 +102,90 @@ type GetComputeFilesystemResult struct {
 	Zone   string            `pulumi:"zone"`
 }
 
-func GetComputeFilesystemOutput(ctx *pulumi.Context, args GetComputeFilesystemOutputArgs, opts ...pulumi.InvokeOption) GetComputeFilesystemResultOutput {
+func LookupComputeFilesystemOutput(ctx *pulumi.Context, args LookupComputeFilesystemOutputArgs, opts ...pulumi.InvokeOption) LookupComputeFilesystemResultOutput {
 	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetComputeFilesystemResultOutput, error) {
-			args := v.(GetComputeFilesystemArgs)
+		ApplyT(func(v interface{}) (LookupComputeFilesystemResultOutput, error) {
+			args := v.(LookupComputeFilesystemArgs)
 			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("yandex:index/getComputeFilesystem:getComputeFilesystem", args, GetComputeFilesystemResultOutput{}, options).(GetComputeFilesystemResultOutput), nil
-		}).(GetComputeFilesystemResultOutput)
+			return ctx.InvokeOutput("yandex:index/getComputeFilesystem:getComputeFilesystem", args, LookupComputeFilesystemResultOutput{}, options).(LookupComputeFilesystemResultOutput), nil
+		}).(LookupComputeFilesystemResultOutput)
 }
 
 // A collection of arguments for invoking getComputeFilesystem.
-type GetComputeFilesystemOutputArgs struct {
+type LookupComputeFilesystemOutputArgs struct {
 	FilesystemId pulumi.StringPtrInput `pulumi:"filesystemId"`
 	FolderId     pulumi.StringPtrInput `pulumi:"folderId"`
 	Name         pulumi.StringPtrInput `pulumi:"name"`
 }
 
-func (GetComputeFilesystemOutputArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetComputeFilesystemArgs)(nil)).Elem()
+func (LookupComputeFilesystemOutputArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupComputeFilesystemArgs)(nil)).Elem()
 }
 
 // A collection of values returned by getComputeFilesystem.
-type GetComputeFilesystemResultOutput struct{ *pulumi.OutputState }
+type LookupComputeFilesystemResultOutput struct{ *pulumi.OutputState }
 
-func (GetComputeFilesystemResultOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetComputeFilesystemResult)(nil)).Elem()
+func (LookupComputeFilesystemResultOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupComputeFilesystemResult)(nil)).Elem()
 }
 
-func (o GetComputeFilesystemResultOutput) ToGetComputeFilesystemResultOutput() GetComputeFilesystemResultOutput {
+func (o LookupComputeFilesystemResultOutput) ToLookupComputeFilesystemResultOutput() LookupComputeFilesystemResultOutput {
 	return o
 }
 
-func (o GetComputeFilesystemResultOutput) ToGetComputeFilesystemResultOutputWithContext(ctx context.Context) GetComputeFilesystemResultOutput {
+func (o LookupComputeFilesystemResultOutput) ToLookupComputeFilesystemResultOutputWithContext(ctx context.Context) LookupComputeFilesystemResultOutput {
 	return o
 }
 
-func (o GetComputeFilesystemResultOutput) BlockSize() pulumi.IntOutput {
-	return o.ApplyT(func(v GetComputeFilesystemResult) int { return v.BlockSize }).(pulumi.IntOutput)
+func (o LookupComputeFilesystemResultOutput) BlockSize() pulumi.IntOutput {
+	return o.ApplyT(func(v LookupComputeFilesystemResult) int { return v.BlockSize }).(pulumi.IntOutput)
 }
 
-func (o GetComputeFilesystemResultOutput) CreatedAt() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeFilesystemResult) string { return v.CreatedAt }).(pulumi.StringOutput)
+func (o LookupComputeFilesystemResultOutput) CreatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeFilesystemResult) string { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-func (o GetComputeFilesystemResultOutput) Description() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeFilesystemResult) string { return v.Description }).(pulumi.StringOutput)
+func (o LookupComputeFilesystemResultOutput) Description() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeFilesystemResult) string { return v.Description }).(pulumi.StringOutput)
 }
 
-func (o GetComputeFilesystemResultOutput) FilesystemId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeFilesystemResult) string { return v.FilesystemId }).(pulumi.StringOutput)
+func (o LookupComputeFilesystemResultOutput) FilesystemId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeFilesystemResult) string { return v.FilesystemId }).(pulumi.StringOutput)
 }
 
-func (o GetComputeFilesystemResultOutput) FolderId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeFilesystemResult) string { return v.FolderId }).(pulumi.StringOutput)
+func (o LookupComputeFilesystemResultOutput) FolderId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeFilesystemResult) string { return v.FolderId }).(pulumi.StringOutput)
 }
 
 // The provider-assigned unique ID for this managed resource.
-func (o GetComputeFilesystemResultOutput) Id() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeFilesystemResult) string { return v.Id }).(pulumi.StringOutput)
+func (o LookupComputeFilesystemResultOutput) Id() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeFilesystemResult) string { return v.Id }).(pulumi.StringOutput)
 }
 
-func (o GetComputeFilesystemResultOutput) Labels() pulumi.StringMapOutput {
-	return o.ApplyT(func(v GetComputeFilesystemResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
+func (o LookupComputeFilesystemResultOutput) Labels() pulumi.StringMapOutput {
+	return o.ApplyT(func(v LookupComputeFilesystemResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
 }
 
-func (o GetComputeFilesystemResultOutput) Name() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeFilesystemResult) string { return v.Name }).(pulumi.StringOutput)
+func (o LookupComputeFilesystemResultOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeFilesystemResult) string { return v.Name }).(pulumi.StringOutput)
 }
 
-func (o GetComputeFilesystemResultOutput) Size() pulumi.IntOutput {
-	return o.ApplyT(func(v GetComputeFilesystemResult) int { return v.Size }).(pulumi.IntOutput)
+func (o LookupComputeFilesystemResultOutput) Size() pulumi.IntOutput {
+	return o.ApplyT(func(v LookupComputeFilesystemResult) int { return v.Size }).(pulumi.IntOutput)
 }
 
-func (o GetComputeFilesystemResultOutput) Status() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeFilesystemResult) string { return v.Status }).(pulumi.StringOutput)
+func (o LookupComputeFilesystemResultOutput) Status() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeFilesystemResult) string { return v.Status }).(pulumi.StringOutput)
 }
 
-func (o GetComputeFilesystemResultOutput) Type() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeFilesystemResult) string { return v.Type }).(pulumi.StringOutput)
+func (o LookupComputeFilesystemResultOutput) Type() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeFilesystemResult) string { return v.Type }).(pulumi.StringOutput)
 }
 
-func (o GetComputeFilesystemResultOutput) Zone() pulumi.StringOutput {
-	return o.ApplyT(func(v GetComputeFilesystemResult) string { return v.Zone }).(pulumi.StringOutput)
+func (o LookupComputeFilesystemResultOutput) Zone() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupComputeFilesystemResult) string { return v.Zone }).(pulumi.StringOutput)
 }
 
 func init() {
-	pulumi.RegisterOutputType(GetComputeFilesystemResultOutput{})
+	pulumi.RegisterOutputType(LookupComputeFilesystemResultOutput{})
 }

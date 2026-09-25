@@ -7,10 +7,112 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a connector of the Yandex Managed Kafka cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			foo, err := yandex.GetMdbKafkaConnector(ctx, &yandex.LookupMdbKafkaConnectorArgs{
+//				ClusterId: "some_cluster_id",
+//				Name:      "test",
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("tasksMax", foo.TasksMax)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `clusterId` (**Required**)(String). The ID of the Kafka cluster.
+// - `connectorConfigIcebergSink` (*Read-Only*) (List Of Object). Settings for Iceberg Sink connector.
+//   - `controlConfig` .
+//   - `commitIntervalMs` .
+//   - `commitThreads` .
+//   - `commitTimeoutMs` .
+//   - `groupIdPrefix` .
+//   - `transactionalPrefix` .
+//   - `controlTopic` .
+//   - `dynamicTables` .
+//   - `routeField` .
+//   - `metastoreConnection` .
+//   - `catalogUri` .
+//   - `warehouse` .
+//   - `s3Connection` .
+//   - `externalS3` .
+//   - `accessKeyId` .
+//   - `endpoint` .
+//   - `region` .
+//   - `secretAccessKey` .
+//   - `staticTables` .
+//   - `tables` .
+//   - `tablesConfig` .
+//   - `defaultCommitBranch` .
+//   - `defaultIdColumns` .
+//   - `defaultPartitionBy` .
+//   - `evolveSchemaEnabled` .
+//   - `schemaCaseInsensitive` .
+//   - `schemaForceOptional` .
+//   - `topics` .
+//   - `topicsRegex` .
+//
+// - `connectorConfigMirrormaker` (*Read-Only*) (List Of Object). Settings for MirrorMaker2 connector.
+//   - `replicationFactor` .
+//   - `sourceCluster` .
+//   - `alias` .
+//   - `externalCluster` .
+//   - `bootstrapServers` .
+//   - `saslMechanism` .
+//   - `saslPassword` .
+//   - `saslUsername` .
+//   - `securityProtocol` .
+//   - `thisCluster` .
+//   - `targetCluster` .
+//   - `alias` .
+//   - `externalCluster` .
+//   - `bootstrapServers` .
+//   - `saslMechanism` .
+//   - `saslPassword` .
+//   - `saslUsername` .
+//   - `securityProtocol` .
+//   - `thisCluster` .
+//   - `topics` .
+//
+// - `connectorConfigS3Sink` (*Read-Only*) (List Of Object). Settings for S3 Sink connector.
+//   - `fileCompressionType` .
+//   - `fileMaxRecords` .
+//   - `s3Connection` .
+//   - `bucketName` .
+//   - `externalS3` .
+//   - `accessKeyId` .
+//   - `endpoint` .
+//   - `region` .
+//   - `secretAccessKey` .
+//   - `topics` .
+//
+// - `id` (String).
+// - `name` (**Required**)(String). The resource name.
+// - `properties` (*Read-Only*) (Map Of String). Additional properties for connector.
+// - `tasksMax` (*Read-Only*) (Number). The number of the connector's parallel working tasks. Default is the number of brokers.
 func LookupMdbKafkaConnector(ctx *pulumi.Context, args *LookupMdbKafkaConnectorArgs, opts ...pulumi.InvokeOption) (*LookupMdbKafkaConnectorResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMdbKafkaConnectorResult
@@ -30,6 +132,7 @@ type LookupMdbKafkaConnectorArgs struct {
 // A collection of values returned by getMdbKafkaConnector.
 type LookupMdbKafkaConnectorResult struct {
 	ClusterId                   string                                           `pulumi:"clusterId"`
+	ConnectorConfigIcebergSinks []GetMdbKafkaConnectorConnectorConfigIcebergSink `pulumi:"connectorConfigIcebergSinks"`
 	ConnectorConfigMirrormakers []GetMdbKafkaConnectorConnectorConfigMirrormaker `pulumi:"connectorConfigMirrormakers"`
 	ConnectorConfigS3Sinks      []GetMdbKafkaConnectorConnectorConfigS3Sink      `pulumi:"connectorConfigS3Sinks"`
 	// The provider-assigned unique ID for this managed resource.
@@ -75,6 +178,12 @@ func (o LookupMdbKafkaConnectorResultOutput) ToLookupMdbKafkaConnectorResultOutp
 
 func (o LookupMdbKafkaConnectorResultOutput) ClusterId() pulumi.StringOutput {
 	return o.ApplyT(func(v LookupMdbKafkaConnectorResult) string { return v.ClusterId }).(pulumi.StringOutput)
+}
+
+func (o LookupMdbKafkaConnectorResultOutput) ConnectorConfigIcebergSinks() GetMdbKafkaConnectorConnectorConfigIcebergSinkArrayOutput {
+	return o.ApplyT(func(v LookupMdbKafkaConnectorResult) []GetMdbKafkaConnectorConnectorConfigIcebergSink {
+		return v.ConnectorConfigIcebergSinks
+	}).(GetMdbKafkaConnectorConnectorConfigIcebergSinkArrayOutput)
 }
 
 func (o LookupMdbKafkaConnectorResultOutput) ConnectorConfigMirrormakers() GetMdbKafkaConnectorConnectorConfigMirrormakerArrayOutput {

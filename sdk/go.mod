@@ -1,4 +1,4 @@
-module github.com/masikrus/pulumi-yandex/sdk
+module github.com/simple-container-com/pulumi-yandex/sdk
 
 go 1.22
 
@@ -6,7 +6,6 @@ toolchain go1.22.11
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/pulumi/pulumi-xyz/sdk v1.1.180
 	github.com/pulumi/pulumi/sdk/v3 v3.166.0
 )
 

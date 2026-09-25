@@ -8,10 +8,197 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Allows management of [Yandex Cloud Attach and Detach VM](https://yandex.cloud/docs/backup/operations/policy-vm/attach-and-detach-vm).
+//
+//	> Cloud Backup Provider must be activated in order to manipulate with policies.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"fmt"
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Cloud Backup Policy Binding
+//			testSa, err := yandex.NewIamServiceAccount(ctx, "testSa", nil)
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewResourcemanagerFolderIamMember(ctx, "testBinding", &yandex.ResourcemanagerFolderIamMemberArgs{
+//				FolderId: testSa.FolderId,
+//				Role:     pulumi.String("backup.editor"),
+//				Member: testSa.IamServiceAccountId.ApplyT(func(iamServiceAccountId string) (string, error) {
+//					return fmt.Sprintf("serviceAccount:%v", iamServiceAccountId), nil
+//				}).(pulumi.StringOutput),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			testBackupNetwork, err := yandex.NewVpcNetwork(ctx, "testBackupNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			testBackupSubnet, err := yandex.NewVpcSubnet(ctx, "testBackupSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-a"),
+//				NetworkId: testBackupNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("192.168.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// https://yandex.cloud/ru/docs/backup/concepts/vm-connection#vm-network-access
+//			testBackupSecurityGroup, err := yandex.NewVpcSecurityGroup(ctx, "testBackupSecurityGroup", &yandex.VpcSecurityGroupArgs{
+//				NetworkId: testBackupNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Egresses: yandex.VpcSecurityGroupEgressArray{
+//					&yandex.VpcSecurityGroupEgressArgs{
+//						Protocol: pulumi.String("TCP"),
+//						FromPort: pulumi.Int(7770),
+//						ToPort:   pulumi.Int(7800),
+//						V4CidrBlocks: pulumi.StringArray{
+//							pulumi.String("84.47.172.0/24"),
+//						},
+//					},
+//					&yandex.VpcSecurityGroupEgressArgs{
+//						Protocol: pulumi.String("TCP"),
+//						Port:     pulumi.Int(443),
+//						V4CidrBlocks: pulumi.StringArray{
+//							pulumi.String("213.180.204.0/24"),
+//							pulumi.String("213.180.193.0/24"),
+//							pulumi.String("178.176.128.0/24"),
+//							pulumi.String("84.201.181.0/24"),
+//							pulumi.String("84.47.172.0/24"),
+//						},
+//					},
+//					&yandex.VpcSecurityGroupEgressArgs{
+//						Protocol: pulumi.String("TCP"),
+//						Port:     pulumi.Int(80),
+//						V4CidrBlocks: pulumi.StringArray{
+//							pulumi.String("213.180.204.0/24"),
+//							pulumi.String("213.180.193.0/24"),
+//						},
+//					},
+//					&yandex.VpcSecurityGroupEgressArgs{
+//						Protocol: pulumi.String("TCP"),
+//						Port:     pulumi.Int(8443),
+//						V4CidrBlocks: pulumi.StringArray{
+//							pulumi.String("84.47.172.0/24"),
+//						},
+//					},
+//					&yandex.VpcSecurityGroupEgressArgs{
+//						Protocol: pulumi.String("TCP"),
+//						Port:     pulumi.Int(44445),
+//						V4CidrBlocks: pulumi.StringArray{
+//							pulumi.String("51.250.1.0/24"),
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			ubuntu, err := yandex.GetComputeImage(ctx, &yandex.LookupComputeImageArgs{
+//				Family: pulumi.StringRef("ubuntu-2004-lts"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			testBackupCompute, err := yandex.NewComputeInstance(ctx, "testBackupCompute", &yandex.ComputeInstanceArgs{
+//				PlatformId:       pulumi.String("standard-v1"),
+//				Zone:             pulumi.String("ru-central1-a"),
+//				ServiceAccountId: testSa.IamServiceAccountId,
+//				NetworkInterfaces: yandex.ComputeInstanceNetworkInterfaceArray{
+//					&yandex.ComputeInstanceNetworkInterfaceArgs{
+//						SubnetId: testBackupSubnet.ID().ToIDOutput().ToStringOutput(),
+//						SecurityGroupIds: pulumi.StringArray{
+//							testBackupSecurityGroup.ID().ToIDOutput().ToStringOutput(),
+//						},
+//						Nat: pulumi.Bool(true),
+//					},
+//				},
+//				BootDisk: &yandex.ComputeInstanceBootDiskArgs{
+//					InitializeParams: &yandex.ComputeInstanceBootDiskInitializeParamsArgs{
+//						ImageId: pulumi.String(ubuntu.Id),
+//					},
+//				},
+//				Resources: &yandex.ComputeInstanceResourcesArgs{
+//					Cores:  pulumi.Int(2),
+//					Memory: pulumi.Float64(4),
+//				},
+//				Metadata: pulumi.StringMap{
+//					"user-data": pulumi.String(`#cloud-config
+//
+// packages:
+//   - curl
+//   - perl
+//   - jq
+//
+// runcmd:
+//   - curl https://storage.yandexcloud.net/backup-distributions/agent_installer.sh | sudo bash
+//
+// `),
+//
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			testBackupPolicy, err := yandex.GetBackupPolicy(ctx, &yandex.LookupBackupPolicyArgs{
+//				Name: pulumi.StringRef("Default daily"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.NewBackupPolicyBindings(ctx, "testBackupBinding", &yandex.BackupPolicyBindingsArgs{
+//				InstanceId: testBackupCompute.ID().ToIDOutput().ToStringOutput(),
+//				PolicyId:   pulumi.String(testBackupPolicy.Id),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `enabled` (*Read-Only*) (Bool). Flag is specifies whether the policy application is enabled. May be `false` if Processing flag is `true`.
+// - `id` (String).
+// - `instanceId` (**Required**)(String). Compute Cloud instance ID.
+// - `policyId` (**Required**)(String). Backup Policy ID.
+// - `processing` (*Read-Only*) (Bool). Flag that specifies whether the policy is in the process of binding to an instance.
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_backup_policy_bindings.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/backupPolicyBindings:BackupPolicyBindings test_backup_binding ...
+// ```
 type BackupPolicyBindings struct {
 	pulumi.CustomResourceState
 

@@ -7,10 +7,47 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Cloud Service Agent.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetIamServiceAgent(ctx, &yandex.GetIamServiceAgentArgs{
+//				CloudId:        pulumi.StringRef("some_cloud_id"),
+//				MicroserviceId: pulumi.StringRef("some_microservice_id"),
+//				ServiceId:      pulumi.StringRef("some_service_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("myServiceAgentId", pulumi.String("data.yandex_iam_service_agent.my_service_agent.id"))
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `cloudId` (String). ID of the cloud.
+// - `id` (String).
+// - `microserviceId` (String). ID of the service-control microservice.
+// - `serviceId` (String). ID of the service-control service.
 func GetIamServiceAgent(ctx *pulumi.Context, args *GetIamServiceAgentArgs, opts ...pulumi.InvokeOption) (*GetIamServiceAgentResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv GetIamServiceAgentResult

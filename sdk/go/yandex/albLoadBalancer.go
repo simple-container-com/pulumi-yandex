@@ -8,10 +8,191 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Creates an Application Load Balancer in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/application-load-balancer/concepts/application-load-balancer).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Application Load Balancer (ALB)
+//			_, err := yandex.NewAlbLoadBalancer(ctx, "myAlb", &yandex.AlbLoadBalancerArgs{
+//				NetworkId: pulumi.Any(yandex_vpc_network.TestNetwork.Id),
+//				AllocationPolicy: &yandex.AlbLoadBalancerAllocationPolicyArgs{
+//					Locations: yandex.AlbLoadBalancerAllocationPolicyLocationArray{
+//						&yandex.AlbLoadBalancerAllocationPolicyLocationArgs{
+//							ZoneId:   pulumi.String("ru-central1-a"),
+//							SubnetId: pulumi.Any(yandex_vpc_subnet.TestSubnet.Id),
+//						},
+//					},
+//				},
+//				Listeners: yandex.AlbLoadBalancerListenerArray{
+//					&yandex.AlbLoadBalancerListenerArgs{
+//						Name: pulumi.String("my-listener"),
+//						Endpoints: yandex.AlbLoadBalancerListenerEndpointArray{
+//							&yandex.AlbLoadBalancerListenerEndpointArgs{
+//								Addresses: yandex.AlbLoadBalancerListenerEndpointAddressArray{
+//									&yandex.AlbLoadBalancerListenerEndpointAddressArgs{
+//										ExternalIpv4Address: &yandex.AlbLoadBalancerListenerEndpointAddressExternalIpv4AddressArgs{},
+//									},
+//								},
+//								Ports: pulumi.IntArray{
+//									pulumi.Int(8080),
+//								},
+//							},
+//						},
+//						Http: &yandex.AlbLoadBalancerListenerHttpArgs{
+//							Handler: &yandex.AlbLoadBalancerListenerHttpHandlerArgs{
+//								HttpRouterId: pulumi.Any(yandex_alb_http_router.TestRouter.Id),
+//							},
+//						},
+//					},
+//				},
+//				LogOptions: &yandex.AlbLoadBalancerLogOptionsArgs{
+//					DiscardRules: yandex.AlbLoadBalancerLogOptionsDiscardRuleArray{
+//						&yandex.AlbLoadBalancerLogOptionsDiscardRuleArgs{
+//							HttpCodeIntervals: pulumi.StringArray{
+//								pulumi.String("2XX"),
+//							},
+//							DiscardPercent: pulumi.Int(75),
+//						},
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `allowZonalShift` (Bool). Specifies whether application load balancer is available to zonal shift
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `logGroupId` (*Read-Only*) (String). Cloud Logging group ID to send logs to. Leave empty to use the balancer folder default log group.
+// - `name` (String). The resource name.
+// - `networkId` (**Required**)(String). The `VPC Network ID` of subnets which resource attached to.
+// - `regionId` (String). The region ID where Load Balancer is located at.
+// - `securityGroupIds` (Set Of String). The list of security groups applied to resource or their components.
+// - `status` (*Read-Only*) (String). Status of the Load Balancer.
+// - `allocationPolicy` [Block]. Allocation zones for the Load Balancer instance.
+//   - `location` [Block]. Unique set of locations.
+//   - `disableTraffic` (Bool). If set, will disable all L7 instances in the zone for request handling.
+//   - `subnetId` (**Required**)(String). ID of the subnet that location is located at.
+//   - `zoneId` (**Required**)(String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+//
+// - `autoScalePolicy` [Block]. Scaling settings of the application load balancer.
+//   - `maxSize` (Number). Upper limit for total instance count (across all zones)
+//   - `minZoneSize` (Number). Lower limit for instance count in each zone.
+//
+// - `listener` [Block]. List of listeners for the Load Balancer.
+//   - `name` (**Required**)(String). Name of the listener.
+//   - `endpoint` [Block]. Network endpoint (addresses and ports) of the listener.
+//   - `ports` (**Required**)(List Of Number). One or more ports to listen on.
+//   - `address` [Block]. One or more addresses to listen on.
+//   - `externalIpv4Address` [Block]. External IPv4 address.
+//   - `address` (String). Provided by the client or computed automatically.
+//   - `externalIpv6Address` [Block]. External IPv6 address.
+//   - `address` (String). Provided by the client or computed automatically.
+//   - `internalIpv4Address` [Block]. Internal IPv4 address.
+//   - `address` (String). Provided by the client or computed automatically.
+//   - `subnetId` (String). ID of the subnet that the address belongs to.
+//   - `http` [Block]. HTTP handler that sets plain text HTTP router.
+//   - `handler` [Block]. HTTP handler.
+//   - `allowHttp10` (Bool). If set, will enable only HTTP1 protocol with HTTP1.0 support.
+//   - `httpRouterId` (String). HTTP router id.
+//   - `preserveHttp1HeaderCasing` (Bool). When unset, will preserve the casing of the incoming HTTP headers, otherwise would convert them to lowercase. Works only for HTTP1.1 and HTTP1.0 requests.
+//   - `rewriteRequestId` (Bool). When unset, will preserve the incoming `x-request-id` header, otherwise would rewrite it with a new value.
+//   - `http2Options` [Block]. If set, will enable HTTP2 protocol for the handler.
+//   - `maxConcurrentStreams` (Number). Maximum number of concurrent streams.
+//   - `redirects` [Block]. Shortcut for adding http > https redirects.
+//   - `httpToHttps` (Bool). If set redirects all unencrypted HTTP requests to the same URI with scheme changed to `https`.
+//   - `stream` [Block]. Stream configuration
+//   - `handler` [Block]. Stream handler resource.
+//   - `backendGroupId` (String). Backend Group ID.
+//   - `idleTimeout` (String). The idle timeout is the interval after which the connection will be forcibly closed if no data has been transmitted or received on either the upstream or downstream connection. If not configured, the default idle timeout is 1 hour. Setting it to 0 disables the timeout.
+//   - `tls` [Block]. TLS configuration
+//   - `defaultHandler` [Block]. TLS handler resource.
+//   - `certificateIds` (**Required**)(Set Of String). Certificate IDs in the Certificate Manager. Multiple TLS certificates can be associated with the same context to allow both RSA and ECDSA certificates. Only the first certificate of each type will be used.
+//   - `clientCertificatesVerification` [Block]. Client certificates verification settings.
+//   - `acceptUntrusted` (Bool). If true, ALB will not check certification chain and will allow expired client certificates.
+//   - `allowExpired` (Bool). If true, ALB will allow expired client certificates even if acceptUntrusted is set to false.
+//   - `bytes` (String). Trusted certificate authority certificates bundle (PEM text).
+//   - `requireClientCertificate` (Bool). If true, ALB will reject connections without a valid client certificate.
+//   - `httpHandler` [Block]. HTTP handler.
+//   - `allowHttp10` (Bool). If set, will enable only HTTP1 protocol with HTTP1.0 support.
+//   - `httpRouterId` (String). HTTP router id.
+//   - `preserveHttp1HeaderCasing` (Bool). When unset, will preserve the casing of the incoming HTTP headers, otherwise would convert them to lowercase. Works only for HTTP1.1 and HTTP1.0 requests.
+//   - `rewriteRequestId` (Bool). When unset, will preserve the incoming `x-request-id` header, otherwise would rewrite it with a new value.
+//   - `http2Options` [Block]. If set, will enable HTTP2 protocol for the handler.
+//   - `maxConcurrentStreams` (Number). Maximum number of concurrent streams.
+//   - `streamHandler` [Block]. Stream handler resource.
+//   - `backendGroupId` (String). Backend Group ID.
+//   - `idleTimeout` (String). The idle timeout is the interval after which the connection will be forcibly closed if no data has been transmitted or received on either the upstream or downstream connection. If not configured, the default idle timeout is 1 hour. Setting it to 0 disables the timeout.
+//   - `sniHandler` [Block]. Settings for handling requests with Server Name Indication (SNI)
+//   - `name` (**Required**)(String). Name of the SNI handler
+//   - `serverNames` (**Required**)(Set Of String). Server names that are matched by the SNI handler
+//   - `handler` [Block]. TLS handler resource.
+//   - `certificateIds` (**Required**)(Set Of String). Certificate IDs in the Certificate Manager. Multiple TLS certificates can be associated with the same context to allow both RSA and ECDSA certificates. Only the first certificate of each type will be used.
+//   - `clientCertificatesVerification` [Block]. Client certificates verification settings.
+//   - `acceptUntrusted` (Bool). If true, ALB will not check certification chain and will allow expired client certificates.
+//   - `allowExpired` (Bool). If true, ALB will allow expired client certificates even if acceptUntrusted is set to false.
+//   - `bytes` (String). Trusted certificate authority certificates bundle (PEM text).
+//   - `requireClientCertificate` (Bool). If true, ALB will reject connections without a valid client certificate.
+//   - `httpHandler` [Block]. HTTP handler.
+//   - `allowHttp10` (Bool). If set, will enable only HTTP1 protocol with HTTP1.0 support.
+//   - `httpRouterId` (String). HTTP router id.
+//   - `preserveHttp1HeaderCasing` (Bool). When unset, will preserve the casing of the incoming HTTP headers, otherwise would convert them to lowercase. Works only for HTTP1.1 and HTTP1.0 requests.
+//   - `rewriteRequestId` (Bool). When unset, will preserve the incoming `x-request-id` header, otherwise would rewrite it with a new value.
+//   - `http2Options` [Block]. If set, will enable HTTP2 protocol for the handler.
+//   - `maxConcurrentStreams` (Number). Maximum number of concurrent streams.
+//   - `streamHandler` [Block]. Stream handler resource.
+//   - `backendGroupId` (String). Backend Group ID.
+//   - `idleTimeout` (String). The idle timeout is the interval after which the connection will be forcibly closed if no data has been transmitted or received on either the upstream or downstream connection. If not configured, the default idle timeout is 1 hour. Setting it to 0 disables the timeout.
+//
+// - `logOptions` [Block]. Cloud Logging settings.
+//   - `disable` (Bool). Set to `true` to disable Cloud Logging for the balancer.
+//   - `logGroupId` (String). Cloud Logging group ID to send logs to. Leave empty to use the balancer folder default log group.
+//   - `discardRule` [Block]. List of rules to discard a fraction of logs.
+//   - `discardPercent` (Number). The percent of logs which will be discarded.
+//   - `grpcCodes` (List Of String). list of grpc codes by name, e.g, [**NOT_FOUND**, **RESOURCE_EXHAUSTED**].
+//   - `httpCodeIntervals` (List Of String). List of http code intervals *1XX*-*5XX* or *ALL*
+//   - `httpCodes` (List Of Number). List of http codes *100*-*599*.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_alb_load_balancer.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/albLoadBalancer:AlbLoadBalancer my_alb ds705**********q7qvl
+// ```
 type AlbLoadBalancer struct {
 	pulumi.CustomResourceState
 

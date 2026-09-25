@@ -8,10 +8,93 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a MySQL database within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.5.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			myCluster, err := yandex.NewMdbMysqlCluster(ctx, "myCluster", &yandex.MdbMysqlClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Version:     pulumi.String("8.0"),
+//				Resources: &yandex.MdbMysqlClusterResourcesArgs{
+//					ResourcePresetId: pulumi.String("s2.micro"),
+//					DiskTypeId:       pulumi.String("network-ssd"),
+//					DiskSize:         pulumi.Int(16),
+//				},
+//				Hosts: yandex.MdbMysqlClusterHostArray{
+//					&yandex.MdbMysqlClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB MySQL Database.
+//			_, err = yandex.NewMdbMysqlDatabase(ctx, "myDb", &yandex.MdbMysqlDatabaseArgs{
+//				ClusterId: myCluster.ID().ToIDOutput().ToStringOutput(),
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `clusterId` (**Required**)(String). The MySQL cluster ID.
+// - `id` (String).
+// - `name` (**Required**)(String). The name of the database.
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_mdb_mysql_database.<resource Name> "<cluster Id>:<database Name>"
+//
+// ```sh
+// $ pulumi import yandex:index/mdbMysqlDatabase:MdbMysqlDatabase my_db ...
+// ```
 type MdbMysqlDatabase struct {
 	pulumi.CustomResourceState
 

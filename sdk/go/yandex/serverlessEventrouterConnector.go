@@ -8,10 +8,73 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `busId` (**Required**)(String). ID of the bus that the connector belongs to
+// - `cloudId` (*Read-Only*) (String). ID of the cloud that the connector resides in
+// - `createdAt` (*Read-Only*) (String). Creation timestamp
+// - `deletionProtection` (Bool). Deletion protection
+// - `description` (String). Description of the connector
+// - `folderId` (*Read-Only*) (String). ID of the folder that the connector resides in
+// - `id` (String).
+// - `labels` (Map Of String). Connector labels
+// - `name` (**Required**)(String). Name of the connector
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// - `timer` [Block]. Timer source of the connector
+//   - `cronExpression` (**Required**)(String). Cron expression. Cron expression with seconds. Example: 0 45 16 ? * *
+//   - `payload` (String). Payload to be passed to bus
+//   - `timezone` (String). Timezone in tz database format. Example: Europe/Moscow
+//
+// - `yds` [Block]. Data Stream source of the connector
+//   - `consumer` (**Required**)(String). Consumer name
+//   - `database` (**Required**)(String). Stream database
+//   - `serviceAccountId` (**Required**)(String). Service account which has read permission on the stream
+//   - `streamName` (**Required**)(String). Stream name, absolute or relative
+//
+// - `ymq` [Block]. Message Queue source of the connector
+//   - `batchSize` (Number). Batch size for polling
+//   - `pollingTimeout` (String). Queue polling timeout
+//   - `queueArn` (**Required**)(String). Queue ARN. Example: yrn:yc:ymq:ru-central1:aoe***:test
+//   - `serviceAccountId` (**Required**)(String). Service account which has read access to the queue
+//   - `visibilityTimeout` (String). Queue visibility timeout override
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_serverless_eventrouter_connector.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/serverlessEventrouterConnector:ServerlessEventrouterConnector evr_con ...
+// ```
 type ServerlessEventrouterConnector struct {
 	pulumi.CustomResourceState
 

@@ -7,10 +7,256 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Creates or requests a TLS certificate in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/certificate-manager/concepts/).
+//
+// > At the moment, a resource may not work correctly if it declares the use of a DNS challenge, but the certificate is confirmed using an HTTP challenge. And vice versa.
+//
+// In this case, the service does not provide the parameters of the required type of challenges.
+//
+// > Only one type `managed` or `selfManaged` should be specified.
+//
+// > Please be informed that imported certificate will have DNS_CNAME type for DNS challenges.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new Certificate for specific Domain name.
+//			_, err := yandex.NewCmCertificate(ctx, "example", &yandex.CmCertificateArgs{
+//				Domains: pulumi.StringArray{
+//					pulumi.String("example.com"),
+//				},
+//				Managed: &yandex.CmCertificateManagedArgs{
+//					ChallengeType: pulumi.String("DNS_CNAME"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"fmt"
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+// func main() {
+// pulumi.Run(func(ctx *pulumi.Context) error {
+// //
+// // Create a new Certificates for the set of domains
+// // with specific DNS challenge for each domain.
+// //
+// exampleCmCertificate, err := yandex.NewCmCertificate(ctx, "exampleCmCertificate", &yandex.CmCertificateArgs{
+// Domains: pulumi.StringArray{
+// pulumi.String("one.example.com"),
+// pulumi.String("two.example.com"),
+// },
+// Managed: &yandex.CmCertificateManagedArgs{
+// ChallengeType: pulumi.String("DNS_CNAME"),
+// ChallengeCount: pulumi.Int(2),
+// },
+// })
+// if err != nil {
+// return err
+// }
+// var exampleDnsRecordset []*yandex.DnsRecordset
+//
+//	for index := 0; index < *int(exampleCmCertificate.Managed.ChallengeCount()); index++ {
+//	    key0 := index
+//
+// __res, err := yandex.NewDnsRecordset(ctx, fmt.Sprintf("exampleDnsRecordset-%v", key0), &yandex.DnsRecordsetArgs{
+// ZoneId: pulumi.String("example-zone-id"),
+// Type: pulumi.String(exampleCmCertificate.Challenges.ApplyT(func(challenges []yandex.CmCertificateChallenge) (interface{}, error) {
+// return challenges[%!v(PANIC=Format method: fatal: A failure has occurred: unexpected traversal on range expression: index)].Dns_type, nil
+// }).(pulumi.AnyOutput)),
+// Datas: pulumi.StringArray{
+// pulumi.String(exampleCmCertificate.Challenges.ApplyT(func(challenges []yandex.CmCertificateChallenge) (interface{}, error) {
+// return challenges[%!v(PANIC=Format method: fatal: A failure has occurred: unexpected traversal on range expression: index)].Dns_value, nil
+// }).(pulumi.AnyOutput)),
+// },
+// Ttl: pulumi.Int(60),
+// })
+// if err != nil {
+// return err
+// }
+// exampleDnsRecordset = append(exampleDnsRecordset, __res)
+// }
+// return nil
+// })
+// }
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"fmt"
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+// func main() {
+// pulumi.Run(func(ctx *pulumi.Context) error {
+// //
+// // Create a new Certificates for the set of domains
+// // with the same DNS challenge for both domains.
+// //
+// exampleCmCertificate, err := yandex.NewCmCertificate(ctx, "exampleCmCertificate", &yandex.CmCertificateArgs{
+// Domains: pulumi.StringArray{
+// pulumi.String("example.com"),
+// pulumi.String("*.example.com"),
+// },
+// Managed: &yandex.CmCertificateManagedArgs{
+// ChallengeType: pulumi.String("DNS_CNAME"),
+// ChallengeCount: pulumi.Int(1),
+// },
+// })
+// if err != nil {
+// return err
+// }
+// var exampleDnsRecordset []*yandex.DnsRecordset
+//
+//	for index := 0; index < *int(exampleCmCertificate.Managed.ChallengeCount()); index++ {
+//	    key0 := index
+//
+// __res, err := yandex.NewDnsRecordset(ctx, fmt.Sprintf("exampleDnsRecordset-%v", key0), &yandex.DnsRecordsetArgs{
+// ZoneId: pulumi.String("example-zone-id"),
+// Type: pulumi.String(exampleCmCertificate.Challenges.ApplyT(func(challenges []yandex.CmCertificateChallenge) (interface{}, error) {
+// return challenges[%!v(PANIC=Format method: fatal: A failure has occurred: unexpected traversal on range expression: index)].Dns_type, nil
+// }).(pulumi.AnyOutput)),
+// Datas: pulumi.StringArray{
+// pulumi.String(exampleCmCertificate.Challenges.ApplyT(func(challenges []yandex.CmCertificateChallenge) (interface{}, error) {
+// return challenges[%!v(PANIC=Format method: fatal: A failure has occurred: unexpected traversal on range expression: index)].Dns_value, nil
+// }).(pulumi.AnyOutput)),
+// },
+// Ttl: pulumi.Int(60),
+// })
+// if err != nil {
+// return err
+// }
+// exampleDnsRecordset = append(exampleDnsRecordset, __res)
+// }
+// return nil
+// })
+// }
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Create a new self-managed Certificate.
+//			_, err := yandex.NewCmCertificate(ctx, "example", &yandex.CmCertificateArgs{
+//				SelfManaged: &yandex.CmCertificateSelfManagedArgs{
+//					Certificate: pulumi.String("-----BEGIN CERTIFICATE----- ... -----END CERTIFICATE----- \n -----BEGIN CERTIFICATE----- ... -----END CERTIFICATE-----\n"),
+//					PrivateKey:  pulumi.String("-----BEGIN RSA PRIVATE KEY----- ... -----END RSA PRIVATE KEY-----"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `challenges` (*Read-Only*) (List Of Object). Array of challenges.
+//   - `createdAt` .
+//   - `dnsName` .
+//   - `dnsType` .
+//   - `dnsValue` .
+//   - `domain` .
+//   - `httpContent` .
+//   - `httpUrl` .
+//   - `message` .
+//   - `type` .
+//   - `updatedAt` .
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `domains` (List Of String). Domains for this certificate. Should be specified for managed certificates.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `issuedAt` (*Read-Only*) (String). Certificate issue timestamp.
+// - `issuer` (*Read-Only*) (String). Certificate Issuer.
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (**Required**)(String). The resource name.
+// - `notAfter` (*Read-Only*) (String). Certificate end valid period.
+// - `notBefore` (*Read-Only*) (String). Certificate start valid period.
+// - `serial` (*Read-Only*) (String). Certificate Serial Number.
+// - `status` (*Read-Only*) (String). Certificate status: `VALIDATING`, `INVALID`, `ISSUED`, `REVOKED`, `RENEWING` or `RENEWAL_FAILED`.
+// - `subject` (*Read-Only*) (String). Certificate Subject.
+// - `type` (*Read-Only*) (String). Certificate type: `MANAGED` or `IMPORTED`.
+// - `updatedAt` (*Read-Only*) (String). Certificate update timestamp.
+// - `managed` [Block]. Managed specification.
+//
+// > Resource creation awaits getting challenges from issue provider.
+//
+//   - `challengeCount` (Number). Expected number of challenge count needed to validate certificate. Resource creation will fail if the specified value does not match the actual number of challenges received from issue provider. This argument is helpful for safe automatic resource creation for passing challenges for multi-domain certificates.
+//   - `challengeType` (**Required**)(String). Domain owner-check method. Possible values:
+//
+// * `DNS_CNAME` - you will need to create a CNAME dns record with the specified value. Recommended for fully automated certificate renewal.
+// * `DNS_TXT` - you will need to create a TXT dns record with specified value.
+// * `HTTP` - you will need to place specified value into specified url.
+// - `selfManaged` [Block]. Self-managed specification.
+//
+// > Only one type `privateKey` or `privateKeyLockboxSecret` should be specified.
+//
+//   - `certificate` (**Required**)(String). Certificate with chain.
+//   - `privateKey` (String). Private key of certificate.
+//   - `privateKeyLockboxSecret` [Block]. Lockbox secret specification for getting private key.
+//   - `id` (**Required**)(String). Lockbox secret Id.
+//   - `key` (**Required**)(String). Key of the Lockbox secret, the value of which contains the private key of the certificate.
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `read` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// ```sh
+// # terraform import yandex_cm_certificate.<resource Name> <resource Id>
+// terraform import yandex_cm_certificate.my_cm_cert fpqn8********** cg27q
+// ```
 type CmCertificate struct {
 	pulumi.CustomResourceState
 

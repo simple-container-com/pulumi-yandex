@@ -7,10 +7,57 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get content (certificate, private key) from a Yandex Certificate Manager Certificate. For more information, see [the official documentation](https://yandex.cloud/docs/certificate-manager/concepts/).
+//
+// > One of `certificateId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetCmCertificateContent(ctx, &yandex.GetCmCertificateContentArgs{
+//				CertificateId: pulumi.StringRef("certificate-id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			_, err = yandex.GetCmCertificateContent(ctx, &yandex.GetCmCertificateContentArgs{
+//				FolderId: pulumi.StringRef("folder-id"),
+//				Name:     pulumi.StringRef("example"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `certificateId` (String). Certificate Id.
+// - `certificates` (*Read-Only*) (List Of String). List of certificates in chain.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `name` (String). Certificate name.
+// - `privateKey` (*Read-Only*) (String). Private key in specified format.
+// - `privateKeyFormat` (String). Format in which you want to export the private_key: `"PKCS1"` or `"PKCS8"`.
+// - `waitValidation` (Bool). If `true`, the operation won't be completed while the certificate is in `VALIDATING`. Default is `false`.
 func GetCmCertificateContent(ctx *pulumi.Context, args *GetCmCertificateContentArgs, opts ...pulumi.InvokeOption) (*GetCmCertificateContentResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv GetCmCertificateContentResult

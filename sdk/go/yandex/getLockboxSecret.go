@@ -7,10 +7,72 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about Yandex Cloud Lockbox secret. For more information, see [the official documentation](https://yandex.cloud/docs/lockbox/).
+//
+// > One of `secretId` or `name` should be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			mySecret, err := yandex.GetLockboxSecret(ctx, &yandex.LookupLockboxSecretArgs{
+//				SecretId: pulumi.StringRef("some ID"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("mySecretCreatedAt", mySecret.CreatedAt)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `currentVersion` (*Read-Only*) (List Of Object). Current secret version.
+//   - `createdAt` .
+//   - `description` .
+//   - `destroyAt` .
+//   - `id` .
+//   - `payloadEntryKeys` .
+//   - `secretId` .
+//   - `status` .
+//
+// - `deletionProtection` (*Read-Only*) (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `kmsKeyId` (*Read-Only*) (String). The KMS key used to encrypt the Yandex Cloud Lockbox secret.
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `passwordPayloadSpecification` (*Read-Only*) (List Of Object).
+//   - `excludedPunctuation` .
+//   - `includeDigits` .
+//   - `includeLowercase` .
+//   - `includePunctuation` .
+//   - `includeUppercase` .
+//   - `includedPunctuation` .
+//   - `length` .
+//   - `passwordKey` .
+//
+// - `secretId` (String). The Yandex Cloud Lockbox secret ID.
+// - `status` (*Read-Only*) (String). The Yandex Cloud Lockbox secret status.
 func LookupLockboxSecret(ctx *pulumi.Context, args *LookupLockboxSecretArgs, opts ...pulumi.InvokeOption) (*LookupLockboxSecretResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupLockboxSecretResult

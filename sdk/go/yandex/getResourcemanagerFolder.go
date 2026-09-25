@@ -7,13 +7,62 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
-func GetResourcemanagerFolder(ctx *pulumi.Context, args *GetResourcemanagerFolderArgs, opts ...pulumi.InvokeOption) (*GetResourcemanagerFolderResult, error) {
+// Use this data source to get information about a Yandex Resource Manager Folder. For more information, see [the official documentation](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#folder).
+//
+// > Either `folderId` or `name` must be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myFolder1, err := yandex.GetResourcemanagerFolder(ctx, &yandex.LookupResourcemanagerFolderArgs{
+//				FolderId: pulumi.StringRef("folder_id_number_1"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			myFolder2, err := yandex.GetResourcemanagerFolder(ctx, &yandex.LookupResourcemanagerFolderArgs{
+//				Name:    pulumi.StringRef("folder_name"),
+//				CloudId: pulumi.StringRef("some_cloud_id"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("myFolder1Name", myFolder1.Name)
+//			ctx.Export("myFolder2CloudId", myFolder2.CloudId)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `cloudId` (String). Cloud that the resource belongs to. If value is omitted, the default provider cloud is used.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `folderId` (String). ID of the folder.
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (String). The resource name.
+// - `status` (*Read-Only*) (String). Current status of the folder.
+func LookupResourcemanagerFolder(ctx *pulumi.Context, args *LookupResourcemanagerFolderArgs, opts ...pulumi.InvokeOption) (*LookupResourcemanagerFolderResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
-	var rv GetResourcemanagerFolderResult
+	var rv LookupResourcemanagerFolderResult
 	err := ctx.Invoke("yandex:index/getResourcemanagerFolder:getResourcemanagerFolder", args, &rv, opts...)
 	if err != nil {
 		return nil, err
@@ -22,7 +71,7 @@ func GetResourcemanagerFolder(ctx *pulumi.Context, args *GetResourcemanagerFolde
 }
 
 // A collection of arguments for invoking getResourcemanagerFolder.
-type GetResourcemanagerFolderArgs struct {
+type LookupResourcemanagerFolderArgs struct {
 	CloudId  *string           `pulumi:"cloudId"`
 	FolderId *string           `pulumi:"folderId"`
 	Labels   map[string]string `pulumi:"labels"`
@@ -30,7 +79,7 @@ type GetResourcemanagerFolderArgs struct {
 }
 
 // A collection of values returned by getResourcemanagerFolder.
-type GetResourcemanagerFolderResult struct {
+type LookupResourcemanagerFolderResult struct {
 	CloudId     string `pulumi:"cloudId"`
 	CreatedAt   string `pulumi:"createdAt"`
 	Description string `pulumi:"description"`
@@ -42,75 +91,75 @@ type GetResourcemanagerFolderResult struct {
 	Status string            `pulumi:"status"`
 }
 
-func GetResourcemanagerFolderOutput(ctx *pulumi.Context, args GetResourcemanagerFolderOutputArgs, opts ...pulumi.InvokeOption) GetResourcemanagerFolderResultOutput {
+func LookupResourcemanagerFolderOutput(ctx *pulumi.Context, args LookupResourcemanagerFolderOutputArgs, opts ...pulumi.InvokeOption) LookupResourcemanagerFolderResultOutput {
 	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetResourcemanagerFolderResultOutput, error) {
-			args := v.(GetResourcemanagerFolderArgs)
+		ApplyT(func(v interface{}) (LookupResourcemanagerFolderResultOutput, error) {
+			args := v.(LookupResourcemanagerFolderArgs)
 			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("yandex:index/getResourcemanagerFolder:getResourcemanagerFolder", args, GetResourcemanagerFolderResultOutput{}, options).(GetResourcemanagerFolderResultOutput), nil
-		}).(GetResourcemanagerFolderResultOutput)
+			return ctx.InvokeOutput("yandex:index/getResourcemanagerFolder:getResourcemanagerFolder", args, LookupResourcemanagerFolderResultOutput{}, options).(LookupResourcemanagerFolderResultOutput), nil
+		}).(LookupResourcemanagerFolderResultOutput)
 }
 
 // A collection of arguments for invoking getResourcemanagerFolder.
-type GetResourcemanagerFolderOutputArgs struct {
+type LookupResourcemanagerFolderOutputArgs struct {
 	CloudId  pulumi.StringPtrInput `pulumi:"cloudId"`
 	FolderId pulumi.StringPtrInput `pulumi:"folderId"`
 	Labels   pulumi.StringMapInput `pulumi:"labels"`
 	Name     pulumi.StringPtrInput `pulumi:"name"`
 }
 
-func (GetResourcemanagerFolderOutputArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetResourcemanagerFolderArgs)(nil)).Elem()
+func (LookupResourcemanagerFolderOutputArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupResourcemanagerFolderArgs)(nil)).Elem()
 }
 
 // A collection of values returned by getResourcemanagerFolder.
-type GetResourcemanagerFolderResultOutput struct{ *pulumi.OutputState }
+type LookupResourcemanagerFolderResultOutput struct{ *pulumi.OutputState }
 
-func (GetResourcemanagerFolderResultOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*GetResourcemanagerFolderResult)(nil)).Elem()
+func (LookupResourcemanagerFolderResultOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LookupResourcemanagerFolderResult)(nil)).Elem()
 }
 
-func (o GetResourcemanagerFolderResultOutput) ToGetResourcemanagerFolderResultOutput() GetResourcemanagerFolderResultOutput {
+func (o LookupResourcemanagerFolderResultOutput) ToLookupResourcemanagerFolderResultOutput() LookupResourcemanagerFolderResultOutput {
 	return o
 }
 
-func (o GetResourcemanagerFolderResultOutput) ToGetResourcemanagerFolderResultOutputWithContext(ctx context.Context) GetResourcemanagerFolderResultOutput {
+func (o LookupResourcemanagerFolderResultOutput) ToLookupResourcemanagerFolderResultOutputWithContext(ctx context.Context) LookupResourcemanagerFolderResultOutput {
 	return o
 }
 
-func (o GetResourcemanagerFolderResultOutput) CloudId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetResourcemanagerFolderResult) string { return v.CloudId }).(pulumi.StringOutput)
+func (o LookupResourcemanagerFolderResultOutput) CloudId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupResourcemanagerFolderResult) string { return v.CloudId }).(pulumi.StringOutput)
 }
 
-func (o GetResourcemanagerFolderResultOutput) CreatedAt() pulumi.StringOutput {
-	return o.ApplyT(func(v GetResourcemanagerFolderResult) string { return v.CreatedAt }).(pulumi.StringOutput)
+func (o LookupResourcemanagerFolderResultOutput) CreatedAt() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupResourcemanagerFolderResult) string { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-func (o GetResourcemanagerFolderResultOutput) Description() pulumi.StringOutput {
-	return o.ApplyT(func(v GetResourcemanagerFolderResult) string { return v.Description }).(pulumi.StringOutput)
+func (o LookupResourcemanagerFolderResultOutput) Description() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupResourcemanagerFolderResult) string { return v.Description }).(pulumi.StringOutput)
 }
 
-func (o GetResourcemanagerFolderResultOutput) FolderId() pulumi.StringOutput {
-	return o.ApplyT(func(v GetResourcemanagerFolderResult) string { return v.FolderId }).(pulumi.StringOutput)
+func (o LookupResourcemanagerFolderResultOutput) FolderId() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupResourcemanagerFolderResult) string { return v.FolderId }).(pulumi.StringOutput)
 }
 
 // The provider-assigned unique ID for this managed resource.
-func (o GetResourcemanagerFolderResultOutput) Id() pulumi.StringOutput {
-	return o.ApplyT(func(v GetResourcemanagerFolderResult) string { return v.Id }).(pulumi.StringOutput)
+func (o LookupResourcemanagerFolderResultOutput) Id() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupResourcemanagerFolderResult) string { return v.Id }).(pulumi.StringOutput)
 }
 
-func (o GetResourcemanagerFolderResultOutput) Labels() pulumi.StringMapOutput {
-	return o.ApplyT(func(v GetResourcemanagerFolderResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
+func (o LookupResourcemanagerFolderResultOutput) Labels() pulumi.StringMapOutput {
+	return o.ApplyT(func(v LookupResourcemanagerFolderResult) map[string]string { return v.Labels }).(pulumi.StringMapOutput)
 }
 
-func (o GetResourcemanagerFolderResultOutput) Name() pulumi.StringOutput {
-	return o.ApplyT(func(v GetResourcemanagerFolderResult) string { return v.Name }).(pulumi.StringOutput)
+func (o LookupResourcemanagerFolderResultOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupResourcemanagerFolderResult) string { return v.Name }).(pulumi.StringOutput)
 }
 
-func (o GetResourcemanagerFolderResultOutput) Status() pulumi.StringOutput {
-	return o.ApplyT(func(v GetResourcemanagerFolderResult) string { return v.Status }).(pulumi.StringOutput)
+func (o LookupResourcemanagerFolderResultOutput) Status() pulumi.StringOutput {
+	return o.ApplyT(func(v LookupResourcemanagerFolderResult) string { return v.Status }).(pulumi.StringOutput)
 }
 
 func init() {
-	pulumi.RegisterOutputType(GetResourcemanagerFolderResultOutput{})
+	pulumi.RegisterOutputType(LookupResourcemanagerFolderResultOutput{})
 }

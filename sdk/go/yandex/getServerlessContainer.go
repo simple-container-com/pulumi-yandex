@@ -7,10 +7,105 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a Yandex Cloud Serverless Container. This data source is used to define Yandex Cloud Container that can be used by other resources.
+//
+// > Either `containerId` or `name` must be specified.
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			_, err := yandex.GetServerlessContainer(ctx, &yandex.LookupServerlessContainerArgs{
+//				ContainerId: pulumi.StringRef("are1samplecontainer11"),
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `asyncInvocation` (*Read-Only*) (List Of Object).
+//   - `serviceAccountId` .
+//
+// - `concurrency` (*Read-Only*) (Number). Concurrency of Yandex Cloud Serverless Container.
+// - `containerId` (String). Yandex Cloud Serverless Container ID used to define container.
+// - `coreFraction` (*Read-Only*) (Number). Core fraction (**0...100**) of the Yandex Cloud Serverless Container.
+// - `cores` (*Read-Only*) (Number). Cores (**1+**) of the Yandex Cloud Serverless Container.
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `description` (*Read-Only*) (String). The resource description.
+// - `executionTimeout` (*Read-Only*) (String). Execution timeout in seconds (**duration format**) for Yandex Cloud Serverless Container.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `id` (String).
+// - `image` (*Read-Only*) (List Of Object).
+//   - `args` .
+//   - `command` .
+//   - `digest` .
+//   - `environment` .
+//   - `url` .
+//   - `workDir` .
+//
+// - `labels` (*Read-Only*) (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `logOptions` (*Read-Only*) (List Of Object).
+//   - `disabled` .
+//   - `folderId` .
+//   - `logGroupId` .
+//   - `minLevel` .
+//
+// - `memory` (*Read-Only*) (Number). Memory in megabytes (**aligned to 128 MB**).
+// - `name` (String). The resource name.
+// - `revisionId` (*Read-Only*) (String). Last revision ID of the Yandex Cloud Serverless Container.
+// - `serviceAccountId` (*Read-Only*) (String). [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+// - `url` (*Read-Only*) (String). Invoke URL for the Yandex Cloud Serverless Container.
+// - `connectivity` [Block].
+//   - `networkId` (**Required**)(String).
+//
+// - `metadataOptions` [Block].
+//   - `awsV1HttpEndpoint` (Number).
+//   - `gceHttpEndpoint` (Number).
+//
+// - `mounts` [Block].
+//   - `mode` (String).
+//   - `mountPointPath` (**Required**)(String).
+//   - `ephemeralDisk` [Block].
+//   - `blockSizeKb` (Number).
+//   - `sizeGb` (**Required**)(Number).
+//   - `objectStorage` [Block].
+//   - `bucket` (**Required**)(String).
+//   - `prefix` (String).
+//
+// - `runtime` [Block].
+//   - `type` (**Required**)(String).
+//
+// - `secrets` [Block].
+//   - `environmentVariable` (**Required**)(String).
+//   - `id` (**Required**)(String).
+//   - `key` (**Required**)(String).
+//   - `versionId` (**Required**)(String).
+//
+// - `storageMounts` [Block].
+//   - `bucket` (**Required**)(String).
+//   - `mountPointPath` (**Required**)(String).
+//   - `prefix` (String).
+//   - `readOnly` (Bool).
 func LookupServerlessContainer(ctx *pulumi.Context, args *LookupServerlessContainerArgs, opts ...pulumi.InvokeOption) (*LookupServerlessContainerResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupServerlessContainerResult

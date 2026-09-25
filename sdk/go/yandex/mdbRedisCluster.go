@@ -8,10 +8,248 @@ import (
 	"reflect"
 
 	"errors"
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Manages a Redis cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-redis/concepts).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.5.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB Redis Cluster.
+//			_, err = yandex.NewMdbRedisCluster(ctx, "myCluster", &yandex.MdbRedisClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Config: &yandex.MdbRedisClusterConfigArgs{
+//					Password: pulumi.String("your_password"),
+//					Version:  pulumi.String("6.2"),
+//				},
+//				Resources: &yandex.MdbRedisClusterResourcesArgs{
+//					ResourcePresetId: pulumi.String("hm1.nano"),
+//					DiskSize:         pulumi.Int(16),
+//				},
+//				Hosts: yandex.MdbRedisClusterHostArray{
+//					&yandex.MdbRedisClusterHostArgs{
+//						Zone:     pulumi.String("ru-central1-d"),
+//						SubnetId: fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//					},
+//				},
+//				MaintenanceWindow: &yandex.MdbRedisClusterMaintenanceWindowArgs{
+//					Type: pulumi.String("ANYTIME"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			// Auxiliary resources
+//			fooVpcNetwork, err := yandex.NewVpcNetwork(ctx, "fooVpcNetwork", nil)
+//			if err != nil {
+//				return err
+//			}
+//			fooVpcSubnet, err := yandex.NewVpcSubnet(ctx, "fooVpcSubnet", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-a"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.1.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			bar, err := yandex.NewVpcSubnet(ctx, "bar", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-b"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.2.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			baz, err := yandex.NewVpcSubnet(ctx, "baz", &yandex.VpcSubnetArgs{
+//				Zone:      pulumi.String("ru-central1-d"),
+//				NetworkId: fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				V4CidrBlocks: pulumi.StringArray{
+//					pulumi.String("10.3.0.0/24"),
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			// Create a new MDB Sharded Redis Cluster.
+//			_, err = yandex.NewMdbRedisCluster(ctx, "fooMdbRedisCluster", &yandex.MdbRedisClusterArgs{
+//				Environment: pulumi.String("PRESTABLE"),
+//				NetworkId:   fooVpcNetwork.ID().ToIDOutput().ToStringOutput(),
+//				Sharded:     pulumi.Bool(true),
+//				Config: &yandex.MdbRedisClusterConfigArgs{
+//					Version:  pulumi.String("6.2"),
+//					Password: pulumi.String("your_password"),
+//				},
+//				Resources: &yandex.MdbRedisClusterResourcesArgs{
+//					ResourcePresetId: pulumi.String("hm1.nano"),
+//					DiskSize:         pulumi.Int(16),
+//				},
+//				Hosts: yandex.MdbRedisClusterHostArray{
+//					&yandex.MdbRedisClusterHostArgs{
+//						Zone:      pulumi.String("ru-central1-a"),
+//						SubnetId:  fooVpcSubnet.ID().ToIDOutput().ToStringOutput(),
+//						ShardName: pulumi.String("first"),
+//					},
+//					&yandex.MdbRedisClusterHostArgs{
+//						Zone:      pulumi.String("ru-central1-b"),
+//						SubnetId:  bar.ID().ToIDOutput().ToStringOutput(),
+//						ShardName: pulumi.String("second"),
+//					},
+//					&yandex.MdbRedisClusterHostArgs{
+//						Zone:      pulumi.String("ru-central1-d"),
+//						SubnetId:  baz.ID().ToIDOutput().ToStringOutput(),
+//						ShardName: pulumi.String("third"),
+//					},
+//				},
+//			})
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `announceHostnames` (Bool). Announce fqdn instead of ip address.
+// - `authSentinel` (Bool). Allows to use ACL users to auth in sentinel
+// - `createdAt` (*Read-Only*) (String). The creation timestamp of the resource.
+// - `deletionProtection` (Bool). The `true` value means that resource is protected from accidental deletion.
+// - `description` (String). The resource description.
+// - `diskEncryptionKeyId` (String). ID of the KMS key for cluster disk encryption.
+// - `environment` (**Required**)(String). Deployment environment of the Redis cluster. Can be either `PRESTABLE` or `PRODUCTION`.
+// - `folderId` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+// - `health` (*Read-Only*) (String). Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information see `health` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-redis/api-ref/Cluster/).
+// - `id` (String).
+// - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
+// - `name` (**Required**)(String). The resource name.
+// - `networkId` (**Required**)(String). The `VPC Network ID` of subnets which resource attached to.
+// - `persistenceMode` (String). Persistence mode. Possible values: `ON`, `OFF`.
+// - `securityGroupIds` (Set Of String). The list of security groups applied to resource or their components.
+// - `sharded` (Bool). Redis Cluster mode enabled/disabled. Enables sharding when cluster non-sharded. If cluster is sharded - disabling is not allowed.
+// - `status` (*Read-Only*) (String). Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-redis/api-ref/Cluster/).
+// - `tlsEnabled` (Bool). TLS support mode enabled/disabled.
+// - `access` [Block]. Access policy to the Redis cluster.
+//   - `dataLens` (Bool). Allow access for DataLens. Can be either `true` or `false`.
+//   - `webSql` (Bool). Allow access for Web SQL. Can be either `true` or `false`.
+//
+// - `config` [Block]. Configuration of the Redis cluster.
+//   - `allowDataLoss` (Bool). Allows some data to be lost in favor of faster switchover/restart by RDSync.
+//   - `clientOutputBufferLimitNormal` (String). Normal clients output buffer limits. See [redis config file](https://github.com/redis/redis/blob/6.2/redis.conf#L1841).
+//   - `clientOutputBufferLimitPubsub` (String). Pubsub clients output buffer limits. See [redis config file](https://github.com/redis/redis/blob/6.2/redis.conf#L1843).
+//   - `clusterAllowPubsubshardWhenDown` (Bool). Permits Pub/Sub shard operations when cluster is down.
+//   - `clusterAllowReadsWhenDown` (Bool). Allows read operations when cluster is down.
+//   - `clusterRequireFullCoverage` (Bool). Controls whether all hash slots must be covered by nodes.
+//   - `databases` (Number). Number of databases (changing requires redis-server restart).
+//   - `ioThreadsAllowed` (Bool). Allow Redis to use io-threads.
+//   - `lfuDecayTime` (Number). The time, in minutes, that must elapse in order for the key counter to be divided by two (or decremented if it has a value less <= 10).
+//   - `lfuLogFactor` (Number). Determines how the frequency counter represents key hits.
+//   - `luaTimeLimit` (Number). Maximum time in milliseconds for Lua scripts.
+//   - `maxmemoryPercent` (Number). Redis maxmemory usage in percent
+//   - `maxmemoryPolicy` (String). Redis key eviction policy for a dataset that reaches maximum memory. Can be any of the listed in [the official RedisDB documentation](https://docs.redislabs.com/latest/rs/administering/database-operations/eviction-policy/).
+//   - `notifyKeyspaceEvents` (String). Select the events that Redis will notify among a set of classes.
+//   - `password` (String). Password for the Redis cluster.
+//   - `passwordWo` (String). Password for the Redis cluster. This attribute is write-only and is not stored in state. Requires `passwordWoVersion` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.
+//   - `passwordWoVersion` (Number). A version number for the write-only password. Increment this to trigger a password update.
+//   - `replBacklogSizePercent` (Number). Replication backlog size as a percentage of flavor maxmemory.
+//   - `slowlogLogSlowerThan` (Number). Log slow queries below this number in microseconds.
+//   - `slowlogMaxLen` (Number). Slow queries log length.
+//   - `timeout` (Number). Close the connection after a client is idle for N seconds.
+//   - `turnBeforeSwitchover` (Bool). Allows to turn before switchover in RDSync.
+//   - `useLuajit` (Bool). Use JIT for lua scripts and functions.
+//   - `version` (**Required**)(String). Version of Redis.
+//   - `zsetMaxListpackEntries` (Number). Controls max number of entries in zset before conversion from memory-efficient listpack to CPU-efficient hash table and skiplist
+//   - `backupWindowStart` [Block]. Time to start the daily backup, in the UTC timezone.
+//   - `hours` (Number). The hour at which backup will be started.
+//   - `minutes` (Number). The minute at which backup will be started.
+//
+// - `diskSizeAutoscaling` [Block]. Disk size autoscaling settings.
+//   - `diskSizeLimit` (**Required**)(Number). The overall maximum for disk size (GB) that limits all autoscaling iterations.
+//   - `emergencyUsageThreshold` (Number). Immediate autoscaling disk usage (percent).
+//   - `plannedUsageThreshold` (Number). Maintenance window autoscaling disk usage (percent).
+//
+// - `host` [Block]. A host of the Redis cluster.
+//   - `assignPublicIp` (Bool). Sets whether the host should get a public IP address or not.
+//   - `fqdn` (*Read-Only*) (String). The fully qualified domain name of the host.
+//   - `replicaPriority` (Number). Replica priority of a current replica (usable for non-sharded only).
+//   - `shardName` (String). The name of the shard to which the host belongs.
+//   - `subnetId` (String). The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
+//   - `zone` (**Required**)(String). The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not provided, the default provider zone will be used.
+//
+// - `maintenanceWindow` [Block]. Maintenance window settings.
+//   - `day` (String). Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
+//   - `hour` (Number). Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.
+//   - `type` (**Required**)(String). Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+//
+// - `resources` [Block]. Resources allocated to hosts of the Redis cluster.
+//   - `diskSize` (**Required**)(Number). Volume of the storage available to a host, in gigabytes.
+//   - `diskTypeId` (String). Type of the storage of Redis hosts - environment default is used if missing.
+//   - `resourcePresetId` (**Required**)(String). The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-redis/concepts).
+//
+// - `timeouts` [Block].
+//   - `create` (String).
+//   - `delete` (String).
+//   - `update` (String).
+//
+// ## Import
+//
+// The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+//
+// terraform import yandex_mdb_redis_cluster.<resource Name> <resource Id>
+//
+// ```sh
+// $ pulumi import yandex:index/mdbRedisCluster:MdbRedisCluster my_cluster ...
+// ```
 type MdbRedisCluster struct {
 	pulumi.CustomResourceState
 

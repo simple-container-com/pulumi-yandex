@@ -7,10 +7,50 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/masikrus/pulumi-yandex/sdk/go/yandex/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex/internal"
 )
 
+// Get information about a user of the Yandex Managed Kafka cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts).
+//
+// ## Example Usage
+//
+// ```go
+// package main
+//
+// import (
+//
+//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+//	"github.com/simple-container-com/pulumi-yandex/sdk/go/yandex"
+//
+// )
+//
+//	func main() {
+//		pulumi.Run(func(ctx *pulumi.Context) error {
+//			myUser, err := yandex.GetMdbKafkaUser(ctx, &yandex.LookupMdbKafkaUserArgs{
+//				ClusterId: "some_cluster_id",
+//				Name:      "test",
+//			}, nil)
+//			if err != nil {
+//				return err
+//			}
+//			ctx.Export("username", myUser.Name)
+//			return nil
+//		})
+//	}
+//
+// ```
+//
+// ## Arguments & Attributes Reference
+//
+// - `clusterId` (**Required**)(String). The ID of the Kafka cluster.
+// - `id` (String).
+// - `name` (**Required**)(String). The resource name.
+// - `password` (*Read-Only*) (String). The password of the user.
+// - `permission` (*Read-Only*) (Set Of Object). Set of permissions granted to the user.
+//   - `allowHosts` .
+//   - `role` .
+//   - `topicName` .
 func LookupMdbKafkaUser(ctx *pulumi.Context, args *LookupMdbKafkaUserArgs, opts ...pulumi.InvokeOption) (*LookupMdbKafkaUserResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv LookupMdbKafkaUserResult
