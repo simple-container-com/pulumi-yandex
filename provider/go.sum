@@ -3980,8 +3980,8 @@ github.com/shopspring/decimal v1.2.0/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFR
 github.com/shopspring/decimal v1.3.1 h1:2Usl1nmF/WZucqkFZhnfFYxxxu8LG21F6nPQBE5gKV8=
 github.com/shopspring/decimal v1.3.1/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFRcu2hWCYk4o=
 github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
-github.com/simple-container-com/terraform-provider-yandex v0.0.0-20261117090705-502869ee887b h1:p2tbzu3HESzt+YUFGrbZ3HH9c1IAErGC3DUAoTNVQIU=
-github.com/simple-container-com/terraform-provider-yandex v0.0.0-20261117090705-502869ee887b/go.mod h1:DajiRIOn3jVbSS4Ho/LZIeRYIBbAEKby3a4R0/XdJcc=
+github.com/simple-container-com/terraform-provider-yandex v0.0.0-20261117102550-9aa2d540a50e h1:WvNDwWgFcqSvenVoa5pWdc0dWF89CCCUFTEHjy+OmT8=
+github.com/simple-container-com/terraform-provider-yandex v0.0.0-20261117102550-9aa2d540a50e/go.mod h1:DajiRIOn3jVbSS4Ho/LZIeRYIBbAEKby3a4R0/XdJcc=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
 github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6MwdIuYE2rE=
 github.com/sirupsen/logrus v1.6.0/go.mod h1:7uNnSEd1DgxDLC74fIahvMZmmYsHGZGEOFrfsX/uA88=

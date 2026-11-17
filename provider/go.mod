@@ -328,4 +328,4 @@ require (
 	lukechampine.com/frand v1.5.1 // indirect
 )
 
-replace github.com/yandex-cloud/terraform-provider-yandex => github.com/simple-container-com/terraform-provider-yandex 9aa2d540d5aa90de6f3b9f8ef9afa42f2ad466b2
+replace github.com/yandex-cloud/terraform-provider-yandex => github.com/simple-container-com/terraform-provider-yandex v0.0.0-20261117102550-9aa2d540a50e
