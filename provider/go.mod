@@ -327,3 +327,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/frand v1.5.1 // indirect
 )
+
+replace github.com/yandex-cloud/terraform-provider-yandex => github.com/simple-container-com/terraform-provider-yandex v0.0.0-20261117090705-502869ee887b
